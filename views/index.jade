@@ -1,5 +1,36 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    - automation = typeof(automation) != 'undefined' ? automation : { }
+    h1= title
+    p Welcome to #{title}
+    .container
+        table.table.table-border(cellspacing='0', width='100%', style='width:100%')
+            thead
+                tr
+                    th HostName
+                    th IFN
+                    th CFN
+                    th OSType
+                    th SID
+                    th DBType
+                    th AppType
+                    th CDIR
+                    th CUSTNAME
+                    th LOCATION
+                    th ACTION
+            tbody
+                if automation.length
+                    each item in automation
+                        tr
+                        td #{item['$HostName']}
+                        td #{item['$IFN']}
+                        td #{item['$CFN']}
+                        td #{item['$OSType']}
+                        td #{item['$SID']}
+                        td #{item['$DBType']}
+                        td #{item['$AppType']}
+                        td #{item['$CDIR']}
+                        td #{item['$CUSTNAME']}
+                        td #{item['$LOCATION']}
+                        td 
