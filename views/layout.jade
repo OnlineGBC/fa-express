@@ -2,6 +2,12 @@ doctype html
 html
   head
     title= title
+    link(rel="stylesheet" href="/stylesheets/bootstrap.min.css")
+    link(rel='stylesheet', href='/stylesheets/datatables.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    block content
+body
+  block content
+  script(src="/javascripts/jquery.min.js")
+  script(src="/javascripts/bootstrap.min.js")
+  script(src="/javascripts/jquery.datatables.js")
+  block scripts
