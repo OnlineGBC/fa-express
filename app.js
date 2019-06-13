@@ -57,21 +57,23 @@ app.use(express.static(path.join(__dirname, 'public')));
      req.connection = connection;
      next();
 });
-
+connection.connect();
+global.db = connection;
 // app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
 // connection.query('SELECT * FROM FA_RPA.Automation where HostName="USBD11ENT1019"', function (error, results, fields) {
+let Automation;
 connection.query('SELECT * FROM FA_RPA.Automation', function (error, results, fields) {
     if (error)
         throw error;
-
+    Automation = results;
     results.forEach(result => {
         console.log(result);
     });
 });
 
-connection.end();
+// connection.end();
 
 
 // catch 404 and forward to error handler
