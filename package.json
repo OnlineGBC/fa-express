@@ -8,10 +8,13 @@
   "dependencies": {
     "@mysql/xdevapi": "^8.0.16",
     "body-parser": "~1.18.2",
+    "bootstrap": "^4.3.1",
     "cookie-parser": "~1.4.3",
+    "datatables": "file:node_modules/datatables",
     "debug": "~2.6.9",
     "express": "^4.17.1",
     "jade": "~1.11.0",
+    "jquery": "^3.4.1",
     "morgan": "~1.9.0",
     "mysql2": "^1.6.5",
     "sequelize": "^5.8.8",
