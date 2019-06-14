@@ -3,7 +3,7 @@ const router = express.Router();
 
 /* GET home page. */
 /*router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Robotics Process Automation' });
 });
 */
 
@@ -12,7 +12,7 @@ router.get('/', function (req, res, next) {
     db.query(sql, function (err, result, field) {
 	    console.log(result);
         res.render('index', {
-	    title: 'Express',
+	    title: 'Robotics Process Automation',
             automation: result
         });
     });
