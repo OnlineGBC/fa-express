@@ -1,7 +1,7 @@
 $(document).ready(function(){
-  $('table').dataTable({
+  var table = $('#automation').DataTable({
     'responsive': true,
-    'paginate': true,
+    // 'paginate': true,
     // 'scrollX': true,
     // 'scrollY': 600,
     "lengthMenu": [
@@ -20,6 +20,7 @@ $(document).ready(function(){
         },
         'checkboxes': {
           'selectRow': true,
+          // 'selectAllPages': false,
           'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
         }
       },

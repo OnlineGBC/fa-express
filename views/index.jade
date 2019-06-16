@@ -5,10 +5,10 @@ block content
     h1= "Systems"
     p="Select one or more systems from the list below:"
     .container
-        table.table.table-bordered.table-striped(style='width:100%;margin-top:10px', cellspacing='0')
+        table#automation.table.table-bordered.table-striped(style='width:100%;margin-top:10px', cellspacing='0')
             thead
                 tr
-                    th
+                    th 
                     th HostName
                     th IFN
                     th CFN
@@ -24,7 +24,7 @@ block content
                 if automation.length
                     each item in automation
                         tr
-                            td
+                            td #{item['id']}
                             td #{item['$HostName']}
                             td #{item['$IFN']}
                             td #{item['$CFN']}
