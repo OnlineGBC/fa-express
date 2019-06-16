@@ -8,6 +8,7 @@ block content
         table#datatables.table.table-border(style='width:100%;height:500px;margin-top:10px')
             thead
                 tr
+                    th
                     th HostName
                     th IFN
                     th CFN
@@ -23,6 +24,7 @@ block content
                 if automation.length
                     each item in automation
                         tr
+                            td
                             td #{item['$HostName']}
                             td #{item['$IFN']}
                             td #{item['$CFN']}
@@ -34,5 +36,9 @@ block content
                             td #{item['$CUSTNAME']}
                             td #{item['$LOCATION']}
                             td 
+                                a(href="").edit
+                                    i.fa.fa-pencil
+                                a(href="").delete
+                                    i.fa.fa-trash
 block scripts
     script(src='/javascripts/user.js')                       

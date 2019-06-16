@@ -2,12 +2,16 @@ doctype html
 html
   head
     title= title
-    link(rel="stylesheet" href="/stylesheets/bootstrap.min.css")
-    link(rel='stylesheet', href='/stylesheets/datatables.css')
+    // link(rel="stylesheet" href="/stylesheets/bootstrap.min.css")
+    // link(rel='stylesheet', href='/stylesheets/datatables.css')
+    link(rel='stylesheet', href='https://cdn.datatables.net/v/bs-3.3.7/dt-1.10.15/se-1.2.2/datatables.min.css')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/awesome-bootstrap-checkbox/0.3.7/awesome-bootstrap-checkbox.css')
+    link(rel='stylesheet', href='https://gyrocode.github.io/jquery-datatables-checkboxes/1.2.9/css/dataTables.checkboxes.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
 body
   block content
   script(src="/javascripts/jquery.min.js")
-  script(src="/javascripts/bootstrap.min.js")
-  script(src="/javascripts/jquery.datatables.js")
+  script(src="https://cdn.datatables.net/v/bs-3.3.7/dt-1.10.15/se-1.2.2/datatables.min.js")
+  script(src="https://gyrocode.github.io/jquery-datatables-checkboxes/1.2.9/js/dataTables.checkboxes.min.js")
   block scripts
