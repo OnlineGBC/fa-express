@@ -14,7 +14,3 @@ a.edit {
 table th {
   background-color: #fff;
 }
-
-table tr:nth-child(odd) {
-  background-color: #f2f2f2;
-}

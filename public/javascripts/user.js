@@ -1,8 +1,9 @@
 $(document).ready(function(){
   $('table').dataTable({
+    'responsive': true,
     'paginate': true,
-    'scrollX': true,
-    'scrollY': 600,
+    // 'scrollX': true,
+    // 'scrollY': 600,
     'columnDefs': [
       {
         'targets': 0,
