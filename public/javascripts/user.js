@@ -4,6 +4,10 @@ $(document).ready(function(){
     'paginate': true,
     // 'scrollX': true,
     // 'scrollY': 600,
+    "lengthMenu": [
+      [10, 25, 50, -1],
+      [10, 25, 50, "All"]
+    ],
     'columnDefs': [
       {
         'targets': 0,
