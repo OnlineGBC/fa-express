@@ -6,3 +6,11 @@ body {
 a {
   color: #00B7FF;
 }
+
+a.edit {
+  margin-right: 10px;
+}
+
+table th {
+  background-color: #fff;
+}
