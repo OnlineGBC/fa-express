@@ -1,0 +1,154 @@
+<div class="modal" id="automation-crud-modal" tabindex="-1" role="dialog" autocomplete="off">
+	<div class="modal-dialog" role="document">
+		<form id="automation-form">
+			<div class="modal-content">
+				<div class="modal-header" style="background: #eaeaea">
+					<h3 class="modal-title">Modal title</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+
+
+					<input type="hidden" name="id"/>
+
+					<div class="form-group row">
+						<label for="HostName" class="col-3 col-form-label">HostName</label>
+
+						<div class="col-9">
+							<input id="HostName" name="HostName" type="text" class="form-control" required="required">
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="IFN" class="col-3 col-form-label">IFN</label>
+
+						<div class="col-9">
+							<input id="IFN" name="IFN" type="text" class="form-control" required="required">
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="CFN" class="col-3 col-form-label">CFN</label>
+
+						<div class="col-9">
+							<input id="CFN" name="CFN" placeholder="CFN" type="text" class="form-control"
+							       required="required">
+							<div class="invalid-feedback"><!--server errors--></div>
+
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="OSType" class="col-3 col-form-label">OS Type</label>
+
+						<div class="col-9">
+							<select id="OSType" name="OSType" class="custom-select custom-select-lg"
+							        required="required">
+								<option value="">-- Select OS --</option>
+								<option value="AIX">AIX</option>
+								<option value="RHEL_Linux">RHEL_Linux</option>
+								<option value="SuSe_Linux">SuSe_Linux</option>
+								<option value="Windows">Windows</option>
+								<option value="Ubuntu_Linux">Ubuntu_Linux</option>
+							</select>
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="SID" class="col-3 col-form-label">SID</label>
+
+						<div class="col-9">
+							<input id="SID" name="SID" type="text" class="form-control" required="required">
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="DBTYPE" class="col-3 col-form-label">DB Type</label>
+
+						<div class="col-9">
+							<select id="DBTYPE" name="DBTYPE" class="custom-select custom-select-lg"
+							        required="required">
+								<option value="ora">ora</option>
+								<option value="db2">db2</option>
+								<option value="mss">mss</option>
+								<option value="hdb">hdb</option>
+								<option value="syb">syb</option>
+								<option value="sdb">sdb</option>
+								<option value="non">non</option>
+							</select>
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="AppType" class="col-3 col-form-label">AppType</label>
+
+						<div class="col-9">
+							<select id="AppType" name="AppType" class="custom-select custom-select-lg "
+							        required="required">
+								<option value="">-- Select App Type --</option>
+								<option value="StandardABAPJava">StandardABAPJava</option>
+								<option value="APOwLC">APOwLC</option>
+								<option value="BOBJ">BOBJ</option>
+								<option value="CacheServer">CacheServer</option>
+								<option value="ContentServer">ContentServer</option>
+								<option value="ConvergentCharging">ConvergentCharging</option>
+								<option value="none">None</option>
+							</select>
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="CDIR" class="col-3 col-form-label">CDIR</label>
+
+						<div class="col-9">
+							<input id="CDIR" name="CDIR" type="text" class="form-control">
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="CUSTNAME" class="col-3 col-form-label">CUSTNAME</label>
+
+						<div class="col-9">
+							<input id="CUSTNAME" name="CUSTNAME" type="text" class="form-control" required="required">
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="LOCATION" class="col-3 col-form-label">LOCATION</label>
+
+						<div class="col-9">
+							<input id="LOCATION" name="LOCATION" type="text" class="form-control" required="required">
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="TYPE" class="col-3 col-form-label">TYPE</label>
+
+						<div class="col-9">
+							<select id="TYPE" name="TYPE" class="custom-select custom-select-lg">
+								<option value="">-- Select Type --</option>
+								<option value="PRIMARY">PRIMARY</option>
+								<option value="HADR">HADR</option>
+								<option value="DUPLICATE">DUPLICATE</option>
+							</select>
+							<div class="invalid-feedback"><!--server errors--></div>
+						</div>
+					</div>
+					<!--<div class="form-group row">
+						<div class="offset-4 col-9">
+							<button name="submit" type="submit" class="btn btn-primary">Submit</button>
+						</div>
+					</div>-->
+
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+					<button class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,44 +1,35 @@
 extends layout
 
 block content
-    - automation = typeof(automation) != 'undefined' ? automation : { }
-    h1= "Systems"
-    p="Select one or more systems from the list below:"
     .container
-        table#automation.table.table-bordered.table-striped(style='width:100%;margin-top:10px', cellspacing='0')
-            thead
-                tr
-                    th 
-                    th HostName
-                    th IFN
-                    th CFN
-                    th OSType
-                    th SID
-                    th DBType
-                    th AppType
-                    th CDIR
-                    th CUSTNAME
-                    th LOCATION
-                    th ACTION
-            tbody
-                if automation.length
-                    each item in automation
+        .row
+            .col
+                h1= "Systems"
+            .col
+                include automation-action-buttons.html
+            .col
+                button#create-auto-row.btn.btn-primary="Create Row"
+        p="Select one or more systems from the list below:"
+        .container
+            .row
+                table#automation.table.table-bordered.table-striped(style='width:100%;margin-top:10px', cellspacing='0')
+                    thead
                         tr
-                            td #{item['id']}
-                            td #{item['$HostName']}
-                            td #{item['$IFN']}
-                            td #{item['$CFN']}
-                            td #{item['$OSType']}
-                            td #{item['$SID']}
-                            td #{item['$DBTYPE']}
-                            td #{item['$AppType']}
-                            td #{item['$CDIR']}
-                            td #{item['$CUSTNAME']}
-                            td #{item['$LOCATION']}
-                            td 
-                                a(href="").edit
-                                    i.fa.fa-pencil
-                                a(href="").delete
-                                    i.fa.fa-trash
+                            th
+                            th HostName
+                            th IFN
+                            th CFN
+                            th OSType
+                            th SID
+                            th DBType
+                            th AppType
+                            th CDIR
+                            th CUSTNAME
+                            th LOCATION
+                            th ACTION
+                    tbody
+
+
+    include crud-form.html
 block scripts
     script(src='/javascripts/user.js')                       

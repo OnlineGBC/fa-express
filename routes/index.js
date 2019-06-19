@@ -8,16 +8,7 @@ const router = express.Router();
 */
 
 router.get('/', function (req, res, next) {
-    var sql = "SELECT * FROM FA_RPA.Automation";
-    db.query(sql, function (err, result, field) {
-	    console.log(result);
-        res.render('index', {
-	    title: 'Robotics Process Automation',
-            automation: result
-        });
-    });
+        res.render('index', {title : 'Robotics Process Automation'});
 });
-
-
 
 module.exports = router;
