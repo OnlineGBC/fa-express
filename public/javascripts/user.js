@@ -1,3 +1,5 @@
+var table
+
 $(function () {
 
 	const actionBtns = `
@@ -11,12 +13,13 @@ $(function () {
 
 	$table.find('thead th:first').append('<div class="checkbox"><input type="checkbox" id="select-all" class="dt-checkboxes"><label></label></div>');
 
-	var table = $table.DataTable({
+	 table = $table.DataTable({
 		'responsive' : true,
-		"pageLength" : 25,
+		//"pageLength" : 25,
 		//'paginate' : false,
 		// 'scrollX': true,
 		// 'scrollY': 600,
+		 rowId: 'id',
 		"lengthMenu" : [
 			[10, 25, 50, -1],
 			[10, 25, 50, 100, "All"]
@@ -64,6 +67,11 @@ $(function () {
 
 		const $row = $(this).closest('tr');
 		const data = table.row($row).data();
+
+
+		deSelectRows();
+
+		$row.find('.dt-checkboxes').prop('checked', true).change();
 
 		$.confirm({
 			title : 'Delete Row?',
@@ -158,12 +166,19 @@ $(function () {
 
 	$('#automation').on('click', '.edit', function (e) {
 		e.preventDefault();
+
+		deSelectRows();
+
+
 		$autoForm.data('mode', 'edit')
 		const $row = $(this).closest('tr'),
 			$modal = $('#automation-crud-modal'),
 			$form = $('#automation-form'),
 			noMatch = [];// debugging only
 		let data = table.row($row).data();
+
+
+		$row.find('.dt-checkboxes').prop('checked', true).change();
 
 		$form.validate({
 			errorClass : "is-invalid",
@@ -239,10 +254,12 @@ $(function () {
 					.data(res)
 					.draw();
 
-				$autoModal.modal('hide');
+
 			} else {
 				table.row.add(res).draw(false);
 			}
+			$autoModal.modal('hide');
+			selectModifiedRow(res.id);
 
 			console.log(res)
 		}).catch(err=> {
@@ -257,7 +274,38 @@ $(function () {
 
 		})
 	});
+
+
 });
+
+
+function deSelectRows(){
+	$('#automation tbody tr.selected .dt-checkboxes').prop('checked', false).change()
+}
+
+function selectModifiedRow(id) {
+	const rIdx = table
+			.column(0)
+			.data()
+			.indexOf(id);
+
+	const currPage = table.page()
+	const page_to_display = Math.floor(rIdx / table.page.len());
+	console.log('page_to_display', page_to_display)
+	if (page_to_display !== currPage) {
+		table.page(page_to_display).draw('page');
+
+	}
+
+	setTimeout(()=> {
+		const $row = $('tr#' + id).find(':checkbox').prop('checked', true).change();
+		console.log(row[0])
+		//const tr = table.row(rIdx).node();
+		//console.log(tr)
+		//$(tr).find(':checkbox').prop('checked', true).change()
+	}, 500)
+
+}
 
 function doAlert(title, content, color) {
 	const opts = {title, content};

@@ -205,6 +205,7 @@ router.put('/automation', checkSchema(schema), (req, res)=> {
 		const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
 		db.execute(sql, values, (err, results, fields)=> {
 			if (!err) {
+				body.id = parseInt(body.id);
 				res.json(body);
 			} else {
 				res.sendStatus(500);

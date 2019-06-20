@@ -14,8 +14,10 @@ a.edit {
 table th {
   background-color: #fff;
 }
-
-td .checkbox{
+#automation-title{
+  margin-top:0;
+}
+div.checkbox{
   margin-top:0;
   margin-bottom:0;
 }
