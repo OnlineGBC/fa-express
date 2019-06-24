@@ -128,6 +128,11 @@ $(function () {
 		$('#action-buttons').trigger('checkbox-change')
 	});
 
+	/**
+	 * Handle sending all checked items to server
+	 * when an action button is clicked
+	 */
+
 	$('#action-buttons .dropdown-item').click(function (e) {
 		e.preventDefault();
 		const action = $(this).data('action');
@@ -136,26 +141,59 @@ $(function () {
 		}).get();
 
 		if (items.length) {
-			const postData = JSON.stringify({action, items});
-			$.ajax({
-				url : '/api/automation/actions',
-				method : 'POST',
-				data : postData,
-				contentType : 'application/json'
+			// array of request promises
+			const promises = items.map(item=>{
+				const postData = JSON.stringify({action, item});
+			return	$.ajax({
+					url : '/api/automation/actions',
+					method : 'POST',
+					data : postData,
+					contentType : 'application/json'
 
-			}).then(res=> {
-					$.alert({
-						title : 'Action Completed',
-						content : `Updated ${items.length} items.`
-					});
-				}
-			).catch(err=> {
-				$.alert({
-					type : 'red',
-					title : 'Action Failed!',
-					content : `One or more items did not succeed.`
+				}).then(res=> {
+					const itemCopy = Object.assign({}, item);
+					itemCopy.status = 'success';
+					return itemCopy;
+				}).catch(err=> {
+					const itemCopy = Object.assign({}, item);
+					itemCopy.status = 'fail';
+					return itemCopy;
 				});
 			});
+
+			Promise.all(promises).then(res=>{
+				// TODO: More robust visual print out of items succeeded/failed
+				const total = res.length;
+				const counts = res.reduce((a,c)=>{
+					a[c.status]++;
+					return a;
+				},{success:0, fail:0});
+
+				$.alert({
+					title : `Action ${action} Completed`,
+					content : `Total: ${total}, Success: ${counts.success}, Failed:   ${counts.fail}.`
+				});
+			})
+			//const postData = JSON.stringify({action, items});
+			//$.ajax({
+			//	url : '/api/automation/actions',
+			//	method : 'POST',
+			//	data : postData,
+			//	contentType : 'application/json'
+			//
+			//}).then(res=> {
+			//		$.alert({
+			//			title : 'Action Completed',
+			//			content : `Updated ${items.length} items.`
+			//		});
+			//	}
+			//).catch(err=> {
+			//	$.alert({
+			//		type : 'red',
+			//		title : 'Action Failed!',
+			//		content : `One or more items did not succeed.`
+			//	});
+			//});
 		}
 	});
 
@@ -199,23 +237,24 @@ $(function () {
 				}
 			}
 		});
-
-		Object.keys(data).forEach(key=> {
-			const $input = $form.find(`[name=${key}]`).val(data[key]);
-			// debugging only
-			if (!$input.length) {
-				noMatch.push(key)
-			}
-
-		});
-		// debugging only
-		console.log('No Matches', noMatch);
+		// debugging form only
+		//Object.keys(data).forEach(key=> {
+		//	const $input = $form.find(`[name=${key}]`).val(data[key]);
+		//	// debugging only
+		//	if (!$input.length) {
+		//		noMatch.push(key)
+		//	}
+		//
+		//});
+		//console.log('No Matches', noMatch);
 
 		setModalTitle($modal, 'Edit Item');
 		$modal.data('selected', $row).modal('show');
 
 	});
-
+	/**
+	 * Reset form whenever form modal is closed
+	 */
 	$autoModal.on('hidden.bs.modal', function (e) {
 		const $form = $autoForm
 		$form.find('.is-invalid').removeClass('is-invalid');
@@ -233,7 +272,9 @@ $(function () {
 		setModalTitle($autoModal, 'Create Item');
 		$autoModal.modal('show')
 	});
-
+	/**
+	 * Form submit event handler
+	 */
 	$autoForm.submit(function (e) {
 		e.preventDefault();
 
@@ -263,11 +304,9 @@ $(function () {
 			}
 			$autoModal.modal('hide');
 			selectModifiedRow(res.id);
-
-			console.log(res)
+			//console.log(res)
 		}).catch(err=> {
-			console.error('Err::', err);
-
+			//console.error('Err::', err);
 			if (err.status === 422 && err.responseJSON.errors) {
 				handleServerErrors($form, err.responseJSON.errors);
 
@@ -281,7 +320,9 @@ $(function () {
 
 });
 
-
+/**
+ * Uncheck checked rows in table
+ */
 function deSelectRows(){
 	$('#automation tbody tr.selected .dt-checkboxes').prop('checked', false).change()
 }
@@ -299,13 +340,11 @@ function selectModifiedRow(id) {
 		table.page(page_to_display).draw('page');
 
 	}
-
+	// let table render before finding checkboxes
 	setTimeout(()=> {
 		const $row = $('tr#' + id).find(':checkbox').prop('checked', true).change();
-		console.log(row[0])
-		//const tr = table.row(rIdx).node();
-		//console.log(tr)
-		//$(tr).find(':checkbox').prop('checked', true).change()
+
+
 	}, 500)
 
 }
@@ -320,24 +359,33 @@ function doAlert(title, content, color) {
 }
 
 function tableInitCallback(){
-	console.log('ARGS::', arguments);
+	// after table plugin renders it's main controls, move action buttons into sme location
 
 	const $tableControls = $('#automation_wrapper .row > div');
 	$tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2');
-	//const colTemplate = '<div class="col-sm-6 col-md-3">';
+
 	const $createControl = $('<div class="col-sm-6 col-md-2">').append($('#create-auto-row'));
 	$tableControls.first().after($createControl);
 	$actionsControls = $('<div class="col-sm-6 col-md-5">').append($('#action-buttons')).css('text-align', 'center');
 	$tableControls.first().after($actionsControls);
 }
 
+/**
+ * Server side  validation callback for forms
+ * @param $form
+ * @param errors
+ */
 function handleServerErrors($form, errors) {
 	errors.forEach(({param, msg})=> {
 		var $input = $form.find(`[name='${param}']`).addClass('is-invalid');
 		$input.next('.invalid-feedback').text(msg)
 
-	})
+	});
 }
+
+/**
+ * Add extra rule for IP addresses to form validation plugin
+ */
 jQuery.validator.addMethod('ipAddress', function (value, element) {
 	return this.optional(element) || ipMatch(value);
 }, 'Invalid IP Format')
