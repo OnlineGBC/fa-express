@@ -1,7 +1,7 @@
 extends layout
 
 block content
-    .container
+    .container#automation-main
         .row
             .col
                 h1#automation-title= "Systems"
@@ -17,6 +17,8 @@ block content
                         tr
                             th
                             th HostName
+                            th LoginID
+                            th CMD_PREFIX
                             th IFN
                             th CFN
                             th OSType

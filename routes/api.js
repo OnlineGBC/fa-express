@@ -40,17 +40,27 @@ router.post('/automation/actions', (req, res)=>{
 /* GET users listing. */
 router.get('/automation', function (req, res, next) {
 	var sql = "SELECT * FROM FA_RPA.Automation ORDER BY id ASC";
-	var protectedFields = ['LoginID'];
+	//var protectedFields = ['LoginID'];
 	db.query(sql, function (err, result, field) {
 		if (!err) {
-			result = result.map(item=> {
-				protectedFields.forEach(field=> {
-					delete item[field]
-				});
-				return item;
-			});
+
+			result.forEach(item=>{
+				Object.keys(item).forEach(k=>{
+					if(item[k]== null){
+						item[k] =''
+					}
+				})
+			})
+		 	res.json({data : result});
+			//result = result.map(item=> {
+			//	protectedFields.forEach(field=> {
+			//		delete item[field]
+			//	});
+			//	return item;
+			//});
+		}else{
+			res.sendStatus(500)
 		}
-		res.json({data : result})
 
 	});
 

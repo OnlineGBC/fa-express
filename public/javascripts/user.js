@@ -16,18 +16,21 @@ $(function () {
 	 table = $table.DataTable({
 		'responsive' : true,
 		//"pageLength" : 25,
-		//'paginate' : false,
+		'paginate' : true,
 		// 'scrollX': true,
 		// 'scrollY': 600,
+		 "initComplete": tableInitCallback,
 		 rowId: 'id',
 		"lengthMenu" : [
 			[10, 25, 50, -1],
-			[10, 25, 50, 100, "All"]
+			[10, 25, 50, /*100,*/ "All"]
 		],
 		ajax : '/api/automation',
 		columns : [
 			{data : 'id'},
 			{data : 'HostName'},
+			{data : 'LoginID'},
+			{data : 'CMD_PREFIX'},
 			{data : 'IFN'},
 			{data : 'CFN'},
 			{data : 'OSType'},
@@ -54,7 +57,7 @@ $(function () {
 			},
 
 			{
-				targets : 11,
+				targets : 13,
 				render : ()=>actionBtns
 			}
 		],
@@ -314,6 +317,18 @@ function doAlert(title, content, color) {
 	}
 
 	$.alert(opts)
+}
+
+function tableInitCallback(){
+	console.log('ARGS::', arguments);
+
+	const $tableControls = $('#automation_wrapper .row > div');
+	$tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2');
+	//const colTemplate = '<div class="col-sm-6 col-md-3">';
+	const $createControl = $('<div class="col-sm-6 col-md-2">').append($('#create-auto-row'));
+	$tableControls.first().after($createControl);
+	$actionsControls = $('<div class="col-sm-6 col-md-5">').append($('#action-buttons')).css('text-align', 'center');
+	$tableControls.first().after($actionsControls);
 }
 
 function handleServerErrors($form, errors) {
