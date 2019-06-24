@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -7,6 +8,7 @@ const bodyParser = require('body-parser');
 
 const index = require('./routes/index');
 const users = require('./routes/users');
+const api = require('./routes/api');
 
 const app = express();
 
@@ -18,11 +20,12 @@ app.set('view engine', 'jade');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/api', api);
 
 'use strict';
 
@@ -38,12 +41,16 @@ const options = {
 
 
 //  Set up the MySQL Connection
-var mysql2      = require('mysql2');
+var mysql2 = require('mysql2');
+let pword = '1qaz@WSX';
+if (process.env.DB_PASS && process.env.DB_PASS === 'none') {
+    pword = '';
+}
 var connection = mysql2.createConnection({
-    host     : 'localhost',
+    host : 'localhost',
     database : 'FA_RPA',
-    user     : 'rpaauto',
-    password : '1qaz@WSX',
+    user : process.env.DB_USER || 'rpaauto',
+    password : pword
 });
 
 
@@ -59,21 +66,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 });
 connection.connect();
 global.db = connection;
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
-
-// connection.query('SELECT * FROM FA_RPA.Automation where HostName="USBD11ENT1019"', function (error, results, fields) {
-let Automation;
-connection.query('SELECT * FROM FA_RPA.Automation', function (error, results, fields) {
-    if (error)
-        throw error;
-    Automation = results;
-    results.forEach(result => {
-        console.log(result);
-    });
-});
-
-// connection.end();
 
 
 // catch 404 and forward to error handler
