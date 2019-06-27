@@ -1,64 +1,94 @@
 const express = require('express');
 const router = express.Router();
 const { checkSchema , validationResult} = require('express-validator/check');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
+router.post('/automation/actions', (req, res)=> {
+	const {action, item } = req.body;
+
+	// destructure the item object properties into individual variables
+	// All properties shown in table are availble here
+	const {HostName, LoginID, IFR, CFR} = item;
+
+	/************** Concatenate varibles in string example *****/
+	const exampleString = `ssh -n -tt -o LoginID=${LoginID},HostName=${HostName}`;
+	console.log('******Concatention EXAMPLE ********' );
+	console.log('Example String = ', exampleString);
+	console.log('/*********************************');
+	/************************************************************/
+
+	// not sure if string can be started for all cases here or not
+	// if not remove what's in the quotes
+	let actionString = 'ssh -n ... ';
+	// only 4 action names avaialble
+	switch (action) {
+		case 'host_patch':
+			// build the patch string needed (pseudo exmples)
+			actionString += IFR + '/' + CFR;
+			break;
+		case 'host_kernel':
+			// kernel string
+
+			break;
+		case 'app_start':
+			// create start string
+			break;
+
+		case 'app_stop':
+			// create stop string
+			break;
+
+		default:
+			// shouldn't need this but let front end know
+			// when bad action provided
+			return res.status(400).json({error : 'BAD ACTION!'});
+
+	}
+	// for local test only changing to a simple `dir` command
+	// comment out following line in production
+	actionString = 'dir';
+
+	// now execute the string command in the promisified `exec()`
+	exec(actionString).then(stdout=> {
+		// DEMO  only, probably don't need to log this
+		console.log(stdout);
+
+		// if there is any output than can be tested to it here
+		// create proper logic and then uncomment the follwing
+
+		/*if(stdout !== 'success'){
+		 // this throw is in a javascript promise and will get caught in the next `catch()` block
+			 throw new Error('fail')
+		 }*/
+
+		// all good so return positive response to front end
+		res.sendStatus(200);
+
+	}).catch(stderr=> res.sendStatus(422).json({error : stderr}))
 
 
-router.post('/automation/actions', (req, res)=>{
-	const {action, items } = req.body;
-	const errors =[];
-	// array of object items sent with all available data shown in table
-	// how to confirm for user response???
-	// also assume this will be asynchronous in which case need to resolve array of promises??
-
-	items.forEach(({id, IFN, CFN})=>{
-		// if some condition add to errors array
-
-		switch(action){
-			case 'host_patch':
-
-				break;
-			case 'host_kernel':
-
-				break;
-			case 'app_start':
-
-				break;
-
-			case 'app_stop':
-
-				break;
-
-			default:
-				console.log("BAD ACTION!")
-		}
-	});
-
-	const status = errors.length ? 500 : 200;
-	res.sendStatus(status);
 });
 
-/* GET users listing. */
+/**
+ * GET all from Automation table to send to browser to create UI table
+ */
 router.get('/automation', function (req, res, next) {
 	var sql = "SELECT * FROM FA_RPA.Automation ORDER BY id ASC";
-	//var protectedFields = ['LoginID'];
+
 	db.query(sql, function (err, result, field) {
 		if (!err) {
 
-			result.forEach(item=>{
-				Object.keys(item).forEach(k=>{
-					if(item[k]== null){
-						item[k] =''
+			result.forEach(item=> {
+				Object.keys(item).forEach(k=> {
+					// table plugin doesn't like `null` as values
+					if (item[k] == null) {
+						item[k] = ''
 					}
-				})
-			})
-		 	res.json({data : result});
-			//result = result.map(item=> {
-			//	protectedFields.forEach(field=> {
-			//		delete item[field]
-			//	});
-			//	return item;
-			//});
-		}else{
+				});
+			});
+			res.json({data : result});
+		} else {
 			res.sendStatus(500)
 		}
 
@@ -66,13 +96,17 @@ router.get('/automation', function (req, res, next) {
 
 });
 
-
-
+/**
+ * For IP Matching validtion *
+ */
 const invalidIP = {
 	errorMessage : 'Invalid IP Address',
 	options : ipMatch
 };
 
+/**
+ * Crude schema for validation
+ */
 const schema = {
 	HostName : {
 		isLength : {
@@ -91,19 +125,14 @@ const schema = {
 		custom : invalidIP
 	},
 	OSType : {
-		//isIn:{
-		//	options:['AIX','RHEL_Linux','SuSe_Linux','Windows','Ubuntu_Linux']
-		//}
 		custom : {
 			options : (value)=> {
 				return ['AIX', 'RHEL_Linux', 'SuSe_Linux', 'Windows', 'Ubuntu_Linux'].includes(value)
 			}
 		}
-
 	},
 	SID : {
-		//isInt:true,
-		//toInt:true
+		// not sure what rules are
 	},
 	DBTYPE : {
 
@@ -112,20 +141,13 @@ const schema = {
 				return ['ora', 'db2', 'mss', 'hdb', 'syb', 'sdb', 'non'].includes(value)
 			}
 		}
-		//isIn:{
-		//	options: ['ora','db2','mss','hdb','syb','sdb','non']
-		//}
 	},
 	AppType : {
-
 		custom : {
 			options : (value)=> {
 				return ['StandardABAPJava', 'APOwLC', 'BOBJ', 'CacheServer', 'ContentServer', 'ConvergentCharging', 'none'].includes(value)
 			}
 		}
-		//isIn:{
-		//	options:['StandardABAPJava','APOwLC','BOBJ','CacheServer','ContentServer','ConvergentCharging','none']
-		//}
 	},
 	CUSTNAME : {
 		isLength : {
@@ -139,12 +161,14 @@ const schema = {
 	}
 }
 
+/**
+ * Create new Automation item
+ */
 router.post('/automation', checkSchema(schema), (req, res)=> {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(422).json({errors : errors.array()});
 	} else {
-		//console.log("INSERT")
 
 		try {
 			const data = Object.assign({}, req.body);
@@ -154,9 +178,8 @@ router.post('/automation', checkSchema(schema), (req, res)=> {
 				fields.push(key);
 				values.push(value)
 			});
-			//values.push(body.id);
-			const sql = `INSERT INTO FA_RPA.Automation (${fields.join()}) VALUES (${fields.map(()=>'?').join()})`;
 
+			const sql = `INSERT INTO FA_RPA.Automation (${fields.join()}) VALUES (${fields.map(()=>'?').join()})`;
 
 			db.execute(sql, values, function (err, result, fields) {
 				if (err) {
@@ -170,12 +193,15 @@ router.post('/automation', checkSchema(schema), (req, res)=> {
 				}
 			});
 		} catch (e) {
-			console.log(e);
+			//console.log(e);
 			res.status(500).json({err : e.message});
 		}
 	}
 });
 
+/**
+ * Delete Automation table item
+ */
 router.delete('/automation/:id', (req, res)=> {
 	const id = req.params.id;
 	if (isNaN(id) || id < 1) {
@@ -194,9 +220,9 @@ router.delete('/automation/:id', (req, res)=> {
 
 });
 
-
-
-
+/**
+ * Update existing Automation table item
+ */
 router.put('/automation', checkSchema(schema), (req, res)=> {
 
 	const errors = validationResult(req);
@@ -224,7 +250,7 @@ router.put('/automation', checkSchema(schema), (req, res)=> {
 	}
 });
 
-function ipMatch  (value) {
+function ipMatch(value) {
 	const reg = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gm;
 	return value.match(reg)
 }
