@@ -47,7 +47,7 @@ router.post('/automation/actions', (req, res)=> {
 	}
 	// for local test only changing to a simple `dir` command
 	// comment out following line in production
-	actionString = 'dir';
+	actionString = './TestFile.sh';
 
 	// now execute the string command in the promisified `exec()`
 	exec(actionString).then(stdout=> {
