@@ -1,27 +1,53 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	padding: 50px;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #00B7FF;
+	color: #00B7FF;
 }
 
 a.edit {
-  margin-right: 10px;
+	margin-right: 10px;
 }
 
 table th {
-  background-color: #fff;
+	background-color: #fff;
 }
 #automation-title{
-  margin-top:0;
+	margin-top:0;
 }
 div.checkbox{
-  margin-top:0;
-  margin-bottom:0;
+	margin-top:0;
+	margin-bottom:0;
 }
 
 #automation-main{
-  margin-left:20px;
+	margin-left:20px;
+}
+.log-container {
+	padding: 10px;
+	margin: 0px 35px;
+}
+.logs{
+	display: none;
+	border: 1px solid black;
+	padding: 10px;
+}
+
+.status-box table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.status-box th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+.status-box tr:nth-child(even){background-color: #f2f2f2}
+
+.status-box th {
+  background-color: #4CAF50;
+  color: white;
 }

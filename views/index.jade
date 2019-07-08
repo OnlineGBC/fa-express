@@ -30,8 +30,30 @@ block content
                             th LOCATION
                             th ACTION
                     tbody
+                        tr
+                            td
+                                div.checkbox
+                                    input(type='checkbox').dt-checkboxes
+                                    label
+                            td 192.168.1.1
+                            td asd
+                            td mkmk
+                            td IFN
+                            td CFN
+                            td OSType
+                            td SID
+                            td DBType
+                            td AppType
+                            td CDIR
+                            td CUSTNAME
+                            td LOCATION
+                            td 
+                                a.edit(href='#')
+                                    i.fa.fa-pencil
+                                a.delete(href='#')
+                                    i.fa.fa-trash
 
-
+    include log-display.html
     include crud-form.html
 block scripts
     script(src='/javascripts/user.js')                       
