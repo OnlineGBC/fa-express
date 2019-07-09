@@ -11,7 +11,7 @@ router.post('/automation/actions', (req, res)=> {
 
 	// destructure the item object properties into individual variables
 	// All properties shown in table are availble here
-	const {HostName, LoginID, IFR, CFR} = item;
+	const {HostName, LoginID, IFN, CFN} = item;
 	/*LoginID = 'asd';
 	HostName = '192.168.1.1';
 	IFR = 'IFN';
@@ -31,7 +31,7 @@ router.post('/automation/actions', (req, res)=> {
 	switch (action) {
 		case 'host_patch':
 			// build the patch string needed (pseudo exmples)
-			actionString += IFR + '/' + CFR;
+			actionString += IFN + '/' + CFN;
 			break;
 			case 'host_kernel':
 			// kernel string
@@ -51,11 +51,11 @@ router.post('/automation/actions', (req, res)=> {
 			return res.status(400).json({error : 'BAD ACTION!'});
 
 		}
-	// for local test only changing to a simple `dir` command
-	// comment out following line in production
-	actionString = 'dir';
-	// now execute the string command in the promisified `exec()`
-	exec(actionString).then(stdout=> {
+		// for local test only changing to a simple `dir` command
+		// comment out following line in production
+		actionString = 'dir';
+		// now execute the string command in the promisified `exec()`
+		exec('sh TestFile.sh '+ LoginID+' '+IFN).then(stdout=> {
 		// DEMO  only, probably don't need to log this
 		console.log(stdout);
 		io.sockets.emit('log',stdout);
@@ -74,13 +74,13 @@ router.post('/automation/actions', (req, res)=> {
 	}).catch(stderr=> res.sendStatus(422).json({error : stderr}))
 
 
-});
+	});
 
 /**
  * GET all from Automation table to send to browser to create UI table
  */
  router.get('/automation', function (req, res, next) {
- 	var sql = "SELECT * FROM work.Automation ORDER BY id ASC";
+ 	var sql = "SELECT * FROM FA_RPA.Automation ORDER BY id ASC";
 
  	db.query(sql, function (err, result, field) {
  		if (!err) {
@@ -185,7 +185,7 @@ router.post('/automation/actions', (req, res)=> {
  				values.push(value)
  			});
 
- 			const sql = `INSERT INTO work.Automation (${fields.join()}) VALUES (${fields.map(()=>'?').join()})`;
+ 			const sql = `INSERT INTO FA_RPA.Automation (${fields.join()}) VALUES (${fields.map(()=>'?').join()})`;
 
  			db.execute(sql, values, function (err, result, fields) {
  				if (err) {
@@ -213,7 +213,7 @@ router.post('/automation/actions', (req, res)=> {
  	if (isNaN(id) || id < 1) {
  		return res.sendStatus(400);
  	} else {
- 		const sql = "DELETE FROM work.Automation WHERE id= ?";
+ 		const sql = "DELETE FROM FA_RPA.Automation WHERE id= ?";
  		db.execute(sql, [id], (err, result)=> {
  			if (err) {
  				console.log(err);
@@ -244,7 +244,7 @@ router.post('/automation/actions', (req, res)=> {
  		});
  		values.push(body.id);
  		const setClause = fields.map(field=> `${field} = ?`).join();
- 		const sql = `UPDATE work.Automation SET ${setClause} WHERE id = ?`;
+ 		const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
  		db.execute(sql, values, (err, results, fields)=> {
  			if (!err) {
  				body.id = parseInt(body.id);
