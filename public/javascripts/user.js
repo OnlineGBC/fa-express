@@ -6,7 +6,7 @@ $(function () {
 
 	//Get Logs from server
 	socket.on('log',function(data){
-		$('.logs').show();
+		//$('.logs').show();
 		data = data.stdout;
 		$(".logs").append('<p>'+data+'</p>');
 	})
@@ -177,11 +177,13 @@ $(function () {
 					output += '<td>'+value.HostName+'</td>';
 					output += '<td>'+value.OSType+'</td>';
 					output += '<td>'+value.IFN+'</td>';
-					output += '<td>'+value.status+'</td>';
+					output += '<td><a href="#" class="status">'+value.status+'</a></td>';
 					output += '<tr>';
 				});
 				$('.status-box tbody').append(output);
-
+				$('.status').click(function(){
+					$('#logs').show();
+				});
 				const counts = res.reduce((a,c)=>{
 					a[c.status]++;
 					return a;

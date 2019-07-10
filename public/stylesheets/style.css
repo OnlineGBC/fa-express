@@ -30,11 +30,12 @@ div.checkbox{
 	margin: 0px 35px;
 }
 .logs{
-	display: none;
 	border: 1px solid black;
 	padding: 10px;
 }
-
+#logs{
+	display: none;
+}
 .status-box table {
   border-collapse: collapse;
   width: 100%;
