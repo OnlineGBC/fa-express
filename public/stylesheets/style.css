@@ -52,3 +52,7 @@ div.checkbox{
   background-color: #4CAF50;
   color: white;
 }
+
+.log-data{
+	display: none;
+}

@@ -58,7 +58,7 @@ router.post('/automation/actions', (req, res)=> {
 		exec('sh TestFile.sh '+ LoginID+' '+IFN).then(stdout=> {
 		// DEMO  only, probably don't need to log this
 		console.log(stdout);
-		io.sockets.emit('log',stdout);
+		io.sockets.emit('log',{stdout:IFN});
 
 		// if there is any output than can be tested to it here
 		// create proper logic and then uncomment the follwing

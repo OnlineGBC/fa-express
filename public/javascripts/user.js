@@ -8,7 +8,7 @@ $(function () {
 	socket.on('log',function(data){
 		//$('.logs').show();
 		data = data.stdout;
-		$(".logs").append('<p>'+data+'</p>');
+		$(".logs").append('<p class="log-data">'+data+'</p>');
 	})
 
 	const actionBtns = `
@@ -182,7 +182,10 @@ $(function () {
 				});
 				$('.status-box tbody').append(output);
 				$('.status').click(function(){
-					$('#logs').show();
+					//$('#logs').toggle();
+					$('.log-data').hide();
+					index = $('.status').index(this);
+					$($('.log-data')[index]).show();
 				});
 				const counts = res.reduce((a,c)=>{
 					a[c.status]++;
