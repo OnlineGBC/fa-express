@@ -55,4 +55,5 @@ div.checkbox{
 
 .log-data{
 	display: none;
+	white-space: pre-wrap;
 }

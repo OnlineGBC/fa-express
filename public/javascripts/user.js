@@ -153,6 +153,8 @@ $(function () {
 	 	if (items.length) {
 			// array of request promises
 			const promises = items.map(item=>{
+				const filename = Math.random().toString(36).substring(7)+".txt";
+				item.filename = filename;
 				const postData = JSON.stringify({action, item});
 				return	$.ajax({
 					url : '/api/automation/actions',
@@ -170,6 +172,7 @@ $(function () {
 			Promise.all(promises).then(res=>{
 				// TODO: More robust visual print out of items succeeded/failed
 				const total = res.length;
+				console.log(res);
 				output = '';
 				res.forEach(function(value,index){
 					output += '<tr>';
@@ -177,12 +180,13 @@ $(function () {
 					output += '<td>'+value.HostName+'</td>';
 					output += '<td>'+value.OSType+'</td>';
 					output += '<td>'+value.IFN+'</td>';
-					output += '<td><a href="#" class="status">'+value.status+'</a></td>';
+					output += '<td><a href="/logs/'+value.filename+'" class="status">'+value.status+'</a></td>';
 					output += '<tr>';
 				});
 				$('.status-box tbody').append(output);
-				$('.status').click(function(){
-					//$('#logs').toggle();
+				$('.status').click(function(e){
+					e.preventDefault();
+					$('#logs').show();
 					$('.log-data').hide();
 					index = $('.status').index(this);
 					$($('.log-data')[index]).show();
