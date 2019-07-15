@@ -11,7 +11,7 @@ router.post('/automation/actions', (req, res)=> {
 
 	// destructure the item object properties into individual variables
 	// All properties shown in table are availble here
-	const {HostName, LoginID, IFN, CFN} = item;
+	const {HostName, LoginID, IFN, CFN, filename, index} = item;
 	/*LoginID = 'asd';
 	HostName = '192.168.1.1';
 	IFR = 'IFN';
@@ -56,10 +56,22 @@ router.post('/automation/actions', (req, res)=> {
 		actionString = 'dir';
 		// now execute the string command in the promisified `exec()`
 		exec('sh TestFile.sh '+ LoginID+' '+IFN).then(stdout=> {
+			// here. its gone
 		// DEMO  only, probably don't need to log this
-		console.log(stdout);
-		io.sockets.emit('log',stdout);
+		
+		const fs = require('fs');
+		//fs.writeFile("./logs/"+filename, IFN, function(err) {
+		fs.writeFile("./logs/"+filename, stdout.stdout, function(err) {
+			if(err) {
+				return console.log(err);
+			}
+			stdout.file = filename;
+			io.sockets.emit('log',{stdout:stdout.stdout,index:index});
+			console.log("The file was saved!");
+		}); 
 
+
+			// let me check at my side
 		// if there is any output than can be tested to it here
 		// create proper logic and then uncomment the follwing
 

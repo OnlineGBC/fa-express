@@ -6,11 +6,11 @@ $(function () {
 
 	//Get Logs from server
 	socket.on('log',function(data){
-		//$('.logs').show();
+		//$('.logs').show();																																																																																																																																																																
 		log = data.stdout;
 		index = data.index;
 		console.log(index);
-		$(".logs").append('<p class="log-data" id="log-'+index+'">'+log+'</p>');
+		$(".logs").append('<p class="log-data" id="log-'+index+'">'+log																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						+'</p>');
 	})
 
 	const actionBtns = `
@@ -23,7 +23,7 @@ $(function () {
 	$table = $('#automation')
 
 	$table.find('thead th:first').append('<div class="checkbox"><input type="checkbox" id="select-all" class="dt-checkboxes"><label></label></div>');
-
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	
 	table = $table.DataTable({
 		'responsive' : true,
 		//"pageLength" : 25,
