@@ -7,8 +7,10 @@ $(function () {
 	//Get Logs from server
 	socket.on('log',function(data){
 		//$('.logs').show();
-		data = data.stdout;
-		$(".logs").append('<p class="log-data">'+data+'</p>');
+		log = data.stdout;
+		index = data.index;
+		console.log(index);
+		$(".logs").append('<p class="log-data" id="log-'+index+'">'+log+'</p>');
 	})
 
 	const actionBtns = `
@@ -152,9 +154,11 @@ $(function () {
 
 	 	if (items.length) {
 			// array of request promises
-			const promises = items.map(item=>{
+			const promises = items.map((item,index)=>{
 				const filename = Math.random().toString(36).substring(7)+".txt";
 				item.filename = filename;
+				item.index = index;
+				console.log(filename+'  '+item.IFN);
 				const postData = JSON.stringify({action, item});
 				return	$.ajax({
 					url : '/api/automation/actions',
@@ -189,7 +193,7 @@ $(function () {
 					$('#logs').show();
 					$('.log-data').hide();
 					index = $('.status').index(this);
-					$($('.log-data')[index]).show();
+					$('#log-'+index).show();
 				});
 				const counts = res.reduce((a,c)=>{
 					a[c.status]++;
