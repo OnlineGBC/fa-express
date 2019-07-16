@@ -9,11 +9,9 @@ const shell = require('shelljs');
 const index = require('./routes/index');
 const users = require('./routes/users');
 const api = require('./routes/api');
-
 const app = express();
 
-// Enable Unix commands to be run
-const shell = require('shelljs')
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,14 +23,27 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/logs',express.static(path.join(__dirname, 'logs')));
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/api', api);
 
+
+
 'use strict';
 
+
 const mysqlx = require('@mysql/xdevapi');
+
+/*const options = {
+  host: 'localhost',
+  port: 80,
+  password: '1qaz@WSX',
+  user: 'rpaauto',
+  schema: 'FA_RPA' // an error is thrown if it does not exist
+};
+*/
 
 const options = {
   host: 'localhost',
@@ -46,9 +57,18 @@ const options = {
 //  Set up the MySQL Connection
 var mysql2 = require('mysql2');
 let pword = '1qaz@WSX';
+//let pword = '';
 if (process.env.DB_PASS && process.env.DB_PASS === 'none') {
     pword = '';
 }
+
+/*var connection = mysql2.createConnection({
+  host : 'localhost',
+  database : 'chat',
+  user : process.env.DB_USER || 'root',
+  password : pword
+});*/
+
 var connection = mysql2.createConnection({
     host : 'localhost',
     database : 'FA_RPA',
@@ -57,15 +77,16 @@ var connection = mysql2.createConnection({
 });
 
 
+
 app.use(logger('dev'));
 // app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Make our MySQL connection accessible to our router
-  app.use(function(req,res,next){
-     req.connection = connection;
-     next();
+app.use(function(req,res,next){
+  req.connection = connection;
+  next();
 });
 connection.connect();
 global.db = connection;

@@ -7,6 +7,7 @@
 const app = require('../app');
 const debug = require('debug')('fa-express:server');
 const http = require('http');
+const socket = require('socket.io');
 
 /**
  * Get port from environment and store in Express.
@@ -30,10 +31,18 @@ console.log(`Listening on port ${port}...`);
 server.on('error', onError);
 server.on('listening', onListening);
 
+var io = socket(server);
+app.set('socketio', io);
+io.on('connection', (socket) => {
+  console.log('made socket connection', socket.id);
+});
 /**
  * Normalize a port into a number, string, or false.
  */
 
+function emitsocket(name){
+    console.log(name);
+  }
 function normalizePort(val) {
   const port = parseInt(val, 10);
 
