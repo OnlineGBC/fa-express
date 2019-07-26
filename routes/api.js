@@ -55,7 +55,7 @@ router.post('/automation/actions', (req, res)=> {
 		// comment out following line in production
 		actionString = 'dir';
 		// now execute the string command in the promisified `exec()`
-		exec('sh TestFile.sh '+ LoginID+' '+IFN).then(stdout=> {
+		exec('sh ./scripts/TestFile.sh '+ LoginID+' '+IFN).then(stdout=> {
 			// here. its gone
 		// DEMO  only, probably don't need to log this
 		
