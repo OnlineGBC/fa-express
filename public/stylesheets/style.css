@@ -57,3 +57,108 @@ div.checkbox{
 	display: none;
 	white-space: pre-wrap;
 }
+
+
+/* CSS START BY HITESH SAVALIYA */
+/* change design for data table */
+#automation.table-striped > tbody > tr:nth-of-type(2n+1) {
+	background-color: #f4f8fe !important;
+}
+#automation.table-striped thead tr th {
+	border-bottom: 0;
+	border-right: 0;
+	font-weight: normal;
+	text-transform: uppercase;
+	font-size: 11px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	color:#666;
+}
+#automation.table-striped tbody tr td {
+	padding:18px 10px 12px 10px !important;
+	border-right:0;
+	font-size:12px;
+}
+#automation.table-striped tbody {
+	background: #fff;
+}
+#automation_wrapper .btn-primary {
+	background: #4e94f9;
+	border-color:#4e94f9;
+	float:right;
+}
+table#automation {
+	border: none !important;
+}
+.table-back {
+	background: #f4f6fa;
+	font-family:"PT Sans", Arial, Helvetica, sans-serif;
+	padding: 0 !important;
+}
+#automation-title {
+	font-size:25px;
+}
+#automation.table-striped .odd.selected {
+	color:#777 !important;
+}
+#automation-crud-modal .modal-header {
+	background: #1f72fc !important;
+	color:#fff;
+}
+#automation-crud-modal .modal-header h3 {
+	font-size:18px;
+}
+#automation-crud-modal .modal-header button {
+	opacity: 1;
+}
+#automation-crud-modal .modal-header button span {
+	color:#fff;
+}
+#automation-crud-modal .modal-body .form-group input {
+	border: none !important;
+	box-shadow: none !important;
+	border-bottom: 1px solid #999 !important;
+	width: 100%;
+	clear: both;
+	border-radius:0;
+	float: left;
+}
+#automation-crud-modal .modal-body .form-group select {
+	border: none !important;
+	box-shadow: none !important;
+	border-bottom: 1px solid #999 !important;
+	width: 100%;
+	clear: both;
+	border-radius:0;
+	float: left;
+}
+#automation-crud-modal .modal-footer .btn.btn-primary {
+	background: #1f72fc !important;
+}
+#automation-crud-modal .modal-footer .btn.btn-secondary {
+	color:#fff;
+}
+#automation-crud-modal .modal-body .form-group label {
+	font-size:12px;
+}
+.modal-header .close {
+	padding: 6px 1rem;
+}
+#automation_filter input {
+	background: #fff;
+	border:none;
+	box-shadow: none !important;
+	border-radius:0;
+}
+#action-buttons a.dropdown-item {
+	font-size:12px;
+	padding:5px 10px;
+}
+.btn-warning:not(:disabled):not(.disabled).active, .btn-warning:not(:disabled):not(.disabled):active, .show>.btn-warning.dropdown-toggle {
+	color:#fff;
+}
+#action-buttons button, #create-auto-row {
+	font-size:12px;
+	padding:7px 10px 5px 10px;
+}
+/* END CSS BY HITESH SAVALIYA */
