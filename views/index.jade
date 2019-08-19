@@ -12,46 +12,49 @@ block content
         p="Select one or more systems from the list below:"
         .container
             .row
-                table#automation.table.table-bordered.table-striped(style='width:100%;margin-top:10px', cellspacing='0')
-                    thead
-                        tr
-                            th
-                            th HostName
-                            th LoginID
-                            th CMD_PREFIX
-                            th IFN
-                            th CFN
-                            th OSType
-                            th SID
-                            th DBType
-                            th AppType
-                            th CDIR
-                            th CUSTNAME
-                            th LOCATION
-                            th ACTION
-                    tbody
-                        tr
-                            td
-                                div.checkbox
-                                    input(type='checkbox').dt-checkboxes
-                                    label
-                            td 192.168.1.1
-                            td asd
-                            td mkmk
-                            td IFN
-                            td CFN
-                            td OSType
-                            td SID
-                            td DBType
-                            td AppType
-                            td CDIR
-                            td CUSTNAME
-                            td LOCATION
-                            td 
-                                a.edit(href='#')
-                                    i.fa.fa-pencil
-                                a.delete(href='#')
-                                    i.fa.fa-trash
+                // changes by hitesh savaliya
+                .table-responsive
+                    // End changes by hitesh savaliya
+                    table#automation.table.table-bordered.table-striped(style='width:100%;margin-top:10px', cellspacing='0')
+                        thead
+                            tr
+                                th
+                                th HostName
+                                th LoginID
+                                th CMD_PREFIX
+                                th IFN
+                                th CFN
+                                th OSType
+                                th SID
+                                th DBType
+                                th AppType
+                                th CDIR
+                                th CUSTNAME
+                                th LOCATION
+                                th ACTION
+                        tbody
+                            tr
+                                td
+                                    div.checkbox
+                                        input(type='checkbox').dt-checkboxes
+                                        label
+                                td 192.168.1.1
+                                td asd
+                                td mkmk
+                                td IFN
+                                td CFN
+                                td OSType
+                                td SID
+                                td DBType
+                                td AppType
+                                td CDIR
+                                td CUSTNAME
+                                td LOCATION
+                                td
+                                    a.edit(href='#')
+                                        i.fa.fa-pencil
+                                    a.delete(href='#')
+                                        i.fa.fa-trash
 
     include log-display.html
     include crud-form.html
