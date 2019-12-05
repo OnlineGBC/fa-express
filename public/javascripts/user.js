@@ -1,7 +1,19 @@
 var table
-var socket = io.connect('http://localhost:3000');
+var socket = io.connect('http://localhost:8000');
 
 $(function () {
+
+	//Populate LoginIds in modal
+	$.ajax({
+		url : '/api/automation/ids',
+		method : 'GET'
+	}).then(res=>{
+		res.data.forEach(item=>{
+			var id = item['LoginID'];
+			var output= '<option value="'+id+'">'+id+'</option>';
+			$("#LoginID").append(output);
+		})
+	});
 
 
 	//Get Logs from server
@@ -249,7 +261,6 @@ $(function () {
 			noMatch = [];// debugging only
 			let data = table.row($row).data();
 
-
 			$row.find('.dt-checkboxes').prop('checked', true).change();
 
 			$form.validate({
@@ -280,7 +291,21 @@ $(function () {
 		//console.log('No Matches', noMatch);
 
 		setModalTitle($modal, 'Edit Item');
+		$("#HostName").val(data.HostName);
+		$("#LoginID").val(data.LoginID);
+		$("#CMD_PREFIX").val(data.CMD_PREFIX);
+		$("#IFN").val(data.IFN);
+		$("#CFN").val(data.CFN);
+		$("#OSType").val(data.OSType);
+		$("#SID").val(data.SID);
+		$("#DBTYPE").val(data.DBTYPE);
+		$("#AppType").val(data.AppType);
+		$("#CDIR").val(data.CDIR);
+		$("#CUSTNAME").val(data.CUSTNAME);
+		$("#LOCATION").val(data.LOCATION);
+		$("#TYPE").val(data.TYPE);
 		$modal.data('selected', $row).modal('show');
+		//$modal.modal('show');
 
 	});
 	/**

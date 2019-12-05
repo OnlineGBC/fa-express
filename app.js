@@ -56,25 +56,24 @@ const options = {
 
 //  Set up the MySQL Connection
 var mysql2 = require('mysql2');
-let pword = '1qaz@WSX';
-//let pword = '';
+//let pword = '1qaz@WSX';
+let pword = '';
 if (process.env.DB_PASS && process.env.DB_PASS === 'none') {
     pword = '';
 }
-
-/*var connection = mysql2.createConnection({
+var connection = mysql2.createConnection({
   host : 'localhost',
   database : 'chat',
   user : process.env.DB_USER || 'root',
   password : pword
-});*/
-
-var connection = mysql2.createConnection({
-    host : 'localhost',
-    database : 'FA_RPA',
-    user : process.env.DB_USER || 'rpaauto',
-    password : pword
 });
+
+// var connection = mysql2.createConnection({
+//     host : 'localhost',
+//     database : 'FA_RPA',
+//     user : process.env.DB_USER || 'rpaauto',
+//     password : pword
+// });
 
 
 

@@ -268,6 +268,23 @@ router.post('/automation/actions', (req, res)=> {
  	}
  });
 
+/**
+ * GET LoginIds from table
+ */
+ router.get('/automation/ids', function (req, res, next) {
+ 	var sql = "SELECT DISTINCT LoginID from fa_rpa.automation";
+
+ 	db.query(sql, function (err, result, field) {
+ 		if (!err) {
+ 			res.json({data : result});
+ 		} else {
+ 			res.sendStatus(500)
+ 		}
+
+ 	});
+
+ });
+
  function ipMatch(value) {
  	const reg = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gm;
  	return value.match(reg)
