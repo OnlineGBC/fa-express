@@ -273,7 +273,7 @@ router.post('/automation/actions', (req, res)=> {
  */
  router.get('/automation/ids', function (req, res, next) {
 
- 	const sql = `SHOW COLUMNS FROM automation`;
+ 	const sql = `SHOW COLUMNS FROM FA_RPA.automation`;
 
        db.execute(sql, function (err, result, fields) {
          if (err) {
