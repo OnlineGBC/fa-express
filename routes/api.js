@@ -272,16 +272,28 @@ router.post('/automation/actions', (req, res)=> {
  * GET LoginIds from table
  */
  router.get('/automation/ids', function (req, res, next) {
- 	var sql = "SELECT DISTINCT LoginID from fa_rpa.automation";
 
- 	db.query(sql, function (err, result, field) {
- 		if (!err) {
- 			res.json({data : result});
- 		} else {
- 			res.sendStatus(500)
- 		}
+ 	const sql = `SHOW COLUMNS FROM automation`;
 
- 	});
+       db.execute(sql, function (err, result, fields) {
+         if (err) {
+           console.log(err);
+           res.status(500).json({err : err.message});
+         } else {
+         	res.json({data : result});
+        }
+});
+
+ 	// var sql = "SELECT DISTINCT LoginID from fa_rpa.automation";
+
+ 	// db.query(sql, function (err, result, field) {
+ 	// 	if (!err) {
+ 	// 		res.json({data : result});
+ 	// 	} else {
+ 	// 		res.sendStatus(500)
+ 	// 	}
+
+ 	// });
 
  });
 

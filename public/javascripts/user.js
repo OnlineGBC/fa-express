@@ -9,9 +9,30 @@ $(function () {
 		method : 'GET'
 	}).then(res=>{
 		res.data.forEach(item=>{
-			var id = item['LoginID'];
+			str = item.Type;
+			str = str.replace("enum(","");
+			str = str.replace(")","");
+			str = str.replace(/'/g,"");
+			loginIds = str.split(",");
+			loginIds.forEach(id=>{
+
 			var output= '<option value="'+id+'">'+id+'</option>';
-			$("#LoginID").append(output);
+				if(item.Field == "LoginID"){
+					$("#LoginID").append(output);
+				}
+				else if(item.Field == "OSType"){
+					$("#OSType").append(output);
+				}
+				else if(item.Field == "DBTYPE"){
+					$("#DBTYPE").append(output);
+				}
+				else if(item.Field == "AppType"){
+					$("#AppType").append(output);
+				}
+				else if(item.Field == "TYPE"){
+					$("#TYPE").append(output);
+				}
+			});
 		})
 	});
 
