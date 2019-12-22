@@ -242,13 +242,11 @@ router.post('/automation/actions', (req, res)=> {
  * Update existing Automation table item
  */
  router.put('/automation', checkSchema(schema), (req, res)=> {
-
  	const errors = validationResult(req);
  	if (!errors.isEmpty()) {
  		return res.status(422).json({errors : errors.array()});
  	} else {
  		const body = req.body;
-
  		const fields = [], values = [];
  		Object.entries(body).forEach(([key,value])=> {
  			fields.push(key);

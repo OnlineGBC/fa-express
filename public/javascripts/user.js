@@ -130,7 +130,7 @@ $(function () {
 						url : `/api/automation/` + data.id,
 						method : 'DELETE'
 					}).then(()=>table.row($row[0]).remove().draw())
-					.catch(function () {
+					.fail(function () {
 
 						$.alert({
 							type : 'red',
@@ -312,6 +312,7 @@ $(function () {
 		//console.log('No Matches', noMatch);
 
 		setModalTitle($modal, 'Edit Item');
+		$("#id").val(data.id);
 		$("#HostName").val(data.HostName);
 		$("#LoginID").val(data.LoginID);
 		$("#CMD_PREFIX").val(data.CMD_PREFIX);
@@ -382,7 +383,7 @@ $(function () {
 	 		$autoModal.modal('hide');
 	 		selectModifiedRow(res.id);
 			//console.log(res)
-		}).catch(err=> {
+		}).fail(err=> {
 			//console.error('Err::', err);
 			if (err.status === 422 && err.responseJSON.errors) {
 				handleServerErrors($form, err.responseJSON.errors);
