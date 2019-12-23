@@ -30,7 +30,7 @@ $(function () {
 					$("#AppType").append(output);
 				}
 				else if(item.Field == "TYPE"){
-					$("#TYPE").append(output);
+					$("#HOST_TYPE").append(output);
 				}
 			});
 		})
