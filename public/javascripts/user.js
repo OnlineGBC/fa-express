@@ -84,7 +84,7 @@ $(function () {
 		{data : 'CDIR'},
 		{data : 'CUSTNAME'},
 		{data : 'LOCATION'},
-		{data : null}
+		{data : 'HOST_TYPE'}
 
 		],
 		'columnDefs' : [
