@@ -325,7 +325,7 @@ $(function () {
 		$("#CDIR").val(data.CDIR);
 		$("#CUSTNAME").val(data.CUSTNAME);
 		$("#LOCATION").val(data.LOCATION);
-		$("#TYPE").val(data.TYPE);
+		$("#TYPE").val(data.HOST_TYPE);
 		$modal.data('selected', $row).modal('show');
 		//$modal.modal('show');
 
