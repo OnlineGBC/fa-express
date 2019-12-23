@@ -29,8 +29,8 @@ $(function () {
 				else if(item.Field == "AppType"){
 					$("#AppType").append(output);
 				}
-				else if(item.Field == "TYPE"){
-					$("#HOST_TYPE").append(output);
+				else if(item.Field == "HOST_TYPE"){
+					$("#TYPE").append(output);
 				}
 			});
 		})
