@@ -143,29 +143,17 @@ router.post('/automation/actions', (req, res)=> {
 		custom : invalidIP
 	},
 	OSType : {
-		custom : {
-			options : (value)=> {
-				return ['AIX', 'RHEL_Linux', 'SuSe_Linux', 'Windows', 'Ubuntu_Linux'].includes(value)
-			}
-		}
+		optional : true
 	},
 	SID : {
 		// not sure what rules are
 	},
 	DBTYPE : {
 
-		custom : {
-			options : (value)=> {
-				return ['ora', 'db2', 'mss', 'hdb', 'syb', 'sdb', 'non'].includes(value)
-			}
-		}
-	},
+		optional : true
+	},	
 	AppType : {
-		custom : {
-			options : (value)=> {
-				return ['StandardABAPJava', 'APOwLC', 'BOBJ', 'CacheServer', 'ContentServer', 'ConvergentCharging', 'none'].includes(value)
-			}
-		}
+		optional : true
 	},
 	CUSTNAME : {
 		isLength : {
