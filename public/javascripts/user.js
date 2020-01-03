@@ -81,7 +81,7 @@ $(function () {
 		{data : 'SID'},
 		{data : 'DBTYPE'},
 		{data : 'AppType'},
-		{data : 'CDIR'},
+		{data : 'Order_Exec'},
 		{data : 'CUSTNAME'},
 		{data : 'LOCATION'},
 		{data : 'HOST_TYPE'}
@@ -101,7 +101,12 @@ $(function () {
 			},
 
 			{
-				targets : 13,
+				targets:10,
+				"name":"Order"
+			},
+
+			{
+				targets : 14,
 				render : ()=>actionBtns
 			}
 			],
@@ -323,6 +328,7 @@ $(function () {
 		$("#DBTYPE").val(data.DBTYPE);
 		$("#AppType").val(data.AppType);
 		$("#CDIR").val(data.CDIR);
+		$("#Order").val(data.Order_Exec);
 		$("#CUSTNAME").val(data.CUSTNAME);
 		$("#LOCATION").val(data.LOCATION);
 		$("#TYPE").val(data.HOST_TYPE);

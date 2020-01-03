@@ -237,17 +237,22 @@ router.post('/automation/actions', (req, res)=> {
  		const body = req.body;
  		const fields = [], values = [];
  		Object.entries(body).forEach(([key,value])=> {
+			 if(key == 'Order'){
+				 value = parseInt(value);
+				console.log("Order->"+value);
+			}
  			fields.push(key);
  			values.push(value)
  		});
  		values.push(body.id);
  		const setClause = fields.map(field=> `${field} = ?`).join();
- 		const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
+		const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
  		db.execute(sql, values, (err, results, fields)=> {
  			if (!err) {
  				body.id = parseInt(body.id);
  				res.json(body);
  			} else {
+				 console.log(err);
  				res.sendStatus(500);
  			}
  		});

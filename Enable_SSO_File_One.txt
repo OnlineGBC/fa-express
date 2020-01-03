@@ -1,0 +1,2 @@
+LinAlert1P,funauto,sudo su -,10.0.0.109,192.168.86.38,Ubuntu_Linux,CIQ,non,StandardABAPJava,GBC,GBC,Tucson
+
