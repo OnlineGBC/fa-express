@@ -1,7 +1,40 @@
 var table
-var socket = io.connect('http://localhost:3000');
+var socket = io.connect('http://localhost:8000');
 
 $(function () {
+
+	//Populate LoginIds in modal
+	$.ajax({
+		url : '/api/automation/ids',
+		method : 'GET'
+	}).then(res=>{
+		res.data.forEach(item=>{
+			str = item.Type;
+			str = str.replace("enum(","");
+			str = str.replace(")","");
+			str = str.replace(/'/g,"");
+			loginIds = str.split(",");
+			loginIds.forEach(id=>{
+
+			var output= '<option value="'+id+'">'+id+'</option>';
+				if(item.Field == "LoginID"){
+					$("#LoginID").append(output);
+				}
+				else if(item.Field == "OSType"){
+					$("#OSType").append(output);
+				}
+				else if(item.Field == "DBTYPE"){
+					$("#DBTYPE").append(output);
+				}
+				else if(item.Field == "AppType"){
+					$("#AppType").append(output);
+				}
+				else if(item.Field == "HOST_TYPE"){
+					$("#TYPE").append(output);
+				}
+			});
+		})
+	});
 
 
 	//Get Logs from server
@@ -48,10 +81,10 @@ $(function () {
 		{data : 'SID'},
 		{data : 'DBTYPE'},
 		{data : 'AppType'},
-		{data : 'CDIR'},
+		{data : 'Order_Exec'},
 		{data : 'CUSTNAME'},
 		{data : 'LOCATION'},
-		{data : null}
+		{data : 'HOST_TYPE'}
 
 		],
 		'columnDefs' : [
@@ -68,7 +101,12 @@ $(function () {
 			},
 
 			{
-				targets : 13,
+				targets:10,
+				"name":"Order"
+			},
+
+			{
+				targets : 14,
 				render : ()=>actionBtns
 			}
 			],
@@ -97,7 +135,7 @@ $(function () {
 						url : `/api/automation/` + data.id,
 						method : 'DELETE'
 					}).then(()=>table.row($row[0]).remove().draw())
-					.catch(function () {
+					.fail(function () {
 
 						$.alert({
 							type : 'red',
@@ -249,7 +287,6 @@ $(function () {
 			noMatch = [];// debugging only
 			let data = table.row($row).data();
 
-
 			$row.find('.dt-checkboxes').prop('checked', true).change();
 
 			$form.validate({
@@ -280,7 +317,23 @@ $(function () {
 		//console.log('No Matches', noMatch);
 
 		setModalTitle($modal, 'Edit Item');
+		$("#id").val(data.id);
+		$("#HostName").val(data.HostName);
+		$("#LoginID").val(data.LoginID);
+		$("#CMD_PREFIX").val(data.CMD_PREFIX);
+		$("#IFN").val(data.IFN);
+		$("#CFN").val(data.CFN);
+		$("#OSType").val(data.OSType);
+		$("#SID").val(data.SID);
+		$("#DBTYPE").val(data.DBTYPE);
+		$("#AppType").val(data.AppType);
+		$("#CDIR").val(data.CDIR);
+		$("#Order").val(data.Order_Exec);
+		$("#CUSTNAME").val(data.CUSTNAME);
+		$("#LOCATION").val(data.LOCATION);
+		$("#TYPE").val(data.HOST_TYPE);
 		$modal.data('selected', $row).modal('show');
+		//$modal.modal('show');
 
 	});
 	/**
@@ -336,7 +389,7 @@ $(function () {
 	 		$autoModal.modal('hide');
 	 		selectModifiedRow(res.id);
 			//console.log(res)
-		}).catch(err=> {
+		}).fail(err=> {
 			//console.error('Err::', err);
 			if (err.status === 422 && err.responseJSON.errors) {
 				handleServerErrors($form, err.responseJSON.errors);

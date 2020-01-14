@@ -1,0 +1,11 @@
+LinAlert1P,funauto,sudo su -,10.0.0.109,192.168.86.38,Ubuntu_Linux,CIQ,non,StandardABAPJava,GBC,GBC,Tucson
+LinAuto1P,funauto,sudo su -,10.0.0.45,192.168.86.45,Ubuntu_Linux,CID,non,StandardABAPJava,GBC,GBC,Tucson
+LinAuto3P,funauto,sudo su -,10.0.0.102,192.168.86.102,Ubuntu_Linux,BIQ,non,StandardABAPJava,GBC,GBC,Tucson
+LinEMR1P,funauto,sudo su -,10.0.0.159,192.168.86.177,Ubuntu_Linux,BIP,non,APOwLC,GBC,GBC,Tucson
+LinAlert2V,rpaauto,sudo su -,10.0.0.229,192.168.86.229,Ubuntu_Linux,BIC,non,BOBJ,GBC,GBC,Tucson
+LinAlert4V,rpaauto,sudo su -,10.0.0.122,192.168.86.122,Ubuntu_Linux,BID,non,CacheServer,GBC,GBC,Tucson
+LinAuto2V,rpaauto,sudo su -,10.0.0.46,192.168.86.109,Ubuntu_Linux,CID,non,StandardABAPJava,GBC,GBC,Tucson
+LinAuto4V,rpaauto,sudo su -,10.0.0.245,192.168.86.30,Ubuntu_Linux,BID,non,StandardABAPJava,GBC,GBC,Tucson
+WinAlert1P,rpaauto,Not Applicable,10.0.0.77,192.168.86.77,Windows,GID,non,StandardABAPJava,GBC,GBC,Tucson	
+WinAuto4V,rpaauto,Not Applicable,10.0.0.74,192.168.86.74,Windows,GID,non,StandardABAPJava,GBC,GBC,Tucson
+

@@ -143,29 +143,17 @@ router.post('/automation/actions', (req, res)=> {
 		custom : invalidIP
 	},
 	OSType : {
-		custom : {
-			options : (value)=> {
-				return ['AIX', 'RHEL_Linux', 'SuSe_Linux', 'Windows', 'Ubuntu_Linux'].includes(value)
-			}
-		}
+		optional : true
 	},
 	SID : {
 		// not sure what rules are
 	},
 	DBTYPE : {
 
-		custom : {
-			options : (value)=> {
-				return ['ora', 'db2', 'mss', 'hdb', 'syb', 'sdb', 'non'].includes(value)
-			}
-		}
-	},
+		optional : true
+	},	
 	AppType : {
-		custom : {
-			options : (value)=> {
-				return ['StandardABAPJava', 'APOwLC', 'BOBJ', 'CacheServer', 'ContentServer', 'ConvergentCharging', 'none'].includes(value)
-			}
-		}
+		optional : true
 	},
 	CUSTNAME : {
 		isLength : {
@@ -242,30 +230,62 @@ router.post('/automation/actions', (req, res)=> {
  * Update existing Automation table item
  */
  router.put('/automation', checkSchema(schema), (req, res)=> {
-
  	const errors = validationResult(req);
  	if (!errors.isEmpty()) {
  		return res.status(422).json({errors : errors.array()});
  	} else {
  		const body = req.body;
-
  		const fields = [], values = [];
  		Object.entries(body).forEach(([key,value])=> {
+			 if(key == 'Order'){
+				 value = parseInt(value);
+				console.log("Order->"+value);
+			}
  			fields.push(key);
  			values.push(value)
  		});
  		values.push(body.id);
  		const setClause = fields.map(field=> `${field} = ?`).join();
- 		const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
+		const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
  		db.execute(sql, values, (err, results, fields)=> {
  			if (!err) {
  				body.id = parseInt(body.id);
  				res.json(body);
  			} else {
+				 console.log(err);
  				res.sendStatus(500);
  			}
  		});
  	}
+ });
+
+/**
+ * GET LoginIds from table
+ */
+ router.get('/automation/ids', function (req, res, next) {
+
+ 	const sql = `SHOW COLUMNS FROM FA_RPA.Automation`;
+
+       db.execute(sql, function (err, result, fields) {
+         if (err) {
+           console.log(err);
+           res.status(500).json({err : err.message});
+         } else {
+         	res.json({data : result});
+        }
+});
+
+ 	// var sql = "SELECT DISTINCT LoginID from fa_rpa.automation";
+
+ 	// db.query(sql, function (err, result, field) {
+ 	// 	if (!err) {
+ 	// 		res.json({data : result});
+ 	// 	} else {
+ 	// 		res.sendStatus(500)
+ 	// 	}
+
+ 	// });
+
  });
 
  function ipMatch(value) {
