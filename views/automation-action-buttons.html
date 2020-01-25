@@ -6,9 +6,9 @@
 				Host Actions
 			</button>
 			<div class="dropdown-menu" aria-labelledby="hostActionButton">
-				<a class="dropdown-item" href="#" data-action="host_patch">Patch Upgrade</a>
-				<a class="dropdown-item" href="#" data-action="host_reboot">Reboot</a>
-				<a class="dropdown-item" href="#" data-action="host_kernel">Kernel Upgrade</a>
+				<a class="dropdown-item" href="#" data-action="host_patch" data-action="app_start" data-target="#scheduler_modal">Patch Upgrade</a>
+				<a class="dropdown-item" href="#" data-action="host_reboot" data-action="app_start" data-target="#scheduler_modal">Reboot</a>
+				<a class="dropdown-item" href="#" data-action="host_kernel" data-action="app_start" data-target="#scheduler_modal">Kernel Upgrade</a>
 			</div>
 		</div>
    </div>
@@ -19,8 +19,8 @@
 				App Actions
 			</button>
 			<div class="dropdown-menu" aria-labelledby="appActionButton">
-				<a class="dropdown-item" href="#" data-action="app_start">Start App</a>
-				<a class="dropdown-item" href="#" data-action="app_stop">Stop App</a>
+				<a href="#" class="dropdown-item" data-action="app_start" data-target="#scheduler_modal">Start App</a>
+				<a class="dropdown-item" href="#" data-action="app_stop" data-target="#scheduler_modal">Stop App</a>
 			</div>
 		</div>
 	</div>

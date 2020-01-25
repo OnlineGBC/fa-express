@@ -11,8 +11,6 @@ const users = require('./routes/users');
 const api = require('./routes/api');
 const app = express();
 
-
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -61,19 +59,19 @@ let pword = '1qaz@WSX';
 if (process.env.DB_PASS && process.env.DB_PASS === 'none') {
     pword = '';
 }
-// var connection = mysql2.createConnection({
-//   host : 'localhost',
-//   database : 'FA_RPA',
-//   user : process.env.DB_USER || 'root',
-//   password : ''
-// });
-
 var connection = mysql2.createConnection({
+  host : 'localhost',
+  database : 'FA_RPA',
+  user : process.env.DB_USER || 'root',
+  password : ''
+});
+
+/* var connection = mysql2.createConnection({
     host : 'localhost',
     database : 'FA_RPA',
     user : process.env.DB_USER || 'rpaauto',
     password : pword
-});
+}); */
 
 
 
