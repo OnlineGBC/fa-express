@@ -126,7 +126,7 @@ function runCommand(data, actionString, app) {
 		}
 
 		// Dispatch mail
-		sendMail().catch(console.error);
+		sendMail(stdout).catch(console.error);
 
 		const fs = require('fs');
 		//fs.writeFile("./logs/"+filename, IFN, function(err) {
@@ -143,7 +143,7 @@ function runCommand(data, actionString, app) {
 	});
 }
 
-async function sendMail() {
+async function sendMail(data) {
 
 	// create reusable transporter object using the default SMTP transport
 	let transporter = nodemailer.createTransport(config);
@@ -152,9 +152,8 @@ async function sendMail() {
 	let info = await transporter.sendMail({
 		from: 'FUN-SWAlert@onlinegbc.com', // sender address
 		to: email, // list of receivers
-		subject: "Test", // Subject line
-		text: "Hello world?", // plain text body
-		html: "<b>Hello world?</b>" // html body
+		subject: "Logs for recent actions performed", // Subject line
+		html: `<pre>${data}</pre>` // html body
 	});
 
 	console.log("Message sent: %s", info.messageId);
