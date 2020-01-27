@@ -5,6 +5,8 @@ const util = require('util');
 const exec = require('child_process').exec;
 var cron = require('node-cron');
 const moment = require('moment-timezone');
+const nodemailer = require("nodemailer");
+const {config,email} = require('../config/smtpconfig');
 
 
 router.post('/automation/actions', (req, res) => {
@@ -59,7 +61,7 @@ router.post('/automation/actions', (req, res) => {
 	}
 
 	if (schedule != 'immediate') {
-		
+
 		timeArray = time.split(':');
 		hours = parseInt(timeArray[0]);
 		minutes = parseInt(timeArray[1]);
@@ -74,9 +76,9 @@ router.post('/automation/actions', (req, res) => {
 			if (format == 'pm') {
 				hours = parseInt(hours, 10) + 12;
 			}
-			console.log(minutes+' '+hours+' '+day+' '+month);
+			console.log(minutes + ' ' + hours + ' ' + day + ' ' + month);
 			var task = cron.schedule(`${minutes} ${hours} ${day} ${month} *`, () => {
-//			var task = cron.schedule(`* * * * *`, () => {
+				//			var task = cron.schedule(`* * * * *`, () => {
 				console.log('Task started');
 				runCommand(item, actionString, req.app);
 				task.destroy();
@@ -85,7 +87,7 @@ router.post('/automation/actions', (req, res) => {
 				timezone: zone
 			});
 			task.start();
-			res.json({status:'scheduled'});
+			res.json({ status: 'scheduled' });
 		}
 		else {
 			error = 'The time format is incorrect';
@@ -94,7 +96,7 @@ router.post('/automation/actions', (req, res) => {
 	}
 	else {
 		runCommand(item, actionString, req.app);
-		res.json({status:'success'});
+		res.json({ status: 'success' });
 	}
 
 });
@@ -123,6 +125,9 @@ function runCommand(data, actionString, app) {
 			console.error(err);
 		}
 
+		// Dispatch mail
+		sendMail().catch(console.error);
+
 		const fs = require('fs');
 		//fs.writeFile("./logs/"+filename, IFN, function(err) {
 		fs.writeFile("./logs/" + filename, stdout.stdout, function (err) {
@@ -136,6 +141,23 @@ function runCommand(data, actionString, app) {
 			return;
 		});
 	});
+}
+
+async function sendMail() {
+
+	// create reusable transporter object using the default SMTP transport
+	let transporter = nodemailer.createTransport(config);
+
+	// send mail with defined transport object
+	let info = await transporter.sendMail({
+		from: 'FUN-SWAlert@onlinegbc.com', // sender address
+		to: email, // list of receivers
+		subject: "Test", // Subject line
+		text: "Hello world?", // plain text body
+		html: "<b>Hello world?</b>" // html body
+	});
+
+	console.log("Message sent: %s", info.messageId);
 }
 
 /**

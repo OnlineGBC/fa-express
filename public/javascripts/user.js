@@ -91,7 +91,18 @@ $(function () {
 		// 'scrollX': true,
 		// 'scrollY': 600,
 		"initComplete": tableInitCallback,
+		dom: "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-2'B><'col-sm-6 col-md-4'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
 		rowId: 'id',
+		buttons: [
+            {
+				extend: 'csv',
+				text: 'Export CSV',
+				className: 'btn btn-primary',
+				exportOptions: {
+					columns : [':not(:first-child)']
+				}
+			}
+        ],
 		"lengthMenu": [
 			[10, 25, 50, -1],
 			[10, 25, 50, /*100,*/ "All"]
@@ -540,13 +551,11 @@ function doAlert(title, content, color) {
 function tableInitCallback() {
 	// after table plugin renders it's main controls, move action buttons into sme location
 
-	const $tableControls = $('#automation_wrapper .row > div');
-	$tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2');
+	/* const $tableControls = $('#automation_wrapper .row > div');
+	$tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2'); */
 
-	const $createControl = $('<div class="col-sm-6 col-md-2">').append($('#create-auto-row'));
-	$tableControls.first().after($createControl);
-	$actionsControls = $('<div class="col-sm-6 col-md-5">').append($('#action-buttons')).css('text-align', 'center');
-	$tableControls.first().after($actionsControls);
+	$("#add-row-container").append($('#create-auto-row'));
+	$('#actions-container').append($('#action-buttons')).css('text-align', 'center');
 }
 
 /**
