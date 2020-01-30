@@ -6,7 +6,35 @@ const exec = require('child_process').exec;
 var cron = require('node-cron');
 const moment = require('moment-timezone');
 const nodemailer = require("nodemailer");
-const {config,email} = require('../config/smtpconfig');
+const { config, email } = require('../config/smtpconfig');
+const csv = require('csv-parser');
+const fs = require('fs');
+
+// Handle CSV file upload
+router.post('/upload', (req, res) => {
+	file = req.files.file;
+	data = [];
+	columns = [];
+	console.log(file.tempFilePath);
+	fs.createReadStream(file.tempFilePath)
+		.pipe(csv())
+		.on('headers', (headers) => {
+			columns = headers;
+		})
+		.on('data', (row) => {
+			console.log('got a row');
+			data.push(row);
+		})
+		.on('end', () => {
+			// fs.unlink(file.tempFilePath, function (err) {
+			// 	if (err) throw err;
+			// 	console.log('File deleted!');
+			// }); 
+			console.log('CSV file successfully processed');
+			console.log(data);
+			res.json({columns,data});
+		});
+});
 
 
 router.post('/automation/actions', (req, res) => {
@@ -238,10 +266,27 @@ const schema = {
 	}
 }
 
+
+/**
+ * Create new Automation item
+ */
+router.post('/validate', checkSchema(schema), (req, res) => {
+	
+	console.log(req.body);
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return res.status(422).json({ errors: errors.array() });
+	} else {
+		res.sendStatus(200);
+	}
+});
+
+
 /**
  * Create new Automation item
  */
 router.post('/automation', checkSchema(schema), (req, res) => {
+
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(422).json({ errors: errors.array() });

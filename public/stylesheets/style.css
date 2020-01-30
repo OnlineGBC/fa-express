@@ -131,3 +131,16 @@ select#zone {
 .hidden_fields{
     display: none;
 }
+
+.contents {
+    text-align: center;
+    padding: 40px 10px;
+}
+
+.contents button {
+    width: 100%;
+}
+
+input#file {
+    display: none;
+}

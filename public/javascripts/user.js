@@ -5,13 +5,149 @@ $(function () {
 
 
 	selector = $("#time");
-    $(selector).inputmask("hh:mm", {
-        placeholder: "hh:mm",
-        clearMaskOnLostFocus: false,
-        showMaskOnHover: false,
-        hourFormat: 12
-    }
-    ); 
+	$(selector).inputmask("hh:mm", {
+		placeholder: "hh:mm",
+		clearMaskOnLostFocus: false,
+		showMaskOnHover: false,
+		hourFormat: 12
+	}
+	);
+
+	userData = [];
+	$upload_modal = $("#upload-modal");
+
+	// File Upload handler
+	$("#file").change(function () {
+		fd = new FormData();
+
+		fd.append('file', this.files[0]);
+		console.log(fd);
+		$.ajax({
+			url: '/api/upload',
+			type: 'POST',
+			data: fd,
+			success: (res) => {
+				console.log(res);
+				uColumns = res.columns;
+				userData = res.data;
+				$u_options = '';
+				uColumns.forEach(function (value) {
+					console.log(value);
+					$u_options += `<option value="${value}">${value}</option>`;
+				});
+
+				$.each($("#upload-form select"), function (i, elem) {
+					console.log(elem);
+					$(elem).append($u_options);
+					$(elem).find('option').get(i).setAttribute('selected', true);
+				});
+				$("#num").html(userData.length);
+				$("#upload-file-modal").modal('hide');
+				$upload_modal.modal('show');
+			},
+			contentType: false,
+			processData: false,
+			cache: false
+		});
+	});
+
+	$("#upload-form").submit(function (e) {
+		e.preventDefault();
+
+		$form = $(this);
+		// Create data with new keyMap
+		var u_data = [];
+		var u_data_obj = {};
+		keyMap = $form.serializeArray();
+
+		userData.forEach(function (value) {
+			keyMap.forEach(function (key) {
+				old_key = key.value;
+				u_data_obj[key.name] = value[old_key];
+			});
+
+			u_data.push(u_data_obj);
+			u_data_obj = {};
+			console.log(u_data);
+
+		});
+
+		// Check if all records are valid
+		var errors = false;
+		validateAndUploadRecords($form, u_data, 0);
+	});
+
+
+	function uploadRecords(u_data, i) {
+
+		if (i >= u_data.length) {
+			$upload_modal.modal('hide');
+			return;
+		}
+		data = u_data[i];
+
+		$.ajax({
+			url: '/api/automation',
+			method: 'POST',
+			data: data
+		}).then(res => {
+			table.row.add(res).draw(false);
+			selectModifiedRow(res.id);
+
+			index = i + 1;
+			uploadRecords(u_data, index);
+			//console.log(res)
+		}).fail(err => {
+			alert(err.responseJSON.err);
+		})
+	}
+
+	function validateAndUploadRecords($form, u_data, i) {
+
+		if (i >= u_data.length) {
+			uploadRecords(u_data, 0);
+			return;
+		}
+		data = u_data[i];
+		$.ajax({
+			url: '/api/validate',
+			method: 'POST',
+			data: data,
+			success: (res) => {
+				index = i + 1;
+				validateAndUploadRecords($form, u_data, index);
+
+				// table.row.add(res).draw(false);
+
+				// $autoModal.modal('hide');
+				// selectModifiedRow(res.id);
+				//console.log(res)
+			},
+			error: function (err) {
+				//console.error('Err::', err);
+				if (err.status === 422 && err.responseJSON.errors) {
+					handleImportErrors($form, err.responseJSON.errors);
+					return false;
+				} else {
+					alert('Problem submitting form, please try again');
+					return false;
+				}
+			}
+		});
+	}
+
+	/**
+	 * Server side  validation callback for forms
+	 * @param $form
+	 * @param errors
+ 	*/
+	function handleImportErrors($form, errors) {
+		errors.forEach(({ param, msg }) => {
+			var $input = $form.find(`[name='${param}']`).addClass('is-invalid');
+			$input.next('.invalid-feedback').text('Malformed records in column')
+		});
+	}
+
 
 	// Populate timezones
 	$.ajax({
@@ -91,19 +227,19 @@ $(function () {
 		// 'scrollX': true,
 		// 'scrollY': 600,
 		"initComplete": tableInitCallback,
-		dom: "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-2'B><'col-sm-6 col-md-4'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
+		dom: "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-1'B><'col-sm-6 col-md-1'<'#upload-container'>><'col-sm-6 col-md-4'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
 		rowId: 'id',
 		buttons: [
-            {
+			{
 				extend: 'csv',
 				text: 'Export CSV',
 				className: 'btn btn-primary',
 				filename: 'Robotics Process Automation Data',
 				exportOptions: {
-					columns : [':not(:first-child)']
+					columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 				}
 			}
-        ],
+		],
 		"lengthMenu": [
 			[10, 25, 50, -1],
 			[10, 25, 50, /*100,*/ "All"]
@@ -511,6 +647,7 @@ $(function () {
 
 });
 
+
 /**
  * Uncheck checked rows in table
  */
@@ -557,6 +694,8 @@ function tableInitCallback() {
 
 	$("#add-row-container").append($('#create-auto-row'));
 	$('#actions-container').append($('#action-buttons')).css('text-align', 'center');
+	$('#upload-container').append($('#upload-btn'));
+	$('#upload-btn').show();
 }
 
 /**
