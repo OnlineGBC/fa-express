@@ -13,6 +13,17 @@ $(function () {
 	}
 	);
 
+	
+
+	//Get Logs from server
+	socket.on('log', function (data) {
+		// $('.logs').show();
+		// $('#logs').show();
+		log = data.stdout;
+		index = data.index;
+		$(".logs").append('<p class="log-data" id="log-' + index + '">' + log + '</p>');
+	})
+
 	userData = [];
 	$upload_modal = $("#upload-modal");
 
@@ -196,16 +207,6 @@ $(function () {
 			});
 		})
 	});
-
-
-	//Get Logs from server
-	socket.on('log', function (data) {
-		// $('.logs').show();
-		// $('#logs').show();
-		log = data.stdout;
-		index = data.index;
-		$(".logs").append('<p class="log-data" id="log-' + index + '">' + log + '</p>');
-	})
 
 	const actionBtns = `
 	<a href="#" class="edit"><i class="fa fa-pencil"></i></a>
