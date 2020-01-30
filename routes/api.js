@@ -297,6 +297,9 @@ router.post('/automation', checkSchema(schema), (req, res) => {
 			delete data.id;
 			const fields = [], values = [];
 			Object.entries(data).forEach(([key, value]) => {
+				if(value == ''){
+					value = null;
+				}
 				fields.push(key);
 				values.push(value)
 			});
