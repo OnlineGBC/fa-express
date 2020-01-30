@@ -232,7 +232,7 @@ $(function () {
 		buttons: [
 			{
 				extend: 'csv',
-				text: 'Export CSV',
+				text: 'Download',
 				className: 'btn btn-primary',
 				filename: 'Robotics Process Automation Data',
 				exportOptions: {
