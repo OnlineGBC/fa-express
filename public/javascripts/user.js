@@ -331,6 +331,7 @@ $(function () {
 			.prop('checked', this.checked).prop('indeterminate', false)
 			.closest('tr').toggleClass('selected', this.checked);
 		$('#action-buttons').trigger('checkbox-change')
+		table.rows({page:'current'}).select(this.checked);
 
 	});
 
