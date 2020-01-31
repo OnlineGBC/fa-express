@@ -356,7 +356,7 @@ $(function () {
 
 	$table.on('click', 'tbody tr', function (e) {
 		const $tgt = $(e.target);
-		if (!$tgt.closest('.checkbox').length && !$tgt.closest('a').length) {
+		if ((!$tgt.closest('.checkbox').length || $tgt.closest('label').length) && !$tgt.closest('a').length) {
 			const $checkBox = $(this).find('.dt-checkboxes');
 			$checkBox.prop('checked', !$checkBox.prop('checked')).change()
 		}
