@@ -6,7 +6,7 @@ const exec = require('child_process').exec;
 var cron = require('node-cron');
 const moment = require('moment-timezone');
 const nodemailer = require("nodemailer");
-const { config, email } = require('../config/smtpconfig');
+const { config } = require('../config/smtpconfig');
 const csv = require('csv-parser');
 const fs = require('fs');
 
@@ -32,25 +32,27 @@ router.post('/upload', (req, res) => {
 			// }); 
 			console.log('CSV file successfully processed');
 			console.log(data);
-			res.json({columns,data});
+			res.json({ columns, data });
 		});
 });
 
 
 router.post('/automation/actions', (req, res) => {
 
-	const { action, item, formData } = req.body;
+	const { action, item, formData, doEmail } = req.body;
 
 	// destructure the item object properties into individual variables
 	// All properties shown in table are availble here
 	const { HostName, LoginID, IFN, CFN, filename, index } = item;
-	const { ref_num, schedule, date, time, format, zone } = formData;
+	const { ref_num, schedule, date, time, format, zone, email } = formData;
 
-	//return;
-	/*LoginID = 'asd';
-	HostName = '192.168.1.1';
-	IFR = 'IFN';
-	CFR = 'CFN';*/
+	//Check Email
+	if (!doEmail) {
+		email_address = '';
+	}
+	else{
+		email_address = email;
+	}
 
 	/************** Concatenate varibles in string example *****/
 	const exampleString = `ssh -n -tt -o LoginID=${LoginID},HostName=${HostName}`;
@@ -108,7 +110,7 @@ router.post('/automation/actions', (req, res) => {
 			var task = cron.schedule(`${minutes} ${hours} ${day} ${month} *`, () => {
 				//			var task = cron.schedule(`* * * * *`, () => {
 				console.log('Task started');
-				runCommand(item, actionString, req.app);
+				runCommand(item, actionString, req.app, email_address);
 				task.destroy();
 			}, {
 				scheduled: true,
@@ -123,7 +125,7 @@ router.post('/automation/actions', (req, res) => {
 		}
 	}
 	else {
-		runCommand(item, actionString, req.app);
+		runCommand(item, actionString, req.app, email_address);
 		res.json({ status: 'success' });
 	}
 
@@ -133,7 +135,7 @@ router.post('/automation/actions', (req, res) => {
  * Run Shell Command
  */
 
-function runCommand(data, actionString, app) {
+function runCommand(data, actionString, app, email_address) {
 
 	io = app.get('socketio');
 
@@ -154,7 +156,9 @@ function runCommand(data, actionString, app) {
 		}
 
 		// Dispatch mail
-		sendMail(stdout).catch(console.error);
+		if (email_address != '') {
+			sendMail(stdout,email_address).catch(console.error);
+		}
 
 		const fs = require('fs');
 		//fs.writeFile("./logs/"+filename, IFN, function(err) {
@@ -171,7 +175,7 @@ function runCommand(data, actionString, app) {
 	});
 }
 
-async function sendMail(data) {
+async function sendMail(data,email_address) {
 
 	// create reusable transporter object using the default SMTP transport
 	let transporter = nodemailer.createTransport(config);
@@ -179,7 +183,7 @@ async function sendMail(data) {
 	// send mail with defined transport object
 	let info = await transporter.sendMail({
 		from: 'FUN-SWAlert@onlinegbc.com', // sender address
-		to: email, // list of receivers
+		to: email_address, // list of receivers
 		subject: "Logs for recent actions performed", // Subject line
 		html: `<pre>${data}</pre>` // html body
 	});
@@ -271,7 +275,7 @@ const schema = {
  * Create new Automation item
  */
 router.post('/validate', checkSchema(schema), (req, res) => {
-	
+
 	console.log(req.body);
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
@@ -297,7 +301,7 @@ router.post('/automation', checkSchema(schema), (req, res) => {
 			delete data.id;
 			const fields = [], values = [];
 			Object.entries(data).forEach(([key, value]) => {
-				if(value == ''){
+				if (value == '') {
 					value = null;
 				}
 				fields.push(key);

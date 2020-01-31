@@ -1,2 +1,0 @@
-"HostName","LoginID","CMD_PREFIX","IFN","CFN","OSType","SID","DBType","AppType","Order","CUSTNAME","LOCATION","HOST_TYPE"
-"ddvpqi","raja","sudo su -","10.0.0.159","192.168.86.24","RHEL_Linux","BIP","ora","StandardABAPJava","1","GBC","Tucson","PRIMARY"
