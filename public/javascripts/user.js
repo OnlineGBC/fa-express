@@ -491,6 +491,7 @@ $(function () {
 				const filename = Math.random().toString(36).substring(7) + ".txt";
 				item.filename = filename;
 				item.index = logIndex;
+				logIndex++;
 				console.log(filename + '  ' + item.IFN);
 				console.log(formData);
 				const postData = JSON.stringify({ action, item, formData, doEmail });
@@ -523,7 +524,7 @@ $(function () {
 						output += '<td>' + value.status + '</td>';
 					}
 					else {
-						output += '<td><a href="/logs/' + value.filename + '" class="status" data-log="'+logIndex+'">' + value.status + '</a></td>';
+						output += '<td><a href="/logs/' + value.filename + '" class="status" data-log="'+value.index+'">' + value.status + '</a></td>';
 					}
 					output += '<tr>';
 				});
@@ -540,7 +541,6 @@ $(function () {
 					a[c.status]++;
 					return a;
 				}, { success: 0, fail: 0 });
-				logIndex++;
 			})
 		}
 	});
