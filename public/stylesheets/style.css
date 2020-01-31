@@ -57,3 +57,90 @@ div.checkbox{
 	display: none;
 	white-space: pre-wrap;
 }
+
+/* Scheduler Styles */
+.main-content {
+    background: #262626;
+    color: #d4d4d4;
+    width: 40%;
+    padding: 10px 30px;
+    font-family: sans-serif;
+}
+
+#scheduler_modal .form-control {
+    padding: 10px;
+    /* background: #3b3b3b; */
+    /* border: 1px solid #3b3b3b; */
+}
+
+.title {
+    font-weight: normal;
+    margin-bottom: 35px;
+}
+.item {
+    margin: 25px 0px;
+}
+.glyphicon-calendar{
+	right: 25px;
+}
+
+.item p {
+    font-size: 12px;
+}
+select{
+    padding: 10px 0px 5px 3px;
+}
+select {
+    border:none;
+    background: transparent;
+    color: inherit;
+    border-bottom: 1px solid #ccc;
+}
+.form-field:focus,.form-dropdown:focus {
+    outline: none;
+}
+#scheduler_modal .form-control,.form-dropdown {
+    width: 50%;
+}
+.flex-box {
+    display: flex;
+    justify-content: space-around;
+}
+
+input#time {
+    text-align: center;
+    flex-grow: 1;
+    width: 20px !important;
+}
+
+input#date {
+    display: inline-block;
+}
+.flex-box * {
+    min-width: 0px;
+    margin: 0px 5px;
+}
+
+select#format {
+    flex: 1;
+}
+
+select#zone {
+    flex: 3;
+}
+.hidden_fields{
+    display: none;
+}
+
+.contents {
+    text-align: center;
+    padding: 40px 10px;
+}
+
+.contents button {
+    width: 100%;
+}
+
+input#file {
+    display: none;
+}

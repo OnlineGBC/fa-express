@@ -1,3 +1,7 @@
+# Main app file to avoid conflicts with connection credentials
+tmp
+tmp/*
+
 ### Node template
 # Logs
 logs

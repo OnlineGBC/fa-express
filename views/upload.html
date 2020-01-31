@@ -1,0 +1,183 @@
+<div class="modal" id="upload-modal" tabindex="-1" role="dialog" autocomplete="off">
+    <div class="modal-dialog" role="document">
+        <form id="upload-form">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #eaeaea">
+                    <h3 class="modal-title">Map your data</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <p>Select the CSV column you want to use the data from for each field.</p>
+
+                    <div class="form-group row">
+                        <label for="HostName" class="col-3 col-form-label">HostName</label>
+                        <div class="col-9">
+                            <select id="u_HostName" name="HostName" class="custom-select custom-select-lg">
+                            </select>
+                            <div class="invalid-feedback"><!--server errors--></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="LoginID" class="col-3 col-form-label">LoginID</label>
+
+                        <div class="col-9">
+                            <select id="u_LoginID" name="LoginID" class="custom-select custom-select-lg"
+                                required="required">
+                            </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="CMD_PREFIX" class="col-3 col-form-label">CMD_PREFIX</label>
+                        <div class="col-9">
+                            <select id="u_CMD_PREFIX" name="CMD_PREFIX" type="text" class="custom-select custom-select-lg"
+                                required="required">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label for="IFN" class="col-3 col-form-label">IFN</label>
+
+                        <div class="col-9">
+                            <select id="u_IFN" name="IFN" type="text" class="custom-select custom-select-lg" required="required">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="CFN" class="col-3 col-form-label">CFN</label>
+
+                        <div class="col-9">
+                            <select id="u_CFN" name="CFN" placeholder="CFN" type="text" class="custom-select custom-select-lg"
+                                required="required">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="OSType" class="col-3 col-form-label">OS Type</label>
+
+                        <div class="col-9">
+                            <select id="u_OSType" name="OSType" class="custom-select custom-select-lg"
+                                required="required">
+                            </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="SID" class="col-3 col-form-label">SID</label>
+
+                        <div class="col-9">
+                            <select id="u_SID" name="SID" type="text" class="custom-select custom-select-lg" required="required">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="DBTYPE" class="col-3 col-form-label">DB Type</label>
+
+                        <div class="col-9">
+                            <select id="u_DBTYPE" name="DBTYPE" class="custom-select custom-select-lg"
+                                required="required">
+                            </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="AppType" class="col-3 col-form-label">AppType</label>
+
+                        <div class="col-9">
+                            <select id="u_AppType" name="AppType" class="custom-select custom-select-lg "
+                                required="required">
+                            </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="Order" class="col-3 col-form-label">Order</label>
+
+                        <div class="col-9">
+                            <select id="u_Order" name="Order_Exec" type="text" class="custom-select custom-select-lg">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                  <!--   <div class="form-group row">
+                        <label for="CDIR" class="col-3 col-form-label">CDIR</label>
+
+                        <div class="col-9">
+                            <select id="u_CDIR" name="CDIR" type="text" class="custom-select custom-select-lg">
+                                </select>
+                            <div class="invalid-feedback">
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class="form-group row">
+                        <label for="CUSTNAME" class="col-3 col-form-label">CUSTNAME</label>
+
+                        <div class="col-9">
+                            <select id="u_CUSTNAME" name="CUSTNAME" type="text" class="custom-select custom-select-lg" required="required">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="LOCATION" class="col-3 col-form-label">LOCATION</label>
+
+                        <div class="col-9">
+                            <select id="u_LOCATION" name="LOCATION" type="text" class="custom-select custom-select-lg" required="required">
+                                </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="TYPE" class="col-3 col-form-label">HOST_TYPE</label>
+
+                        <div class="col-9">
+                            <select id="u_TYPE" name="HOST_TYPE" class="custom-select custom-select-lg" required>
+                            </select>
+                            <div class="invalid-feedback">
+                                <!--server errors-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary">Import <span id="num"></span> records</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

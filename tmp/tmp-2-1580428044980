@@ -1,0 +1,2 @@
+"HostName","LoginID","CMD_PREFIX","IFN","CFN","OSType","SID","DBType","AppType","Order","CUSTNAME","LOCATION","HOST_TYPE"
+"asd","raja","sudo su -","10.0.0.159","192.168.86.177","Windows","BIP","mss","APOwLC","2","hjk","Tucson","HADR"

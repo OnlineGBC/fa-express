@@ -1,0 +1,64 @@
+<div class="modal" id="scheduler_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form id="scheduler-form">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #eaeaea">
+                    <h3 class="modal-title">Run/Schedule Start Apps</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="item">
+                        <p>Reference Number</p>
+                        <input type="text" id="ref_num" name="ref_num" class="form-control" />
+                    </div>
+                    <div class="item">
+                        <p>When to start change</p>
+                        <select id="schedule" name="schedule" class="form-dropdown" onchange="showFields(this.value)">
+                            <option value="immediate" selected>Immediate</option>
+                            <option value="specified_time">At specified time</option>
+                        </select>
+                    </div>
+                    <div class="hidden_fields">
+                        <div class="item">
+                            <p>Date of change</p>
+                            <input id="date" class="form-control" autocomplete="off" placeholder="mm/dd/yyyy"
+                                name="date" />
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </div>
+                        <div class="item">
+                            <p>Time of change</p>
+                            <div class="flex-box">
+                                <input id="time" class="form-control" autocomplete="off" name="time"
+                                    placeholder="hh:mm" />
+                                <select id="format" name="format">
+                                    <option value="am">AM</option>
+                                    <option value="pm">PM</option>
+                                </select>
+                                <select id="zone" name="zone" class="form-dropdown">
+                                    <option selected disabled>Select Timezone</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="task_name" name="task_name" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary">Next</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function showFields(value) {
+        if (value == 'immediate') {
+            $(".hidden_fields").hide();
+        }
+        else {
+            $(".hidden_fields").show();
+        }
+    }
+</script>

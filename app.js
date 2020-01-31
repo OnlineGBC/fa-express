@@ -9,9 +9,8 @@ const shell = require('shelljs');
 const index = require('./routes/index');
 const users = require('./routes/users');
 const api = require('./routes/api');
+const fileUpload = require('express-fileupload');
 const app = express();
-
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,11 +23,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/logs',express.static(path.join(__dirname, 'logs')));
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: 'tmp'
+}));
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/api', api);
-
 
 
 'use strict';

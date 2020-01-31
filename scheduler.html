@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="public/stylesheets/jquery-ui.css">
+    <link rel="stylesheet" href="public/stylesheets/timepicker.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="public/stylesheets/style.css">
+    <script src="public/javascripts/jquery.min.js"></script>
+    <script src="public/javascripts/jquery-ui.js"></script>
+    <script src="public/javascripts/timepicker.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="main-content">
+            <h2 class="title">Run/Schedule Start Apps</h2>
+            <div class="item">
+                <p>Reference Number</p>
+                <input type="text" id="ref_num" name="ref_num" class="form-field" />
+            </div>
+            <div class="item">
+                <p>When to start change</p>
+                <select id="schedule" name="schedule" class="form-dropdown">
+                    <option value="">At specified time</option>
+                </select>
+            </div>
+            <div class="item">
+                <p>Date of change</p>
+                <input id="date" class="form-field" autocomplete="off" placeholder="dd/mm/yyyy" />
+                <span class="glyphicon glyphicon-calendar"></span>
+            </div>
+            <div class="item">
+                <p>Time of change</p>
+                <div class="flex-box">
+                    <input id="time" class="form-field" autocomplete="off" placeholder="hh:mm" />
+                    <select id="format" name="format">
+                        <option value="am">AM</option>
+                        <option value="pm">PM</option>
+                    </select>
+                    <select id="zone" name="zone" class="form-dropdown">
+                        <option value="">At specified time</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $(function () {
+        $("#date").datepicker();
+    });
+</script>
+
+</html>

@@ -1,0 +1,5 @@
+"HostName","LoginID","CMD_PREFIX","IFN","CFN","OSType","SID","DBType","AppType","Order","CUSTNAME","LOCATION","HOST_TYPE"
+"asd","raja","sudo su -","10.0.0.159","192.168.86.177","Windows","BIP","mss","APOwLC","2","hjk","Tucson","HADR"
+"asdasd","raja","sudo su -","10.0.0.159","192.168.86.24","Windows","BIP","db2","StandardABAPJava","1","hjk","Tucson","PRIMARY"
+"ddvpqi","funauto","sudo su -","10.0.0.159","192.168.86.24","RHEL_Linux","BIP","db2","APOwLC","1","GBC","567","PRIMARY"
+"ddvpqi","raja","sudo su -","10.0.0.159","192.168.86.24","RHEL_Linux","BIP","ora","StandardABAPJava","1","GBC","Tucson","PRIMARY"
