@@ -351,7 +351,7 @@ $(function () {
 	$table.on('change', 'tbody .dt-checkboxes', function (e) {
 		const $row = $(this).closest('tr')
 		if (!this.checked) {
-			$('#select-all').prop('indeterminate', true);
+			//$('#select-all').prop('indeterminate', true);
 
 		} else {
 			if ($row.siblings().get().every(el => $(el).find(':checked').length)) {
@@ -364,7 +364,7 @@ $(function () {
 
 	$table.on('click', 'tbody tr', function (e) {
 		const $tgt = $(e.target);
-		if ((!$tgt.closest('.checkbox').length || $tgt.closest('label').length) && !$tgt.closest('a').length) {
+		if ((!$tgt.closest('.dt-checkboxes').length) && !$tgt.closest('a').length) {
 			const $checkBox = $(this).find('.dt-checkboxes');
 			$checkBox.prop('checked', !$checkBox.prop('checked')).change()
 		}
