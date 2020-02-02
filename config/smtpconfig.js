@@ -9,7 +9,7 @@ config = {
 }
 
 // Email where logs will be sent
-email = 'muddassir.ah@gmail.com';
+// email = 'muddassir.ah@gmail.com';
 
 module.exports.config = config;
 module.exports.email = email;
