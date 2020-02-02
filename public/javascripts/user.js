@@ -1,6 +1,7 @@
 var table
 var socket = io.connect('http://localhost:3000');
-
+var logIndex = 0;
+var doEmail = false;
 $(function () {
 
 
@@ -14,6 +15,13 @@ $(function () {
 	);
 
 	
+    $("#promptEmail").click(function (e){
+        e.preventDefault();
+        $(".main-form").hide();
+        $(".email-confirm").show();
+        return false;
+    });
+
 
 	//Get Logs from server
 	socket.on('log', function (data) {
@@ -343,7 +351,7 @@ $(function () {
 	$table.on('change', 'tbody .dt-checkboxes', function (e) {
 		const $row = $(this).closest('tr')
 		if (!this.checked) {
-			$('#select-all').prop('indeterminate', true);
+			//$('#select-all').prop('indeterminate', true);
 
 		} else {
 			if ($row.siblings().get().every(el => $(el).find(':checked').length)) {
@@ -356,7 +364,7 @@ $(function () {
 
 	$table.on('click', 'tbody tr', function (e) {
 		const $tgt = $(e.target);
-		if ((!$tgt.closest('.checkbox').length || $tgt.closest('label').length) && !$tgt.closest('a').length) {
+		if ((!$tgt.closest('.dt-checkboxes').length) && !$tgt.closest('a').length) {
 			const $checkBox = $(this).find('.dt-checkboxes');
 			$checkBox.prop('checked', !$checkBox.prop('checked')).change()
 		}
@@ -451,6 +459,12 @@ $(function () {
 	$scheduler_form.submit(function (e) {
 		e.preventDefault();
 
+		// Reset Modal
+
+		$(".main-form").show();
+		$(".email-confirm").hide();
+
+
 		$form = $(this);
 		if (!$form.valid()) {
 			return
@@ -476,10 +490,11 @@ $(function () {
 			const promises = items.map((item, index) => {
 				const filename = Math.random().toString(36).substring(7) + ".txt";
 				item.filename = filename;
-				item.index = index;
+				item.index = logIndex;
+				logIndex++;
 				console.log(filename + '  ' + item.IFN);
 				console.log(formData);
-				const postData = JSON.stringify({ action, item, formData });
+				const postData = JSON.stringify({ action, item, formData, doEmail });
 				return $.ajax({
 					url: '/api/automation/actions',
 					method: 'POST',
@@ -509,23 +524,23 @@ $(function () {
 						output += '<td>' + value.status + '</td>';
 					}
 					else {
-						output += '<td><a href="/logs/' + value.filename + '" class="status">' + value.status + '</a></td>';
+						output += '<td><a href="/logs/' + value.filename + '" class="status" data-log="'+value.index+'">' + value.status + '</a></td>';
 					}
 					output += '<tr>';
 				});
 				$('.status-box tbody').append(output);
 				$('.status').click(function (e) {
 					e.preventDefault();
+					logId = this.dataset.log;
 					$('#logs').show();
 					$('.log-data').hide();
 					index = $('.status').index(this);
-					$('#log-' + index).show();
+					$('#log-' + logId).show();
 				});
 				const counts = res.reduce((a, c) => {
 					a[c.status]++;
 					return a;
 				}, { success: 0, fail: 0 });
-
 			})
 		}
 	});

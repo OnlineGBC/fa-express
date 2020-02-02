@@ -1,3 +1,3 @@
 ssh -n -tt -o StrictHostKeyChecking=no $1@$2 dir
-ls -lart 
-uname -a
+ssh -n -tt -o StrictHostKeyChecking=no $1@$2 ls -lart 
+ssh -n -tt -o StrictHostKeyChecking=no $1@$2 uname -a
