@@ -59,8 +59,8 @@
                     <button class="btn btn-primary" id="promptEmail">Next</button>
                     </div>
                     <div class="email-confirm" style="display: none;">
-                        <button class="btn btn-secondary">Skip</button>
-                        <button class="btn btn-primary" onclick="setEmail()">Submit</button>
+                        <button class="btn btn-secondary" onclick="setEmail(false)">Skip</button>
+                        <button class="btn btn-primary" onclick="setEmail(true)">Submit</button>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
             $(".hidden_fields").show();
         }
     }
-    function setEmail(){
-		doEmail = true;
+    function setEmail(set){
+		doEmail = set;
 	}
 </script>
