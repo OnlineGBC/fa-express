@@ -1,20 +1,17 @@
 config = {
-    host: "mail.smtp2go.com",
-    port: 2525,
-    secure: false,
+    host: "smtp.sendgrid.net",
+    port: 465,
+    secure: true,
     auth: {
-        user: 'FUN-SWAlert@onlinegbc.com',
-        pass: '1qaz@WSX1qaz@WSX'
+        user: 'apikey',
+        pass: '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'
     }
 }
 
 // Email where logs will be sent
 // email = 'raja@onlinegbc.com';
-email = 'null'
+email = "null"
 
 module.exports.config = config;
 module.exports.email = email;
-
-
-
 

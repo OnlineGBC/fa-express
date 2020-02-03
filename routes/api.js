@@ -142,12 +142,14 @@ function runCommand(data, actionString, app, email_address) {
 	// for local test only changing to a simple `dir` command
 	// comment out following line in production
 	// For Linux based systems
-	//actionString = 'sh ./scripts/TestFile.sh ' + LoginID + ' ' + IFN;
+	
 
 	//For windows based system
-	actionString = 'dir';
+	// actionString = 'dir';
 
 	const { HostName, LoginID, IFN, CFN, filename, index } = data;
+
+	actionString = 'sh ./scripts/TestFile.sh ' + LoginID + ' ' + IFN;
 
 	exec(actionString, (err, stdout, stderr) => {
 
