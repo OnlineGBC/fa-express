@@ -1,0 +1,3 @@
+uname -n
+ls -lart 
+
