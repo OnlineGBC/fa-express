@@ -37,7 +37,7 @@ router.post('/upload', (req, res) => {
 });
 
 
-router.post('/automation/actions', (req, res) => {
+router.post('/automation/actions', async (req, res) => {
 
 	const { action, item, formData, doEmail } = req.body;
 
@@ -139,42 +139,102 @@ function runCommand(data, actionString, app, email_address) {
 
 	io = app.get('socketio');
 
-	// for local test only changing to a simple `dir` command
-	// comment out following line in production
-	// For Linux based systems
+	const { HostName, LoginID, IFN, CFN, OSType, filename, index } = data;
+
 	
-
-	//For windows based system
-	// actionString = 'dir';
-
-	const { HostName, LoginID, IFN, CFN, filename, index } = data;
-
-	actionString = 'sh ./scripts/TestFile.sh ' + LoginID + ' ' + IFN;
-
-	exec(actionString, (err, stdout, stderr) => {
+	if (OSType === "Windows") {
+		var actionString1 = 'scp -o StrictHostKeyChecking=no ./scripts/WinCommands.bat '+ LoginID+'@'+IFN +':/C:/temp/.  ' ,
+		actionString2 = "null" ,
+		actionString3 = 'ssh -n -tt -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' C:/temp/WinCommands.bat ' + LoginID ,
+		actionString4 = 'ssh -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' "del C:\\temp\\WinCommands.bat"  ' ;
+	}	else {
+		var actionString1 = 'scp -o StrictHostKeyChecking=no ./scripts/LinCommands.sh '+ LoginID+'@'+IFN +':/tmp/.  ' ,
+		actionString2 = 'ssh -n -tt -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' chmod 777 /tmp/LinCommands.sh ' ,
+		actionString3 = 'ssh -n -tt -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' /tmp/LinCommands.sh ' + LoginID ,
+		actionString4 = 'ssh -n -tt -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +'  "rm /tmp/LinCommands.sh"  ' ;
+	}
+	// actionString1
+	exec(actionString1, (err, stdout, stderr) => {
 
 		if (err) {
 			console.error(err);
-		}
 
-		// Dispatch mail
-		if (email_address != '') {
-			sendMail(stdout,email_address).catch(console.error);
-		}
 
-		const fs = require('fs');
-		//fs.writeFile("./logs/"+filename, IFN, function(err) {
-		fs.writeFile("./logs/" + filename, stdout.stdout, function (err) {
-			if (err) {
-				return console.log(err);
+			if (email_address != '') {
+				sendMail("Error with scp command. Please contact developer or your internal technical support.",email_address).catch(console.error);
 			}
-			stdout.file = filename;
-			// console.log(stdout);
-			io.sockets.emit('log', { stdout: stdout, index: index });
-			console.log("The file was saved!");
-			return;
-		});
+		}
+		else{
+			 console.log(stdout); //Output for actionString1
+
+			exec(actionString2,(err,stdout,stderr)=>{
+				if(err){
+					console.log(err);
+				}
+				else{
+					console.log(stdout);
+				}
+				//actionString3
+				exec(actionString3, (err,stdout,stderr)=>{
+					if(err){
+						console.log(err)
+		
+						if (email_address != '') {
+							sendMail("Error executing your chosen command. Please contact developer or your internal techinical support.",email_address).catch(console.error);
+						}
+		
+						//Send output to FrontEnd
+						const fs = require('fs');
+							//fs.writeFile("./logs/"+filename, IFN, function(err) {
+						fs.writeFile("./logs/" + filename, stdout, function (err) {
+								if (err) {
+									return console.log(err);
+								}
+								stdout.file = filename;
+								console.log(stdout);
+								io.sockets.emit('log', { stdout: stdout, index: index });
+								console.log("The file was saved!");
+								return;
+						});
+					}
+					else{
+
+						// Dispatch mail
+						if (email_address != '') {
+							sendMail(stdout,email_address).catch(console.error);
+						}
+						//Send output to FrontEnd
+						const fs = require('fs');
+							//fs.writeFile("./logs/"+filename, IFN, function(err) {
+						fs.writeFile("./logs/" + filename, stdout, function (err) {
+								if (err) {
+									return console.log(err);
+								}
+								stdout.file = filename;
+								console.log(stdout);
+								io.sockets.emit('log', { stdout: stdout, index: index });
+								console.log("The file was saved!");
+								return;
+						});
+						//actionString3
+						exec(actionString4, (err,stdout,stderr)=>{
+							if(err){
+								console.log(err)
+							}
+							else{
+
+								console.log(stdout)
+							}
+						})
+						return;
+					}
+				})
+			})
+			
+		}
 	});
+
+
 }
 
 async function sendMail(data,email_address) {
