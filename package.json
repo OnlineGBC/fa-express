@@ -12,6 +12,7 @@
     "csv-parser": "^2.3.2",
     "debug": "~2.6.9",
     "dotenv": "^8.0.0",
+    "eol": "^0.9.1",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.6",
     "express-validator": "^5.3.1",
