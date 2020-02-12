@@ -29,7 +29,7 @@ $(function () {
 		// $('#logs').show();
 		log = data.stdout;
 		index = data.index;
-		$(".logs").append('<p class="log-data" id="log-' + index + '">' + log + '</p>');
+		$(".logs").append('<pre class="log-data" id="log-' + index + '">' + log + '</pre>');
 	})
 
 	userData = [];
