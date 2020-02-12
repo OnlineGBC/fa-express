@@ -23,14 +23,16 @@ $(function () {
     });
 
 
-	//Get Logs from server
-	socket.on('log', function (data) {
-		// $('.logs').show();
-		// $('#logs').show();
-		log = data.stdout;
-		index = data.index;
-		$(".logs").append('<pre class="log-data" id="log-' + index + '">' + log + '</pre>');
-	})
+  //Get Logs from server
+  socket.on('log', function (data) {
+    // $('.logs').show();
+    // $('#logs').show();
+    log = data.stdout;
+    index = data.index;
+    const logElement = $('<pre class="log-data" id="log-' + index + '"></pre>');
+    logElement.text(log);
+    $(".logs").append(logElement);
+  });
 
 	userData = [];
 	$upload_modal = $("#upload-modal");
