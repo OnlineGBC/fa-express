@@ -954,8 +954,8 @@ class MACADDR extends ABSTRACT {
  *
  * Three of the values provided here (`NOW`, `UUIDV1` and `UUIDV4`) are special default values, that should not be used to define types. Instead they are used as shorthands for
  * defining default values. For example, to get a uuid field with a default value generated following v1 of the UUID standard:
- * ```js`
- * sequelize.define('model',` {
+ * ```js
+ * sequelize.define('model', {
  *   uuid: {
  *     type: DataTypes.UUID,
  *     defaultValue: DataTypes.UUIDV1,
@@ -1021,17 +1021,19 @@ const DataTypes = module.exports = {
 
 _.each(DataTypes, (dataType, name) => {
   // guard for aliases
-  if (!dataType.hasOwnProperty('key')) {
+  if (!Object.prototype.hasOwnProperty.call(dataType, 'key')) {
     dataType.types = {};
     dataType.key = dataType.prototype.key = name;
   }
 });
 
-const dialectNames = ['postgres', 'mysql', 'mariadb', 'sqlite', 'mssql'];
 const dialectMap = {};
-for (const d of dialectNames) {
-  dialectMap[d] = require(`./dialects/${d}/data-types`)(DataTypes);
-}
+dialectMap.postgres = require('./dialects/postgres/data-types')(DataTypes);
+dialectMap.mysql = require('./dialects/mysql/data-types')(DataTypes);
+dialectMap.mariadb = require('./dialects/mariadb/data-types')(DataTypes);
+dialectMap.sqlite = require('./dialects/sqlite/data-types')(DataTypes);
+dialectMap.mssql = require('./dialects/mssql/data-types')(DataTypes);
+
 const dialectList = _.values(dialectMap);
 
 for (const dataTypes of dialectList) {

@@ -53,23 +53,23 @@ class Sequelize {
    *   // the sql dialect of the database
    *   // currently supported: 'mysql', 'sqlite', 'postgres', 'mssql'
    *   dialect: 'mysql',
-   * 
+   *
    *   // custom host; default: localhost
    *   host: 'my.server.tld',
    *   // for postgres, you can also specify an absolute path to a directory
    *   // containing a UNIX socket to connect over
    *   // host: '/sockets/psql_sockets'.
-   * 
+   *
    *   // custom port; default: dialect default
    *   port: 12345,
-   * 
+   *
    *   // custom protocol; default: 'tcp'
    *   // postgres only, useful for Heroku
    *   protocol: null,
-   * 
+   *
    *   // disable logging or provide a custom logging function; default: console.log
    *   logging: false,
-   * 
+   *
    *   // you can also pass any dialect options to the underlying dialect library
    *   // - default is empty
    *   // - currently supported: 'mysql', 'postgres', 'mssql'
@@ -78,20 +78,20 @@ class Sequelize {
    *     supportBigNumbers: true,
    *     bigNumberStrings: true
    *   },
-   * 
+   *
    *   // the storage engine for sqlite
    *   // - default ':memory:'
    *   storage: 'path/to/database.sqlite',
-   * 
+   *
    *   // disable inserting undefined values as NULL
    *   // - default: false
    *   omitNull: true,
-   * 
+   *
    *   // a flag for using a native library or not.
    *   // in the case of 'pg' -- set this to true will allow SSL support
    *   // - default: false
    *   native: true,
-   * 
+   *
    *   // Specify options, which are used when sequelize.define is called.
    *   // The following example:
    *   //   define: { timestamps: false }
@@ -108,22 +108,22 @@ class Sequelize {
    *     },
    *     timestamps: true
    *   },
-   * 
+   *
    *   // similar for sync: you can define this to always force sync for models
    *   sync: { force: true },
-   * 
+   *
    *   // pool configuration used to pool database connections
    *   pool: {
    *     max: 5,
    *     idle: 30000,
    *     acquire: 60000,
    *   },
-   * 
+   *
    *   // isolation level of each transaction
    *   // defaults to dialect default
    *   isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ
    * })
-   * 
+   *
    * @param {string}   [database] The name of the database
    * @param {string}   [username=null] The username which is used to authenticate against the database.
    * @param {string}   [password=null] The password which is used to authenticate against the database. Supports SQLCipher encryption for SQLite.
@@ -165,9 +165,11 @@ class Sequelize {
    * @param {Object}   [options.retry] Set of flags that control when a query is automatically retried.
    * @param {Array}    [options.retry.match] Only retry a query if the error matches one of these strings.
    * @param {number}   [options.retry.max] How many times a failing query is automatically retried.  Set to 0 to disable retrying on SQL_BUSY error.
-   * @param {boolean}  [options.typeValidation=false] Run built in type validators on insert and update, e.g. validate that arguments passed to integer fields are integer-like.
+   * @param {boolean}  [options.typeValidation=false] Run built-in type validators on insert and update, and select with where clause, e.g. validate that arguments passed to integer fields are integer-like.
    * @param {Object}   [options.operatorsAliases] String based operator alias. Pass object to limit set of aliased operators.
-   * @param {Object}   [options.hooks] An object of global hook functions that are called before and after certain lifecycle events. Global hooks will run after any model-specific hooks defined for the same event (See `Sequelize.Model.init()` for a list).  Additionally, `beforeConnect()` and `afterConnect()` hooks may be defined here.
+   * @param {Object}   [options.hooks] An object of global hook functions that are called before and after certain lifecycle events. Global hooks will run after any model-specific hooks defined for the same event (See `Sequelize.Model.init()` for a list).  Additionally, `beforeConnect()`, `afterConnect()`, `beforeDisconnect()`, and `afterDisconnect()` hooks may be defined here.
+   * @param {boolean}  [options.minifyAliases=false] A flag that defines if aliases should be minified (mostly useful to avoid Postgres alias character limit of 64)
+   * @param {boolean}  [options.logQueryParameters=false] A flag that defines if show bind patameters in log.
    */
   constructor(database, username, password, options) {
     let config;
@@ -254,7 +256,9 @@ class Sequelize {
       isolationLevel: null,
       databaseVersion: 0,
       typeValidation: false,
-      benchmark: false
+      benchmark: false,
+      minifyAliases: false,
+      logQueryParameters: false
     }, options || {});
 
     if (!this.options.dialect) {
@@ -486,7 +490,7 @@ class Sequelize {
   }
 
   /**
-   * Execute a query on the DB, with the possibility to bypass all the sequelize goodness.
+   * Execute a query on the DB, optionally bypassing all the Sequelize goodness.
    *
    * By default, the function will return two arguments: an array of results, and a metadata object, containing number of affected rows etc.
    *
@@ -546,8 +550,8 @@ class Sequelize {
 
     options = _.defaults(options, {
       // eslint-disable-next-line no-console
-      logging: this.options.hasOwnProperty('logging') ? this.options.logging : console.log,
-      searchPath: this.options.hasOwnProperty('searchPath') ? this.options.searchPath : 'DEFAULT'
+      logging: Object.prototype.hasOwnProperty.call(this.options, 'logging') ? this.options.logging : console.log,
+      searchPath: Object.prototype.hasOwnProperty.call(this.options, 'searchPath') ? this.options.searchPath : 'DEFAULT'
     });
 
     if (!options.type) {
@@ -614,17 +618,22 @@ class Sequelize {
         [sql, bindParameters] = this.dialect.Query.formatBindParameters(sql, options.bind, this.options.dialect);
       }
 
+      const checkTransaction = () => {
+        if (options.transaction && options.transaction.finished && !options.completesTransaction) {
+          const error = new Error(`${options.transaction.finished} has been called on this transaction(${options.transaction.id}), you can no longer use it. (The rejected query is attached as the 'sql' property of this error)`);
+          error.sql = sql;
+          throw error;
+        }
+      };
+
       const retryOptions = Object.assign({}, this.options.retry, options.retry || {});
 
       return Promise.resolve(retry(() => Promise.try(() => {
         if (options.transaction === undefined && Sequelize._cls) {
           options.transaction = Sequelize._cls.get('transaction');
         }
-        if (options.transaction && options.transaction.finished) {
-          const error = new Error(`${options.transaction.finished} has been called on this transaction(${options.transaction.id}), you can no longer use it. (The rejected query is attached as the 'sql' property of this error)`);
-          error.sql = sql;
-          throw error;
-        }
+
+        checkTransaction();
 
         return options.transaction
           ? options.transaction.connection
@@ -632,6 +641,7 @@ class Sequelize {
       }).then(connection => {
         const query = new this.dialect.Query(connection, this, options);
         return this.runHooks('beforeQuery', options, query)
+          .then(() => checkTransaction())
           .then(() => query.run(sql, bindParameters))
           .finally(() => this.runHooks('afterQuery', options, query))
           .finally(() => {
@@ -1074,6 +1084,7 @@ class Sequelize {
    * @param {Object}   [options] Transaction options
    * @param {string}   [options.type='DEFERRED'] See `Sequelize.Transaction.TYPES` for possible options. Sqlite only.
    * @param {string}   [options.isolationLevel] See `Sequelize.Transaction.ISOLATION_LEVELS` for possible options
+   * @param {string}   [options.deferrable] Sets the constraints to be deferred or immediately checked. See `Sequelize.Deferrable`. PostgreSQL Only
    * @param {Function} [options.logging=false] A function that gets executed while running the query to log the sql.
    * @param {Function} [autoCallback] The callback is called with the transaction object, and should return a promise. If the promise is resolved, the transaction commits; if the promise rejects, the transaction rolls back
    *
@@ -1148,13 +1159,13 @@ class Sequelize {
 
     const last = _.last(args);
 
-    if (last && _.isPlainObject(last) && last.hasOwnProperty('logging')) {
+    if (last && _.isPlainObject(last) && Object.prototype.hasOwnProperty.call(last, 'logging')) {
       options = last;
 
       // remove options from set of logged arguments if options.logging is equal to console.log
       // eslint-disable-next-line no-console
       if (options.logging === console.log) {
-        args.splice(args.length-1, 1);
+        args.splice(args.length - 1, 1);
       }
     } else {
       options = this.options;
@@ -1218,7 +1229,7 @@ class Sequelize {
 
     attribute.type = this.normalizeDataType(attribute.type);
 
-    if (attribute.hasOwnProperty('defaultValue')) {
+    if (Object.prototype.hasOwnProperty.call(attribute, 'defaultValue')) {
       if (typeof attribute.defaultValue === 'function' && (
         attribute.defaultValue === DataTypes.NOW ||
           attribute.defaultValue === DataTypes.UUIDV1 ||
@@ -1310,7 +1321,7 @@ Sequelize.prototype.Sequelize = Sequelize;
  */
 Sequelize.prototype.QueryTypes = Sequelize.QueryTypes = QueryTypes;
 
-/**.Deferrable
+/**
  * Exposes the validator.js object, so you can extend it with custom validation functions. The validator is exposed both on the instance, and on the constructor.
  * @see https://github.com/chriso/validator.js
  */

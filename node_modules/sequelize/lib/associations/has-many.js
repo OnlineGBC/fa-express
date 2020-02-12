@@ -180,7 +180,7 @@ class HasMany extends Association {
       instances = undefined;
     }
 
-    options = Utils.cloneDeep(options);
+    options = Object.assign({}, options);
 
     if (this.scope) {
       Object.assign(where, this.scope);
@@ -211,7 +211,7 @@ class HasMany extends Association {
       { [Op.and]: [where, options.where] } :
       where;
 
-    if (options.hasOwnProperty('scope')) {
+    if (Object.prototype.hasOwnProperty.call(options, 'scope')) {
       if (!options.scope) {
         Model = Model.unscoped();
       } else {
@@ -219,7 +219,7 @@ class HasMany extends Association {
       }
     }
 
-    if (options.hasOwnProperty('schema')) {
+    if (Object.prototype.hasOwnProperty.call(options, 'schema')) {
       Model = Model.schema(options.schema, options.schemaDelimiter);
     }
 
