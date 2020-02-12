@@ -9,6 +9,7 @@ const nodemailer = require("nodemailer");
 const { config } = require('../config/smtpconfig');
 const csv = require('csv-parser');
 const fs = require('fs');
+const eol = require('eol');
 
 // Handle CSV file upload
 router.post('/upload', (req, res) => {
@@ -176,6 +177,7 @@ function runCommand(data, actionString, app, email_address) {
 				}
 				//actionString3
 				exec(actionString3, (err,stdout,stderr)=>{
+					stdout = eol.lf(stdout);
 					if(err){
 						console.log(err)
 		
