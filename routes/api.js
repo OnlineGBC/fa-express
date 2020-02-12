@@ -145,7 +145,7 @@ function runCommand(data, actionString, app, email_address) {
 	if (OSType === "Windows") {
 		var actionString1 = 'scp -o StrictHostKeyChecking=no ./scripts/WinCommands.bat '+ LoginID+'@'+IFN +':/C:/temp/.  ' ,
 		actionString2 = "null" ,
-		actionString3 = 'ssh -n -tt -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' C:/temp/WinCommands.bat ' + LoginID ,
+		actionString3 = 'ssh -n -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' C:/temp/WinCommands.bat ' + LoginID ,
 		actionString4 = 'ssh -o StrictHostKeyChecking=no '+ LoginID+'@'+IFN +' "del C:\\temp\\WinCommands.bat"  ' ;
 	}	else {
 		var actionString1 = 'scp -o StrictHostKeyChecking=no ./scripts/LinCommands.sh '+ LoginID+'@'+IFN +':/tmp/.  ' ,
