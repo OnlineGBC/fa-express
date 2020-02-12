@@ -1,4 +1,4 @@
-chcp 65001
+@echo off
 echo Name and Login information of this server is  
 whoami
 echo .
