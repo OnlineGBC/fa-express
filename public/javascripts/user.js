@@ -523,46 +523,47 @@ $(function() {
       });
 
       Promise.all(promises).then(res => {
+        stateTable.ajax.reload();
         // TODO: More robust visual print out of items succeeded/failed
-        const total = res.length;
-        console.log(res);
-        output = "";
-        res.forEach(function(value, index) {
-          output += "<tr>";
-          output += "<td>" + value.SID + "</td>";
-          output += "<td>" + value.HostName + "</td>";
-          output += "<td>" + value.OSType + "</td>";
-          output += "<td>" + value.IFN + "</td>";
-          if (value.status == "scheduled") {
-            output += "<td>" + value.status + "</td>";
-          } else {
-            output +=
-              '<td><a href="#' +
-              value.filename +
-              '" class="status show-log" data-log="' +
-              value.index +
-              '">' +
-              value.status +
-              "</a></td>";
-          }
-          output += "<tr>";
-        });
-        $(".status-box tbody").append(output);
-        $(".status").click(function(e) {
-          e.preventDefault();
-          logId = this.dataset.log;
-          $("#logs").show();
-          $(".log-data").hide();
-          index = $(".status").index(this);
-          $("#log-" + logId).show();
-        });
-        const counts = res.reduce(
-          (a, c) => {
-            a[c.status]++;
-            return a;
-          },
-          { success: 0, fail: 0 }
-        );
+        // const total = res.length;
+        // console.log(res);
+        // output = "";
+        // res.forEach(function(value, index) {
+        //   output += "<tr>";
+        //   output += "<td>" + value.SID + "</td>";
+        //   output += "<td>" + value.HostName + "</td>";
+        //   output += "<td>" + value.OSType + "</td>";
+        //   output += "<td>" + value.IFN + "</td>";
+        //   if (value.status == "scheduled") {
+        //     output += "<td>" + value.status + "</td>";
+        //   } else {
+        //     output +=
+        //       '<td><a href="#' +
+        //       value.filename +
+        //       '" class="status show-log" data-log="' +
+        //       value.index +
+        //       '">' +
+        //       value.status +
+        //       "</a></td>";
+        //   }
+        //   output += "<tr>";
+        // });
+        // $(".status-box tbody").append(output);
+        // $(".status").click(function(e) {
+        //   e.preventDefault();
+        //   logId = this.dataset.log;
+        //   $("#logs").show();
+        //   $(".log-data").hide();
+        //   index = $(".status").index(this);
+        //   $("#log-" + logId).show();
+        // });
+        // const counts = res.reduce(
+        //   (a, c) => {
+        //     a[c.status]++;
+        //     return a;
+        //   },
+        //   { success: 0, fail: 0 }
+        // );
       });
     }
   });

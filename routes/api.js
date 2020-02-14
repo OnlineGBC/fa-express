@@ -45,7 +45,8 @@ router.post("/automation/actions", async (req, res) => {
   // All properties shown in table are availble here
   const { HostName, LoginID, IFN, CFN, filename, index } = item;
   const { ref_num, schedule, date, time, format, zone, email } = formData;
-
+  console.log(item, "=item");
+  console.log(formData, "=form");
   //Check Email
   if (!doEmail) {
     email_address = "";
@@ -117,7 +118,10 @@ router.post("/automation/actions", async (req, res) => {
           timezone: zone
         }
       );
-      task.start();
+      task.start(item);
+
+      const data = { ...item, ...formData };
+      createLogs(data, "");
       res.json({ status: "scheduled" });
     } else {
       error = "The time format is incorrect";
@@ -138,9 +142,14 @@ function createLogs(data, stdout) {
     SID: SID,
     HostName: HostName,
     content: stdout,
+    CustName: CUSTNAME,
     DateGenerated: moment.utc(new Date()).format("YYYY-MM-DD"),
     TimeGenerated: moment.utc(new Date()).format("HH:MM"),
-    CustName: CUSTNAME
+
+    DateScheduled:
+      "date" in data ? moment.utc(data.date).format("YYYY-MM-DD") : null,
+    TimeScheduled: "time" in data ? data.time : null,
+    TZ: "zone" in data ? data.zone : null
   }).then(function(logs) {});
 }
 /**
