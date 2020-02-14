@@ -1,29 +1,81 @@
 <div class="row" id="action-buttons" style="display: none">
-	<div class="col">
-		<div class="dropdown" style="display: inline-block">
-			<button class="btn btn-success dropdown-toggle" type="button" id="hostActionButton" data-toggle="dropdown"
-			        aria-haspopup="true" aria-expanded="false">
-				Host Actions
-			</button>
-			<div class="dropdown-menu" aria-labelledby="hostActionButton">
-				<a class="dropdown-item" href="#" data-action="host_patch" data-action="app_start" data-target="#scheduler_modal">Patch Upgrade</a>
-				<a class="dropdown-item" href="#" data-action="host_reboot" data-action="app_start" data-target="#scheduler_modal">Reboot</a>
-				<a class="dropdown-item" href="#" data-action="host_kernel" data-action="app_start" data-target="#scheduler_modal">Kernel Upgrade</a>
-			</div>
-		</div>
-   </div>
-	<div class="col">
-		<div class="dropdown" style="display: inline-block">
-			<button class="btn btn-warning dropdown-toggle" type="button" id="appActionButton" data-toggle="dropdown"
-			        aria-haspopup="true" aria-expanded="false">
-				App Actions
-			</button>
-			<div class="dropdown-menu" aria-labelledby="appActionButton">
-				<a href="#" class="dropdown-item" data-action="app_start" data-target="#scheduler_modal">Start App</a>
-				<a class="dropdown-item" href="#" data-action="app_stop" data-target="#scheduler_modal">Stop App</a>
-			</div>
-		</div>
-	</div>
+  <div class="col">
+    <div class="dropdown" style="display: inline-block">
+      <button
+        class="btn btn-success dropdown-toggle"
+        type="button"
+        id="hostActionButton"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        Host Actions
+      </button>
+      <div class="dropdown-menu" aria-labelledby="hostActionButton">
+        <a
+          class="dropdown-item"
+          href="#"
+          data-action="host_patch"
+          data-action="app_start"
+          data-target="#scheduler_modal"
+          >Patch Upgrade</a
+        >
+        <a
+          class="dropdown-item"
+          href="#"
+          data-action="host_reboot"
+          data-action="app_start"
+          data-target="#scheduler_modal"
+          >Reboot</a
+        >
+        <a
+          class="dropdown-item"
+          href="#"
+          data-action="host_kernel"
+          data-action="app_start"
+          data-target="#scheduler_modal"
+          >Kernel Upgrade</a
+        >
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="dropdown" style="display: inline-block">
+      <button
+        class="btn btn-warning dropdown-toggle"
+        type="button"
+        id="appActionButton"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        App Actions
+      </button>
+      <div class="dropdown-menu" aria-labelledby="appActionButton">
+        <a
+          href="#"
+          class="dropdown-item"
+          data-action="app_start"
+          data-target="#scheduler_modal"
+          >Start App</a
+        >
+        <a
+          class="dropdown-item"
+          href="#"
+          data-action="app_stop"
+          data-target="#scheduler_modal"
+          >Stop App</a
+        >
+      </div>
+    </div>
+  </div>
 </div>
-<button style="display: none;" class="btn btn-primary" id="upload-btn" data-toggle="modal" data-target="#upload-file-modal">Upload CSV</button>
-
+<button
+  style="display: none;"
+  class="btn btn-primary"
+  id="upload-btn"
+  data-toggle="modal"
+  data-target="#upload-file-modal"
+>
+  Upload CSV
+</button>
