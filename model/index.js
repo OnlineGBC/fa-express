@@ -6,7 +6,15 @@ var Sequelize = require("sequelize");
 var basename = path.basename(__filename);
 var db = {};
 
-var sequelize = new Sequelize("FA_RPA", "root", "", {
+let db_name = "FA_RPA";
+let user = "rpaauto";
+let pword = "1qaz@WSX";
+
+if (process.env.DB_PASS && process.env.DB_PASS === "none") {
+  pword = "";
+}
+
+var sequelize = new Sequelize(db_name, user, pword, {
   host: "127.0.0.1",
   dialect: "mysql",
   define: {

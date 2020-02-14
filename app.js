@@ -74,8 +74,8 @@ if (process.env.DB_PASS && process.env.DB_PASS === "none") {
 var connection = mysql2.createConnection({
   host: "localhost",
   database: "FA_RPA",
-  user: process.env.DB_USER || "root"
-  //password: pword
+  user: process.env.DB_USER || "rpaauto",
+  password: pword
 });
 
 app.use(logger("dev"));
