@@ -583,7 +583,7 @@ function ipMatch(value) {
 }
 
 router.get("/logs/", function(req, res, next) {
-  model.Logs.findAll().then(function(result) {
+  model.Logs.findAll({order: [['id','DESC']]}).then(function(result) {
     res.json({ data: result });
   });
 });

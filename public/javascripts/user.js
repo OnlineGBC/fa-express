@@ -3,6 +3,10 @@ var socket = io.connect();
 var logIndex = 0;
 var doEmail = false;
 $(function() {
+  setInterval(function() {
+    stateTable.ajax.reload();
+  }, 5000);
+
   selector = $("#time");
   $(selector).inputmask("hh:mm", {
     placeholder: "hh:mm",
@@ -790,7 +794,6 @@ let stateTable = $("#status-box").DataTable({
     { data: "DateScheduled" },
     { data: "SID" }
   ],
-  order: [[1, "asc"]],
   columnDefs: [
     {
       targets: 6,
@@ -804,7 +807,6 @@ let stateTable = $("#status-box").DataTable({
       width: 100,
 
       render: function(data, type, row, meta) {
-        console.log(row, "+++");
         if (type === "display") {
           data = data + " " + row.TimeGenerated;
         }
@@ -816,7 +818,6 @@ let stateTable = $("#status-box").DataTable({
       width: 100,
 
       render: function(data, type, row, meta) {
-        console.log(row, "+++");
         if (!data) {
           return "-";
         }
@@ -865,6 +866,7 @@ $(".log-container").on("click", ".show-log", function(e) {
     }
   });
 
+
   setModalTitle($modal, "Log Item");
   $("#log-form [name=id]").val(data.id);
   $("#log-form [name=HostName]").val(data.HostName);
@@ -894,4 +896,6 @@ $(".log-container").on("click", ".show-log", function(e) {
 
   $modal.data("selected", $row).modal("show");
   //$modal.modal('show');
+
+
 });
