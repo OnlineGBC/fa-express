@@ -582,21 +582,22 @@ function ipMatch(value) {
   return value.match(reg);
 }
 
-router.get("/logs", function(req, res, next) {
-  model.Logs.findAll({order: [['id','DESC']]}).then(function(result) {
+router.get("/partial_logs/", function(req, res, next) {
+  const lastLogId = req.session.lastLogId;
+  model.Logs.findAll({
+    where: { id: { gt: lastLogId } },
+    order: [["id", "DESC"]]
+  }).then(function(result) {
     res.json({ data: result });
   });
 });
 
-router.get("/logs/:id", function(req, res, next) {
-  const id = req.params.id;
-  model.Logs.findOne({ where: { id: id } }).then(function(result) {
-    let bytesView = new Uint8Array(result.content);
-    let content = unescape(new TextDecoder().decode(bytesView));
-    res.render("log", {
-      data: result,
-      content: content
-    });
+router.get("/logs/", function(req, res, next) {
+  const lastLogId = req.session.lastLogId;
+  model.Logs.findAll({
+    order: [["id", "DESC"]]
+  }).then(function(result) {
+    res.json({ data: result });
   });
 });
 module.exports = router;

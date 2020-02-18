@@ -5,7 +5,7 @@ var doEmail = false;
 $(function() {
   setInterval(function() {
     stateTable.ajax.reload();
-  }, 1000);
+  }, 5000);
 
   selector = $("#time");
   $(selector).inputmask("hh:mm", {
@@ -776,7 +776,7 @@ let stateTable = $("#status-box").DataTable({
     [10, 25, 50, -1],
     [10, 25, 50, /*100,*/ "All"]
   ],
-  ajax: "/api/logs",
+  ajax: "/api/partial_logs/",
   columns: [
     { data: "id" },
     { data: "HostName" },
@@ -829,7 +829,7 @@ let stateTable = $("#status-box").DataTable({
       render: function(data, type, row, meta) {
         if (type === "display") {
           data =
-            '<a href="/api/logs/' +
+            '<a href="/log/' +
             row.id +
             '" class="_show-log" target="_blank">[View Log]</a>';
         }
@@ -837,6 +837,79 @@ let stateTable = $("#status-box").DataTable({
       }
     }
   ]
+});
+$(document).ready(function() {
+  $("#log-table").DataTable({
+    responsive: true,
+    paginate: true,
+    rowId: "id",
+
+    lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, /*100,*/ "All"]
+    ],
+    ajax: "/api/logs/",
+    columns: [
+      { data: "id" },
+      { data: "HostName" },
+      { data: "IFN" },
+      { data: "CFN" },
+      { data: "SID" },
+      { data: "CustName" },
+      { data: "content" },
+      { data: "DateGenerated" },
+      { data: "DateScheduled" },
+      { data: "SID" }
+    ],
+    columnDefs: [
+      {
+        targets: 6,
+        render: function(data, type, row, meta) {
+          let bytesView = new Uint8Array(data.data);
+          return unescape(new TextDecoder().decode(bytesView));
+        }
+      },
+      {
+        targets: 7,
+        width: 100,
+
+        render: function(data, type, row, meta) {
+          if (type === "display") {
+            data = data + " " + row.TimeGenerated;
+          }
+          return data;
+        }
+      },
+      {
+        targets: 8,
+        width: 100,
+
+        render: function(data, type, row, meta) {
+          if (!data) {
+            return "-";
+          }
+          if (type === "display") {
+            data = data + " " + row.TimeScheduled;
+          }
+          return data;
+        }
+      },
+      {
+        targets: 9,
+        orderable: false,
+        width: 100,
+        render: function(data, type, row, meta) {
+          if (type === "display") {
+            data =
+              '<a href="/log/' +
+              row.id +
+              '" class="_show-log" target="_blank">[View Log]</a>';
+          }
+          return data;
+        }
+      }
+    ]
+  });
 });
 
 $(".log-container").on("click", ".show-log", function(e) {

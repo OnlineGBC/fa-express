@@ -7,8 +7,8 @@ var basename = path.basename(__filename);
 var db = {};
 
 let db_name = "FA_RPA";
-let user = "rpaauto";
-let pword = "1qaz@WSX";
+let user = "root";
+let pword = "";
 
 if (process.env.DB_PASS && process.env.DB_PASS === "none") {
   pword = "";

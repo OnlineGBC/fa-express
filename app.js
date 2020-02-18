@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const session = require("express-session");
 const path = require("path");
 const favicon = require("serve-favicon");
 const logger = require("morgan");
@@ -8,12 +9,14 @@ const bodyParser = require("body-parser");
 const shell = require("shelljs");
 const index = require("./routes/index");
 const users = require("./routes/users");
+const log = require("./routes/log");
 const api = require("./routes/api");
 const fileUpload = require("express-fileupload");
 const app = express();
 const orm_db = require("./model");
 orm_db.sequelize.sync();
 
+app.use(session({ secret: "secret" }));
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
@@ -34,6 +37,7 @@ app.use(
 
 app.use("/", index);
 app.use("/users", users);
+app.use("/log", log);
 app.use("/api", api);
 
 ("use strict");
@@ -74,8 +78,8 @@ if (process.env.DB_PASS && process.env.DB_PASS === "none") {
 var connection = mysql2.createConnection({
   host: "localhost",
   database: "FA_RPA",
-  user: process.env.DB_USER || "rpaauto",
-  password: pword
+  user: process.env.DB_USER || "root",
+  password: ""
 });
 
 app.use(logger("dev"));
