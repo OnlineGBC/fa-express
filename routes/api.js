@@ -266,9 +266,11 @@ function runCommand(data, actionString, app, email_address) {
             //fs.writeFile("./logs/"+filename, IFN, function(err) {
             fs.writeFile("./logs/" + filename, stdout, function(err) {
               if (err) {
+                createLogs(data, escape(err));
                 return console.log(err);
               }
               stdout.file = filename;
+              createLogs(data, escape(stdout));
               console.log(stdout);
               io.sockets.emit("log", { stdout: stdout, index: index });
               console.log("The file was saved!");
@@ -277,10 +279,8 @@ function runCommand(data, actionString, app, email_address) {
             //actionString3
             exec(actionString4, (err, stdout, stderr) => {
               if (err) {
-                createLogs(data, escape(err));
                 console.log(err);
               } else {
-                createLogs(data, escape(err));
                 console.log(stdout);
               }
             });
@@ -582,10 +582,21 @@ function ipMatch(value) {
   return value.match(reg);
 }
 
-router.get("/logs/", function(req, res, next) {
+router.get("/logs", function(req, res, next) {
   model.Logs.findAll({order: [['id','DESC']]}).then(function(result) {
     res.json({ data: result });
   });
 });
 
+router.get("/logs/:id", function(req, res, next) {
+  const id = req.params.id;
+  model.Logs.findOne({ where: { id: id } }).then(function(result) {
+    let bytesView = new Uint8Array(result.content);
+    let content = unescape(new TextDecoder().decode(bytesView));
+    res.render("log", {
+      data: result,
+      content: content
+    });
+  });
+});
 module.exports = router;

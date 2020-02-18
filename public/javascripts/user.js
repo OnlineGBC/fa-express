@@ -5,7 +5,7 @@ var doEmail = false;
 $(function() {
   setInterval(function() {
     stateTable.ajax.reload();
-  }, 5000);
+  }, 1000);
 
   selector = $("#time");
   $(selector).inputmask("hh:mm", {
@@ -518,11 +518,6 @@ $(function() {
           method: "POST",
           data: postData,
           contentType: "application/json"
-        }).then(res => {
-          const itemCopy = Object.assign({}, item);
-          itemCopy.status = res.status;
-          $scheduler_modal.modal("hide");
-          return itemCopy;
         });
       });
 
@@ -833,7 +828,10 @@ let stateTable = $("#status-box").DataTable({
       width: 100,
       render: function(data, type, row, meta) {
         if (type === "display") {
-          data = '<a href="#" class="show-log">[View Log]</a>';
+          data =
+            '<a href="/api/logs/' +
+            row.id +
+            '" class="_show-log" target="_blank">[View Log]</a>';
         }
         return data;
       }
@@ -866,7 +864,6 @@ $(".log-container").on("click", ".show-log", function(e) {
     }
   });
 
-
   setModalTitle($modal, "Log Item");
   $("#log-form [name=id]").val(data.id);
   $("#log-form [name=HostName]").val(data.HostName);
@@ -896,6 +893,4 @@ $(".log-container").on("click", ".show-log", function(e) {
 
   $modal.data("selected", $row).modal("show");
   //$modal.modal('show');
-
-
 });
