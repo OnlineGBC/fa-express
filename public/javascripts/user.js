@@ -1,10 +1,13 @@
 var table;
+let stateTable;
 var socket = io.connect();
 var logIndex = 0;
 var doEmail = false;
 $(function() {
   setInterval(function() {
-    stateTable.ajax.reload();
+    if (stateTable) {
+      stateTable.ajax.reload();
+    }
   }, 5000);
 
   selector = $("#time");
@@ -477,6 +480,10 @@ $(function() {
 
     $(".main-form").show();
     $(".email-confirm").hide();
+    $scheduler_modal.modal("hide");
+    setTimeout(function() {
+      alert("Please, wait while the job is processing!");
+    }, 1000);
 
     $form = $(this);
     if (!$form.valid()) {
@@ -522,7 +529,9 @@ $(function() {
       });
 
       Promise.all(promises).then(res => {
-        stateTable.ajax.reload();
+        if (stateTable) {
+          stateTable.ajax.reload();
+        }
         // TODO: More robust visual print out of items succeeded/failed
         // const total = res.length;
         // console.log(res);
@@ -767,10 +776,10 @@ function setModalTitle($modal, title) {
   $modal.find(".modal-title").text(title);
 }
 
-let stateTable = $("#status-box").DataTable({
+stateTable = $("#status-box").DataTable({
   responsive: true,
   paginate: true,
-  rowId: "id",
+  rowId: "IFN",
 
   lengthMenu: [
     [10, 25, 50, -1],
@@ -778,27 +787,18 @@ let stateTable = $("#status-box").DataTable({
   ],
   ajax: "/api/partial_logs/",
   columns: [
-    { data: "id" },
     { data: "HostName" },
     { data: "IFN" },
     { data: "CFN" },
     { data: "SID" },
     { data: "CustName" },
-    { data: "content" },
     { data: "DateGenerated" },
     { data: "DateScheduled" },
     { data: "SID" }
   ],
   columnDefs: [
     {
-      targets: 6,
-      render: function(data, type, row, meta) {
-        let bytesView = new Uint8Array(data.data);
-        return unescape(new TextDecoder().decode(bytesView));
-      }
-    },
-    {
-      targets: 7,
+      targets: 5,
       width: 100,
 
       render: function(data, type, row, meta) {
@@ -809,7 +809,7 @@ let stateTable = $("#status-box").DataTable({
       }
     },
     {
-      targets: 8,
+      targets: 6,
       width: 100,
 
       render: function(data, type, row, meta) {
@@ -819,11 +819,11 @@ let stateTable = $("#status-box").DataTable({
         if (type === "display") {
           data = data + " " + row.TimeScheduled;
         }
-        return data;
+        return '<span style="font-weight: bold;">' + data + "</span>";
       }
     },
     {
-      targets: 9,
+      targets: 7,
       orderable: false,
       width: 100,
       render: function(data, type, row, meta) {
@@ -891,7 +891,7 @@ $(document).ready(function() {
           if (type === "display") {
             data = data + " " + row.TimeScheduled;
           }
-          return data;
+          return '<span style="font-weight: bold;">' + data + "</span>";
         }
       },
       {

@@ -9,25 +9,25 @@ block content
       .modal-body
         input#id(type='hidden', name='id', value='#{data.id}')
         .row
-          .form-group.col-3
+          .form-group.col-3.pr-0
             label.col-form-label(for='HostName') HostName
             .col-12
               input#HostName.form-control(name='HostName', type='text', required='required', value='#{data.HostName}')
               .invalid-feedback
                 // server errors
-          .form-group.col-3
+          .form-group.col-3.pr-0
             label.col-form-label(for='IFN') IFN
             .col-12
               input#IFN.form-control(name='IFN', type='text', required='required', value='#{data.IFN}')
               .invalid-feedback
                 // server errors
-          .form-group.col-3
+          .form-group.col-3.pr-0
             label.col-form-label(for='CFN') CFN
             .col-12
               input#CFN.form-control(name='CFN', placeholder='CFN', type='text', required='required', value='#{data.CFN}')
               .invalid-feedback
                 // server errors
-          .form-group.col-3
+          .form-group.col-3.pr-0
             label.col-form-label(for='SID') SID
             .col-12
               input#SID.form-control(name='SID', type='text', required='required', value='#{data.SID}')
@@ -35,13 +35,13 @@ block content
                 // server errors
 
         .row
-          .form-group.col-3
+          .form-group.col-3.pr-0
             label.col-form-label(for='CustName') CUSTNAME
             .col-12
               input#CustName.form-control(name='CustName', type='text', required='required', value='#{data.CustName}')
               .invalid-feedback
                   // server errors
-          .form-group.col-3
+          .form-group.col-3.pr-0
             label.col-form-label(for='DateGenerated') Generated
             .col-12
               input#DateGenerated.form-control(name='DateGenerated', type='text', required='required', value='#{data.DateGenerated} #{data.TimeGenerated}')
@@ -54,9 +54,9 @@ block content
                 input#DateScheduled.form-control(name='DateScheduled', type='text', required='required', value='#{data.DateScheduled} #{data.TimeScheduled}')
                 .invalid-feedback
                   // server errors
-        .form-group.row.col-12
+        .form-group.row
           label.row.col-6.col-form-label(for='Content') Content
-          .col-12
+          .col-12.mr-5.pl-5
             textarea#Content.form-control(name='Content', rows='8', required='required')
               | #{content}
             .invalid-feedback
