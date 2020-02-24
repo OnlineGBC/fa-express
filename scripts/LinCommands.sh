@@ -5,4 +5,5 @@ cat /etc/passwd | grep $1
 echo .
 echo Basic contents are as follows:
 dir
+echo .; echo .; echo These steps are now COMPLETE!
 

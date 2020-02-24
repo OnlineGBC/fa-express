@@ -14,6 +14,7 @@ router.get("/:id", function(req, res, next) {
   model.Logs.findOne({ where: { id: id } }).then(function(result) {
     let bytesView = new Uint8Array(result.content);
     let content = unescape(new TextDecoder().decode(bytesView));
+
     res.render("log-detail", {
       data: result,
       content: content

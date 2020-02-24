@@ -144,7 +144,7 @@ function createLogs(data, stdout) {
     content: stdout,
     CustName: CUSTNAME,
     DateGenerated: moment.utc(new Date()).format("YYYY-MM-DD"),
-    TimeGenerated: moment.utc(new Date()).format("HH:MM"),
+    TimeGenerated: moment.utc(new Date()).format("HH:mm"),
 
     DateScheduled:
       "date" in data ? moment.utc(data.date).format("YYYY-MM-DD") : null,

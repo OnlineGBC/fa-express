@@ -37,7 +37,7 @@ app.use(
 
 app.use("/", index);
 app.use("/users", users);
-app.use("/log", log);
+app.use("/logs", log);
 app.use("/api", api);
 
 ("use strict");

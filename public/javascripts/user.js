@@ -741,8 +741,11 @@ function tableInitCallback() {
   $("#actions-container")
     .append($("#action-buttons"))
     .css("text-align", "center");
+  $("#upload-container").css('display', 'flex')
   $("#upload-container").append($("#upload-btn"));
   $("#upload-btn").show();
+  $("#upload-container").append($("#logs-btn"));
+  $("#logs-btn").show();
 }
 
 /**
@@ -779,14 +782,15 @@ function setModalTitle($modal, title) {
 stateTable = $("#status-box").DataTable({
   responsive: true,
   paginate: true,
-  rowId: "IFN",
-
+  rowId: "id",
+  order: [[0, "desc"]],
   lengthMenu: [
     [10, 25, 50, -1],
     [10, 25, 50, /*100,*/ "All"]
   ],
   ajax: "/api/partial_logs/",
   columns: [
+    { data: "id" },
     { data: "HostName" },
     { data: "IFN" },
     { data: "CFN" },
@@ -798,18 +802,26 @@ stateTable = $("#status-box").DataTable({
   ],
   columnDefs: [
     {
-      targets: 5,
+      targets: 0,
+      visible: false
+    },
+    {
+      targets: 6,
       width: 100,
 
       render: function(data, type, row, meta) {
         if (type === "display") {
           data = data + " " + row.TimeGenerated;
+          data = moment
+            .utc(data)
+            .local()
+            .format("YYYY-MM-DD HH:mm");
         }
         return data;
       }
     },
     {
-      targets: 6,
+      targets: 7,
       width: 100,
 
       render: function(data, type, row, meta) {
@@ -823,13 +835,12 @@ stateTable = $("#status-box").DataTable({
       }
     },
     {
-      targets: 7,
-      orderable: false,
+      targets: 8,
       width: 100,
       render: function(data, type, row, meta) {
         if (type === "display") {
           data =
-            '<a href="/log/' +
+            '<a href="/logs/' +
             row.id +
             '" class="_show-log" target="_blank">[View Log]</a>';
         }
@@ -839,10 +850,17 @@ stateTable = $("#status-box").DataTable({
   ]
 });
 $(document).ready(function() {
+  $("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
+  if ($("#schedule").length && $("#schedule").val() != "immediate") {
+    $(".hidden_fields").show();
+  }
+
+  $("#log-table").css('width', "100%")
   $("#log-table").DataTable({
     responsive: true,
     paginate: true,
     rowId: "id",
+    order: [[0, "desc"]],
 
     lengthMenu: [
       [10, 25, 50, -1],
@@ -864,6 +882,7 @@ $(document).ready(function() {
     columnDefs: [
       {
         targets: 6,
+        width: 400,
         render: function(data, type, row, meta) {
           let bytesView = new Uint8Array(data.data);
           return unescape(new TextDecoder().decode(bytesView));
@@ -876,6 +895,7 @@ $(document).ready(function() {
         render: function(data, type, row, meta) {
           if (type === "display") {
             data = data + " " + row.TimeGenerated;
+            data = moment.utc(data).local().format("YYYY-MM-DD HH:mm");
           }
           return data;
         }
@@ -897,11 +917,11 @@ $(document).ready(function() {
       {
         targets: 9,
         orderable: false,
-        width: 100,
+        width: 120,
         render: function(data, type, row, meta) {
           if (type === "display") {
             data =
-              '<a href="/log/' +
+              '<a href="/logs/' +
               row.id +
               '" class="_show-log" target="_blank">[View Log]</a>';
           }
