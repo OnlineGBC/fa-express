@@ -807,29 +807,26 @@ stateTable = $("#status-box").DataTable({
     },
     {
       targets: 6,
-      width: 100,
+      width: 140,
 
       render: function(data, type, row, meta) {
         if (type === "display") {
           data = data + " " + row.TimeGenerated;
-          data = moment
-            .utc(data)
-            .local()
-            .format("YYYY-MM-DD HH:mm");
+          
         }
         return data;
       }
     },
     {
       targets: 7,
-      width: 100,
+      width: 140,
 
       render: function(data, type, row, meta) {
         if (!data) {
           return "-";
         }
         if (type === "display") {
-          data = data + " " + row.TimeScheduled;
+          data = data + " " + row.TimeScheduled + ' ' + row.TZ
         }
         return '<span style="font-weight: bold;">' + data + "</span>";
       }
@@ -850,7 +847,7 @@ stateTable = $("#status-box").DataTable({
   ]
 });
 $(document).ready(function() {
-  $("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
+  //$("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
   if ($("#schedule").length && $("#schedule").val() != "immediate") {
     $(".hidden_fields").show();
   }
@@ -890,19 +887,19 @@ $(document).ready(function() {
       },
       {
         targets: 7,
-        width: 100,
+        width: 140,
 
         render: function(data, type, row, meta) {
           if (type === "display") {
             data = data + " " + row.TimeGenerated;
-            data = moment.utc(data).local().format("YYYY-MM-DD HH:mm");
+            
           }
           return data;
         }
       },
       {
         targets: 8,
-        width: 100,
+        width: 140,
 
         render: function(data, type, row, meta) {
           if (!data) {

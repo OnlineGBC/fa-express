@@ -143,13 +143,13 @@ function createLogs(data, stdout) {
     HostName: HostName,
     content: stdout,
     CustName: CUSTNAME,
-    DateGenerated: moment.utc(new Date()).format("YYYY-MM-DD"),
-    TimeGenerated: moment.utc(new Date()).format("HH:mm"),
+    DateGenerated: moment(new Date()).format("YYYY-MM-DD"),
+    TimeGenerated: moment(new Date()).format("HH:mm") + ' ' + moment.tz(moment.tz.guess()).zoneAbbr(),
 
     DateScheduled:
-      "date" in data ? moment.utc(data.date).format("YYYY-MM-DD") : null,
+      "date" in data ? moment(data.date).format("YYYY-MM-DD") : null,
     TimeScheduled: "time" in data ? data.time : null,
-    TZ: "zone" in data ? data.zone : null
+    TZ: "zone" in data ? moment.tz(data.zone).zoneAbbr() : null
   }).then(function(logs) {});
 }
 /**

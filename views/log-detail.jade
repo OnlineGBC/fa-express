@@ -52,12 +52,17 @@ block content
                 input#DateScheduled.form-control(name='DateScheduled', type='text', required='required', value='#{data.DateScheduled} #{data.TimeScheduled}')
                 .invalid-feedback
                   // server errors
+        
         .form-group.row(style='flex: 1; display: flex; flex-direction: column;')
           label.row.col-6.col-form-label(for='Content') Content
           .col-12.mr-5.pl-5(style='flex: 1; display: flex; justify-content: center;')
             textarea#Content.form-control(name='Content', rows='8', required='required', style="flex: 1;")
-              | #{content}
+              if data.DateScheduled != null
+                | Current job will run at #{data.DateScheduled}
+              else
+                | #{content}
             .invalid-feedback
+
 
 
 block scripts

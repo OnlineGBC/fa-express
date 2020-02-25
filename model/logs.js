@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       SID: DataTypes.STRING(16),
       content: DataTypes.BLOB,
       DateGenerated: DataTypes.STRING,
-      TimeGenerated: DataTypes.STRING,
+      TimeGenerated: DataTypes.STRING(128),
       TZ: DataTypes.STRING,
       DateScheduled: DataTypes.STRING,
       TimeScheduled: DataTypes.STRING,
