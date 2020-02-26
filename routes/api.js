@@ -67,14 +67,6 @@ router.post("/automation/actions", async (req, res) => {
   // only 4 action names avaialble
 
   switch (action) {
-    case "host_patch":
-      // build the patch string needed (pseudo exmples)
-      actionString += IFN + "/" + CFN;
-      break;
-    case "host_kernel":
-      // kernel string
-
-      break;
     case "app_start":
       // create start string
       break;
