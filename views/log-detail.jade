@@ -1,0 +1,70 @@
+extends layout
+
+block content
+
+    form#log-form
+    .content(style='display: flex; flex-direction: column; min-height: 100vh;')
+      .modal-header(style='background: #eaeaea')
+        h3.modal-title Log Detail
+      .modal-body(style='flex: 1; display: flex; flex-direction: column;')
+        input#id(type='hidden', name='id', value='#{data.id}')
+        .row
+          .form-group.col.pr-0
+            label.col-form-label(for='HostName') HostName
+            .col-12
+              input#HostName.form-control(name='HostName', type='text', required='required', value='#{data.HostName}')
+              .invalid-feedback
+                // server errors
+          .form-group.col.pr-0
+            label.col-form-label(for='IFN') IFN
+            .col-12
+              input#IFN.form-control(name='IFN', type='text', required='required', value='#{data.IFN}')
+              .invalid-feedback
+                // server errors
+          .form-group.col.pr-0
+            label.col-form-label(for='CFN') CFN
+            .col-12
+              input#CFN.form-control(name='CFN', placeholder='CFN', type='text', required='required', value='#{data.CFN}')
+              .invalid-feedback
+                // server errors
+          .form-group.col.pr-0
+            label.col-form-label(for='SID') SID
+            .col-12
+              input#SID.form-control(name='SID', type='text', required='required', value='#{data.SID}')
+              .invalid-feedback
+                // server errors
+          .form-group.col.pr-0
+            label.col-form-label(for='CustName') CUSTNAME
+            .col-12
+              input#CustName.form-control(name='CustName', type='text', required='required', value='#{data.CustName}')
+              .invalid-feedback
+                  // server errors
+          .form-group.col.pr-0
+            label.col-form-label(for='DateGenerated') Generated
+            .col-12
+              input#DateGenerated.form-control(name='DateGenerated', type='text', required='required', value='#{data.DateGenerated} #{data.TimeGenerated}')
+              .invalid-feedback
+                  // server errors
+          if data.DateScheduled != null
+            .form-group.col 
+              label.col-form-label(for='DateScheduled') Scheduled
+              .col-10
+                input#DateScheduled.form-control(name='DateScheduled', type='text', required='required', value='#{data.DateScheduled} #{data.TimeScheduled}')
+                .invalid-feedback
+                  // server errors
+        
+        .form-group.row(style='flex: 1; display: flex; flex-direction: column;')
+          label.row.col-6.col-form-label(for='Content') Content
+          .col-12.mr-5.pl-5(style='flex: 1; display: flex; justify-content: center;')
+            textarea#Content.form-control(name='Content', rows='8', required='required', style="flex: 1;")
+              if data.DateScheduled != null
+                | Current job will run at #{data.DateScheduled}
+              else
+                | #{content}
+            .invalid-feedback
+
+
+
+block scripts
+    script(src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js")
+    script(src='/javascripts/user.js')

@@ -1,6 +1,7 @@
 extends layout
 
 block content
+    input(type='hidden', id='lastLogId', name='lastLogId', value='#{lastLogId}')
     .container#automation-main
         .row
             .col
@@ -60,4 +61,7 @@ block content
     include upload.html
     include uploadFile.html
 block scripts
-    script(src='/javascripts/user.js')                       
+    script(src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js")
+    script(src='/javascripts/user.js')   
+                        
+                        

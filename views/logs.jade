@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    .log-container
+        .status-box
+            table#log-table
+                thead
+                    tr
+                        th ID
+                        th SID
+                        th HostName
+                        th IFN
+                        th CFN
+                        th CustName
+                        th Content
+                        th Generated
+                        th Scheduled
+                        th Action
+                tbody
+    #logs
+        h3 Logs
+        .logs
+
+block scripts
+    script(src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js")
+    script(src='/javascripts/user.js')   
