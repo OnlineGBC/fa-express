@@ -11,6 +11,9 @@ const csv = require("csv-parser");
 const fs = require("fs");
 const eol = require("eol");
 const model = require("../model");
+const ActionRoute = require("./api/action");
+
+router.use("/action", ActionRoute);
 
 // Handle CSV file upload
 router.post("/upload", (req, res) => {

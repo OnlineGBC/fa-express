@@ -1,6 +1,6 @@
 <div class="row" id="action-buttons" style="display: none">
   <div class="col">
-    <div class="dropdown" style="display: inline-block">
+    <div id="appActionsDropdown" class="dropdown" style="display: inline-block">
       <button
         class="btn btn-warning dropdown-toggle"
         type="button"
@@ -8,9 +8,7 @@
         data-toggle="dropdown"
         aria-haspopup="true"
         aria-expanded="false"
-      >
-        App Actions
-      </button>
+      >Actions</button>
       <div class="dropdown-menu" aria-labelledby="appActionButton">
         <a
           href="#"
@@ -25,6 +23,13 @@
           data-action="app_stop"
           data-target="#scheduler_modal"
           >Stop App</a
+        >
+        <a
+          class="dropdown-item"
+          href="#"
+          data-action="app_stop"
+          data-target="#customActionModal"
+          >Custom Action</a
         >
       </div>
     </div>
