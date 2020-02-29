@@ -1,598 +1,75 @@
-const express = require("express");
-const router = express.Router();
-const { checkSchema, validationResult } = require("express-validator/check");
-const util = require("util");
-const exec = require("child_process").exec;
-var cron = require("node-cron");
-const moment = require("moment-timezone");
-const nodemailer = require("nodemailer");
-const { config } = require("../config/smtpconfig");
-const csv = require("csv-parser");
-const fs = require("fs");
-const eol = require("eol");
-const model = require("../model");
-const ActionRoute = require("./api/action");
+const express = require('express');
+const moment = require('moment-timezone');
+const csv = require('csv-parser');
+const fs = require('fs');
+const AutomationRouter = require('./api/automation');
+const ActionRouter = require('./api/action');
+const { database } = require('../container');
 
-router.use("/action", ActionRoute);
+const router = express.Router();
+
+router.use('/automation', AutomationRouter);
+router.use('/action', ActionRouter);
 
 // Handle CSV file upload
-router.post("/upload", (req, res) => {
-  file = req.files.file;
-  data = [];
-  columns = [];
+router.post('/upload', (req, res) => {
+  const { file } = req.files;
+  const data = [];
+  let columns;
   console.log(file.tempFilePath);
   fs.createReadStream(file.tempFilePath)
     .pipe(csv())
-    .on("headers", headers => {
+    .on('headers', (headers) => {
       columns = headers;
     })
-    .on("data", row => {
-      console.log("got a row");
+    .on('data', (row) => {
+      console.log('got a row');
       data.push(row);
     })
-    .on("end", () => {
-      // fs.unlink(file.tempFilePath, function (err) {
-      // 	if (err) throw err;
-      // 	console.log('File deleted!');
-      // });
-      console.log("CSV file successfully processed");
+    .on('end', () => {
+      console.log('CSV file successfully processed');
       console.log(data);
-      res.json({ columns, data });
-    });
-});
-
-router.post("/automation/actions", async (req, res) => {
-  const { action, item, formData, doEmail } = req.body;
-  console.log("action=", action);
-  // destructure the item object properties into individual variables
-  // All properties shown in table are availble here
-  const { HostName, LoginID, IFN, CFN, filename, index } = item;
-  const { ref_num, schedule, date, time, format, zone, email } = formData;
-  console.log(item, "=item");
-  console.log(formData, "=form");
-  //Check Email
-  if (!doEmail) {
-    email_address = "";
-  } else {
-    email_address = email;
-  }
-
-  /************** Concatenate varibles in string example *****/
-  const exampleString = `ssh -n -tt -o LoginID=${LoginID},HostName=${HostName}`;
-  console.log("******Concatention EXAMPLE ********");
-  console.log("Example String = ", exampleString);
-  console.log("/*********************************");
-  /************************************************************/
-
-  // not sure if string can be started for all cases here or not
-  // if not remove what's in the quotes
-  let actionString = "ssh -n ... ";
-  // only 4 action names avaialble
-
-  switch (action) {
-    case "app_start":
-      // create start string
-      break;
-
-    case "app_stop":
-      // create stop string
-      break;
-
-    default:
-      // shouldn't need this but let front end know
-      // when bad action provided
-      return res.status(400).json({ error: "BAD ACTION!" });
-  }
-
-  if (schedule != "immediate") {
-    timeArray = time.split(":");
-    hours = parseInt(timeArray[0]);
-    minutes = parseInt(timeArray[1]);
-    dateArray = date.split("/");
-    day = parseInt(dateArray[1]);
-    month = parseInt(dateArray[0]);
-    if (hours > -1 && hours < 13 && minutes > -1 && minutes < 60) {
-      console.log(hours);
-      if (hours === 12) {
-        hours = 0;
-      }
-      if (format == "pm") {
-        hours = parseInt(hours, 10) + 12;
-      }
-      console.log(minutes + " " + hours + " " + day + " " + month);
-      var task = cron.schedule(
-        `${minutes} ${hours} ${day} ${month} *`,
-        () => {
-          //			var task = cron.schedule(`* * * * *`, () => {
-          console.log("Task started");
-          runCommand(item, actionString, req.app, email_address);
-          task.destroy();
-        },
-        {
-          scheduled: true,
-          timezone: zone
-        }
-      );
-      task.start(item);
-
-      const data = { ...item, ...formData };
-      createLogs(data, "");
-      res.json({ status: "scheduled" });
-    } else {
-      error = "The time format is incorrect";
-      res.status(500).json({ error: error });
-    }
-  } else {
-    runCommand(item, actionString, req.app, email_address);
-    res.json({ status: "success" });
-  }
-});
-
-function createLogs(data, stdout) {
-  const { HostName, IFN, CFN, SID, CUSTNAME } = data;
-
-  model.Logs.create({
-    IFN: IFN,
-    CFN: CFN,
-    SID: SID,
-    HostName: HostName,
-    content: stdout,
-    CustName: CUSTNAME,
-    DateGenerated: moment(new Date()).format("YYYY-MM-DD"),
-    TimeGenerated: moment(new Date()).format("HH:mm") + ' ' + moment.tz(moment.tz.guess()).zoneAbbr(),
-
-    DateScheduled:
-      "date" in data ? moment(data.date).format("YYYY-MM-DD") : null,
-    TimeScheduled: "time" in data ? data.time : null,
-    TZ: "zone" in data ? moment.tz(data.zone).zoneAbbr() : null
-  }).then(function(logs) {});
-}
-/**
- * Run Shell Command
- */
-
-function runCommand(data, actionString, app, email_address) {
-  io = app.get("socketio");
-
-  const { HostName, LoginID, IFN, CFN, OSType, filename, index } = data;
-
-  if (OSType === "Windows") {
-    var actionString1 =
-        "scp -o StrictHostKeyChecking=no ./scripts/WinCommands.bat " +
-        LoginID +
-        "@" +
-        IFN +
-        ":/C:/temp/.  ",
-      actionString2 = "null",
-      actionString3 =
-        "ssh -n -o StrictHostKeyChecking=no " +
-        LoginID +
-        "@" +
-        IFN +
-        " C:/temp/WinCommands.bat " +
-        LoginID,
-      actionString4 =
-        "ssh -o StrictHostKeyChecking=no " +
-        LoginID +
-        "@" +
-        IFN +
-        ' "del C:\\temp\\WinCommands.bat"  ';
-  } else {
-    var actionString1 =
-        "scp -o StrictHostKeyChecking=no ./scripts/LinCommands.sh " +
-        LoginID +
-        "@" +
-        IFN +
-        ":/tmp/.  ",
-      actionString2 =
-        "ssh -n -tt -o StrictHostKeyChecking=no " +
-        LoginID +
-        "@" +
-        IFN +
-        " chmod 777 /tmp/LinCommands.sh ",
-      actionString3 =
-        "ssh -n -tt -o StrictHostKeyChecking=no " +
-        LoginID +
-        "@" +
-        IFN +
-        " /tmp/LinCommands.sh " +
-        LoginID,
-      actionString4 =
-        "ssh -n -tt -o StrictHostKeyChecking=no " +
-        LoginID +
-        "@" +
-        IFN +
-        '  "rm /tmp/LinCommands.sh"  ';
-  }
-  // actionString1
-  exec(actionString1, (err, stdout, stderr) => {
-    if (err) {
-      console.error("error=", err);
-      createLogs(data, escape(err));
-
-      if (email_address != "") {
-        sendMail(
-          "Error with scp command. Please contact developer or your internal technical support.",
-          email_address
-        ).catch(console.error);
-      }
-    } else {
-      console.log(stdout); //Output for actionString1
-
-      exec(actionString2, (err, stdout, stderr) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(stdout);
-        }
-        //actionString3
-        exec(actionString3, (err, stdout, stderr) => {
-          stdout = eol.lf(stdout);
-          if (err) {
-            console.log(err);
-
-            if (email_address != "") {
-              sendMail(
-                "Error executing your chosen command. Please contact developer or your internal techinical support.",
-                email_address
-              ).catch(console.error);
-            }
-
-            //Send output to FrontEnd
-            const fs = require("fs");
-            //fs.writeFile("./logs/"+filename, IFN, function(err) {
-            fs.writeFile("./logs/" + filename, stdout, function(err) {
-              if (err) {
-                return console.log(err);
-              }
-              stdout.file = filename;
-              console.log("stdout=", stdout);
-              io.sockets.emit("log", { stdout: stdout, index: index });
-              console.log("The file was saved!");
-              return;
-            });
-          } else {
-            // Dispatch mail
-            if (email_address != "") {
-              sendMail(stdout, email_address).catch(console.error);
-            }
-            //Send output to FrontEnd
-            const fs = require("fs");
-            //fs.writeFile("./logs/"+filename, IFN, function(err) {
-            fs.writeFile("./logs/" + filename, stdout, function(err) {
-              if (err) {
-                createLogs(data, escape(err));
-                return console.log(err);
-              }
-              stdout.file = filename;
-              createLogs(data, escape(stdout));
-              console.log(stdout);
-              io.sockets.emit("log", { stdout: stdout, index: index });
-              console.log("The file was saved!");
-              return;
-            });
-            //actionString3
-            exec(actionString4, (err, stdout, stderr) => {
-              if (err) {
-                console.log(err);
-              } else {
-                console.log(stdout);
-              }
-            });
-            return;
-          }
-        });
+      res.json({
+        columns,
+        data,
       });
-    }
-  });
-}
-
-async function sendMail(data, email_address) {
-  // create reusable transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport(config);
-
-  // send mail with defined transport object
-  let info = await transporter.sendMail({
-    from: "FUN-SWAlert@onlinegbc.com", // sender address
-    to: email_address, // list of receivers
-    subject: "Logs for recent actions performed", // Subject line
-    html: `<pre>${data}</pre>` // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-}
-
-/**
- * GET all from Automation table to send to browser to create UI table
- */
-router.get("/automation", function(req, res, next) {
-  var sql = "SELECT * FROM FA_RPA.Automation ORDER BY id ASC";
-
-  db.query(sql, function(err, result, field) {
-    if (!err) {
-      result.forEach(item => {
-        Object.keys(item).forEach(k => {
-          // table plugin doesn't like `null` as values
-          if (item[k] == null) {
-            item[k] = "";
-          }
-        });
-      });
-      res.json({ data: result });
-    } else {
-      res.sendStatus(500);
-    }
-  });
-});
-
-/**
- * For IP Matching validtion *
- */
-const invalidIP = {
-  errorMessage: "Invalid IP Address",
-  options: ipMatch
-};
-
-/**
- * Crude schema for validation
- */
-const schema = {
-  HostName: {
-    isLength: {
-      errorMessage: "HostName too short",
-      // Multiple options would be expressed as an array
-      options: { min: 2 }
-    }
-  },
-  CMD_PREFIX: {
-    optional: true
-  },
-  IFN: {
-    custom: invalidIP
-  },
-  CFN: {
-    custom: invalidIP
-  },
-  OSType: {
-    optional: true
-  },
-  SID: {
-    // not sure what rules are
-  },
-  DBTYPE: {
-    optional: true
-  },
-  AppType: {
-    optional: true
-  },
-  CUSTNAME: {
-    isLength: {
-      options: { min: 2 }
-    }
-  },
-  LOCATION: {
-    isLength: {
-      options: { min: 2 }
-    }
-  }
-};
-
-/**
- * Create new Automation item
- */
-router.post("/validate", checkSchema(schema), (req, res) => {
-  console.log(req.body);
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  } else {
-    res.sendStatus(200);
-  }
-});
-
-/**
- * Create new Automation item
- */
-router.post("/automation", checkSchema(schema), (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  } else {
-    try {
-      const data = Object.assign({}, req.body);
-      delete data.id;
-      const fields = [],
-        values = [];
-      Object.entries(data).forEach(([key, value]) => {
-        if (value == "") {
-          value = null;
-        }
-        fields.push(key);
-        values.push(value);
-      });
-
-      const sql = `INSERT INTO FA_RPA.Automation (${fields.join()}) VALUES (${fields
-        .map(() => "?")
-        .join()})`;
-
-      db.execute(sql, values, function(err, result, fields) {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ err: err.message });
-        } else {
-          const id = result.insertId;
-          data.id = id;
-          //console.log(result);
-          res.json(data);
-        }
-      });
-    } catch (e) {
-      //console.log(e);
-      res.status(500).json({ err: e.message });
-    }
-  }
-});
-
-/**
- * Delete Automation table item
- */
-router.delete("/automation/:id", (req, res) => {
-  const id = req.params.id;
-  if (isNaN(id) || id < 1) {
-    return res.sendStatus(400);
-  } else {
-    const sql = "DELETE FROM FA_RPA.Automation WHERE id= ?";
-    db.execute(sql, [id], (err, result) => {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-      } else {
-        res.sendStatus(200);
-      }
     });
-  }
-});
-
-/**
- * Update existing Automation table item
- */
-router.put("/automation", checkSchema(schema), (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  } else {
-    const body = req.body;
-    const fields = [],
-      values = [];
-    Object.entries(body).forEach(([key, value]) => {
-      if (key == "Order") {
-        value = parseInt(value);
-        console.log("Order->" + value);
-      }
-      fields.push(key);
-      values.push(value);
-    });
-    values.push(body.id);
-    const setClause = fields.map(field => `${field} = ?`).join();
-    const sql = `UPDATE FA_RPA.Automation SET ${setClause} WHERE id = ?`;
-    db.execute(sql, values, (err, results, fields) => {
-      if (!err) {
-        body.id = parseInt(body.id);
-        res.json(body);
-      } else {
-        console.log(err);
-        res.sendStatus(500);
-      }
-    });
-  }
-});
-
-/**
- * GET LoginIds from table
- */
-router.get("/automation/ids", function(req, res, next) {
-  const sql = `SHOW COLUMNS FROM FA_RPA.Automation`;
-
-  db.execute(sql, function(err, result, fields) {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ err: err.message });
-    } else {
-      res.json({ data: result });
-    }
-  });
-
-  // var sql = "SELECT DISTINCT LoginID from fa_rpa.automation";
-
-  // db.query(sql, function (err, result, field) {
-  // 	if (!err) {
-  // 		res.json({data : result});
-  // 	} else {
-  // 		res.sendStatus(500)
-  // 	}
-
-  // });
 });
 
 /**
  * Task Scheduler
  */
-
-/**
- * Create new Automation item
- */
-router.post("/schedule", (req, res) => {
-  try {
-    const data = Object.assign({}, req.body);
-    const fields = [],
-      values = [];
-    Object.entries(data).forEach(([key, value]) => {
-      fields.push(key);
-      values.push(value);
-    });
-
-    time = data.time.split(":");
-    hours = parseInt(time[0]);
-    minutes = parseInt(time[1]);
-
-    if (hours > -1 && hours < 13 && minutes > -1 && minutes < 60) {
-      if (data.format == "pm") {
-        hours = parseInt(hours, 10) + 12;
-      }
-      var task = cron.schedule(
-        `${minutes} ${hours} * * *`,
-        () => {
-          console.log("Task started");
-          task.destroy();
-        },
-        {
-          scheduled: true
-        }
-      );
-
-      task.start();
-    } else {
-      error = "Your time format is incorrect";
-      res.status(500).json({ error: error });
-    }
-  } catch (e) {
-    //console.log(e);
-    res.status(500).json({ err: e.message });
-  }
+router.get('/timezones', (req, res) => {
+  const rawData = fs.readFileSync('public/assets/timezones.json');
+  const timezones = Object.keys(JSON.parse(rawData));
+  const mapped = timezones.map((timezone) => {
+    return {
+      hours: moment.tz(timezone)
+        .format('Z'),
+      text: `${moment.tz(timezone)
+        .format('z Z')} (${timezone})`,
+    };
+  });
+  return res.json(mapped);
 });
 
-router.get("/timezones", (req, res) => {
-  const fs = require("fs");
-  let rawdata = fs.readFileSync("public/assets/timezones.json");
-  let timezones = JSON.parse(rawdata);
-  output = {};
-  for (zone in timezones) {
-    output[zone] = moment.tz(zone).format("z Z") + ` (${zone})`;
-  }
-  return res.json(output);
-});
-
-function ipMatch(value) {
-  const reg = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gm;
-  return value.match(reg);
-}
-
-router.get("/partial_logs/", function(req, res, next) {
-  const lastLogId = req.session.lastLogId;
-  model.Logs.findAll({
+router.get('/partial_logs/', (req, res) => {
+  const { lastLogId } = req.session;
+  database.logsModel.findAll({
     where: { id: { gt: lastLogId } },
-    order: [["id", "DESC"]]
-  }).then(function(result) {
-    res.json({ data: result });
-  });
+    order: [['id', 'DESC']],
+  })
+    .then((result) => {
+      res.json({ data: result });
+    });
 });
 
-router.get("/logs/", function(req, res, next) {
-  const lastLogId = req.session.lastLogId;
-  model.Logs.findAll({
-    order: [["id", "DESC"]]
-  }).then(function(result) {
-    res.json({ data: result });
-  });
+router.get('/logs/', (req, res) => {
+  database.logsModel.findAll({
+    order: [['id', 'DESC']],
+  })
+    .then((result) => {
+      res.json({ data: result });
+    });
 });
 module.exports = router;

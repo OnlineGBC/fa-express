@@ -5,10 +5,10 @@
         <div class="modal-header" style="background: #eaeaea">
           <h3 class="modal-title">Run/Schedule Start Apps</h3>
           <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
           >
             <span aria-hidden="true">&times;</span>
           </button>
@@ -16,22 +16,22 @@
         <div class="modal-body">
           <div class="main-form">
             <div class="item">
-              <p>Reference Number</p>
+              <p>Would you like to receive an email?</p>
               <input
-                type="text"
-                id="ref_num"
-                name="ref_num"
-                class="form-control"
+                  type="text"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  placeholder="Email Address"
               />
             </div>
             <div class="item">
-              <p>When to start change</p>
+              <label for="schedule">When to start change</label>
               <select
-                id="schedule"
-                name="schedule"
-                class="form-dropdown"
-                onchange="showFields(this.value)"
-              >
+                  id="schedule"
+                  name="schedule"
+                  class="form-control"
+                  onchange="showFields(this.value)">
                 <option value="immediate" selected>Immediate</option>
                 <option value="specified_time">At specified time</option>
               </select>
@@ -40,11 +40,11 @@
               <div class="item">
                 <p>Date of change</p>
                 <input
-                  id="date"
-                  class="form-control"
-                  autocomplete="off"
-                  placeholder="mm/dd/yyyy"
-                  name="date"
+                    id="date"
+                    class="form-control"
+                    autocomplete="off"
+                    placeholder="mm/dd/yyyy"
+                    name="date"
                 />
                 <span class="glyphicon glyphicon-calendar"></span>
               </div>
@@ -52,11 +52,11 @@
                 <p>Time of change</p>
                 <div class="flex-box">
                   <input
-                    id="time"
-                    class="form-control"
-                    autocomplete="off"
-                    name="time"
-                    placeholder="hh:mm"
+                      id="time"
+                      class="form-control"
+                      autocomplete="off"
+                      name="time"
+                      placeholder="hh:mm"
                   />
                   <select id="format" name="format">
                     <option value="am">AM</option>
@@ -68,40 +68,13 @@
                 </div>
               </div>
             </div>
-            <input type="hidden" id="task_name" name="task_name" value="" />
-          </div>
-          <div class="email-confirm" style="display: none;">
-            <div class="item">
-              <p>Would you like to receive an email?</p>
-              <input
-                type="text"
-                id="email"
-                name="email"
-                class="form-control"
-                placeholder="Email Address"
-              />
-            </div>
+            <input type="hidden" id="task_name" name="task_name" value=""/>
           </div>
         </div>
         <div class="modal-footer">
-          <div class="main-form">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-            >
-              Close
-            </button>
-            <button class="btn btn-primary" id="promptEmail">Next</button>
-          </div>
-          <div class="email-confirm" style="display: none;">
-            <button class="btn btn-secondary" onclick="setEmail(false)">
-              Skip
-            </button>
-            <button class="btn btn-primary" onclick="setEmail(true)">
-              Submit
-            </button>
-          </div>
+          <button class="btn btn-primary" type="submit">
+            Submit
+          </button>
         </div>
       </div>
     </form>
@@ -109,13 +82,12 @@
 </div>
 <script>
   function showFields(value) {
-    if (value == "immediate") {
-      $(".hidden_fields").hide();
+    if (value === 'immediate') {
+      $('.hidden_fields')
+        .hide();
     } else {
-      $(".hidden_fields").show();
+      $('.hidden_fields')
+        .show();
     }
-  }
-  function setEmail(set) {
-    doEmail = set;
   }
 </script>

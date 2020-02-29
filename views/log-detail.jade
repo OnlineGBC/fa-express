@@ -46,18 +46,18 @@ block content
               .invalid-feedback
                   // server errors
           if data.DateScheduled != null
-            .form-group.col 
+            .form-group.col
               label.col-form-label(for='DateScheduled') Scheduled
               .col-10
                 input#DateScheduled.form-control(name='DateScheduled', type='text', required='required', value='#{data.DateScheduled} #{data.TimeScheduled}')
                 .invalid-feedback
                   // server errors
-        
+
         .form-group.row(style='flex: 1; display: flex; flex-direction: column;')
           label.row.col-6.col-form-label(for='Content') Content
           .col-12.mr-5.pl-5(style='flex: 1; display: flex; justify-content: center;')
             textarea#Content.form-control(name='Content', rows='8', required='required', style="flex: 1;")
-              if data.DateScheduled != null
+              if data.DateScheduled != null && data.content == null
                 | Current job will run at #{data.DateScheduled}
               else
                 | #{content}
