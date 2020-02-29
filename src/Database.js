@@ -88,6 +88,13 @@ class Database {
         ErroCode: errorCode,
       });
   }
+
+  getLogsGreaterThanId(id) {
+    return this.logsModel.findAll({
+      where: { id: { [Op.gt]: id } },
+      order: [['id', 'DESC']],
+    });
+  }
 }
 
 module.exports = Database;

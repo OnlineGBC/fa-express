@@ -92,18 +92,6 @@ $(() => {
       return false;
     });
 
-  // Get Logs from server
-  socket.on('log', (data) => {
-    // $('.logs').show();
-    // $('#logs').show();
-    const log = data.stdout;
-    const { index } = data;
-    const logElement = $(`<pre class="log-data" id="log-${index}"></pre>`);
-    logElement.text(log);
-    $('.logs')
-      .append(logElement);
-  });
-
   const userData = [];
   const $upload_modal = $('#upload-modal');
 

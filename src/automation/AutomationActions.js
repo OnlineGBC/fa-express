@@ -83,6 +83,8 @@ class AutomationActions {
       execute: `ssh -n -tt -o StrictHostKeyChecking=no /tmp/${scriptBaseName}`,
     };
 
+    let logContent = '';
+    let errorCode;
     try {
       await exec(commands.copy);
       console.log(`script copied to the remote server ${internalFacingNetworkIp}`);
@@ -98,23 +100,14 @@ class AutomationActions {
           .catch(console.error);
       }
 
-      await this.logger.writeLogFile(stdout, logFileName);
+      logContent = stdout;
       console.log('The Log file saved');
-      this.database.updateLogContentById(logId, stdout);
-      // TODO: move socket.io logic
-      // io.sockets.emit('log', {
-      //   stdout: stdout,
-      //   index,
-      // });
-
       await exec(commands.remove);
       console.log('Script removed from the remote server');
-      return stdout;
     } catch (error) {
       console.error('Error while executing the script', error);
-      this.database.updateLogContentById(logId, error.toString(), error.code);
-      this.logger.writeLogFile(error.toString(), logFileName);
-
+      logContent = error.toString();
+      errorCode = error.code;
       // TODO: only send if the occurred while copying/executing the script.
       if (emailAddress) {
         this.mailer.sendMail(
@@ -124,6 +117,8 @@ class AutomationActions {
           .catch(console.error);
       }
     }
+    this.database.updateLogContentById(logId, logContent, errorCode);
+    this.logger.writeLogFile(logContent, logFileName, logId);
   }
 }
 

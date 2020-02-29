@@ -55,10 +55,7 @@ router.get('/timezones', (req, res) => {
 
 router.get('/partial_logs/', (req, res) => {
   const { lastLogId } = req.session;
-  database.logsModel.findAll({
-    where: { id: { gt: lastLogId } },
-    order: [['id', 'DESC']],
-  })
+  database.getLogsGreaterThanId(lastLogId)
     .then((result) => {
       res.json({ data: result });
     });
@@ -72,4 +69,5 @@ router.get('/logs/', (req, res) => {
       res.json({ data: result });
     });
 });
+
 module.exports = router;
