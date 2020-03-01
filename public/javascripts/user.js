@@ -588,6 +588,11 @@ $(() => {
       .val();
 
     $schedulerModal.modal('hide');
+    $.alert({
+      type: 'info',
+      title: 'Please wait',
+      content: 'Please, wait while the job is processing!',
+    });
 
     return $.ajax({
       url: '/api/automation/actions',
