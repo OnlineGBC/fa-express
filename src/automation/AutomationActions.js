@@ -74,13 +74,15 @@ class AutomationActions {
     const isWindows = osType.toLowerCase()
       .includes('windows');
 
-    const tempFilePath = isWindows ? `C:/temp/${scriptBaseName}` : `/tmp/${scriptBaseName}`;
+    const tempFilePath = isWindows ? `C:\\temp\\${scriptBaseName}` : `/tmp/${scriptBaseName}`;
+    const executableTmpFilePath = isWindows ? `C:/temp/${scriptBaseName}` : `/tmp/${scriptBaseName}`;
+    const scpDestination = isWindows ? '/C:/temp/.' : '/tmp/.';
 
     const commands = {
-      copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:/tmp/.`,
-      remove: `ssh -n -tt -o StrictHostKeyChecking=no ${isWindows ? 'del' : 'rm'} ${tempFilePath}`,
-      chmod: isWindows ? null : `ssh -n -tt -o StrictHostKeyChecking=no chmod 777 /tmp/${scriptBaseName}`,
-      execute: `ssh -n -tt -o StrictHostKeyChecking=no /tmp/${scriptBaseName}`,
+      copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
+      remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${isWindows ? 'del' : 'rm'} ${tempFilePath}`,
+      chmod: isWindows ? null : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`,
+      execute: `ssh -n -o StrictHostKeyChecking=no ${hostWithLogin} ${executableTmpFilePath}`,
     };
 
     let logContent = '';
