@@ -56,7 +56,7 @@ block content
         .form-group.row(style='flex: 1; display: flex; flex-direction: column;')
           label.row.col-6.col-form-label(for='Content') Content
           .col-12.mr-5.pl-5(style='flex: 1; display: flex; justify-content: center;')
-            textarea#Content.form-control(name='Content', rows='8', required='required', style="flex: 1;")
+            pre#Content.form-control(style="flex: 1;height: auto;")
               if data.DateScheduled != null && data.content == null
                 | Current job will run at #{data.DateScheduled}
               else
