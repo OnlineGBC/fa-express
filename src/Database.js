@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const { Op } = require('sequelize');
 const path = require('path');
 
@@ -24,7 +24,7 @@ class Database {
     return this.automationModel.findAll();
   }
 
-  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = 'UTC') {
+  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess()) {
     const machines = await this.findMachineDetailsByIds([machineId]);
     if (!machines[0]) {
       throw new Error('Machine not found');
@@ -41,7 +41,7 @@ class Database {
     const formatTime = (date) => `${date.format('HH:mm')} ${date.zoneAbbr()}`;
 
     const dateGenerated = moment(generatedAt)
-      .tz(timezone);
+      .tz(moment.tz.guess());
     const timeGenerated = formatTime(dateGenerated);
     const formattedDateGenerated = dateGenerated.format('YYYY-MM-DD');
     const timezoneAbbreviation = dateGenerated.zoneAbbr();
