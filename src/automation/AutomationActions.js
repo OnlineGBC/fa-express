@@ -3,6 +3,7 @@ const { promisify } = require('util');
 const childProcess = require('child_process');
 const utils = require('../utils');
 
+const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
 
 class AutomationActions {
@@ -83,7 +84,6 @@ class AutomationActions {
       copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
       remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${isWindows ? 'del' : 'rm'} ${tempFilePath}`,
       chmod: isWindows ? null : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`,
-      execute: `ssh -n -o StrictHostKeyChecking=no ${hostWithLogin} ${executableTmpFilePath}`,
     };
 
     let logContent = '';
@@ -95,8 +95,8 @@ class AutomationActions {
         await exec(commands.chmod);
         console.log('script made executable successfully');
       }
-      const { stdout } = await exec(commands.execute);
 
+      const stdout = await this.executeScriptOnHost(hostWithLogin, executableTmpFilePath);
       // Dispatch mail
       if (emailAddress) {
         this.mailer.sendMail(stdout, emailAddress)
@@ -122,6 +122,17 @@ class AutomationActions {
     }
     const log = await this.database.updateLogContentById(logId, logContent, errorCode);
     this.logger.writeLogFile(logFileName, log);
+  }
+
+  async executeScriptOnHost(hostWithLogin, scriptPath) {
+    const ls = spawn('ssh', ['-n', '-o', 'StrictHostKeyChecking=no', hostWithLogin, scriptPath]);
+    let fullOutput = '';
+    ls.stdout.on('data', (data) => {
+      fullOutput += data.toString();
+    });
+    return new Promise((resolve) => {
+      ls.on('exit', () => resolve(fullOutput));
+    });
   }
 }
 

@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
     CFN: DataTypes.STRING(16),
     IFN: DataTypes.STRING(16),
     SID: DataTypes.STRING(16),
-    content: DataTypes.BLOB,
+    content: DataTypes.BLOB('long'),
     DateGenerated: DataTypes.STRING,
     TimeGenerated: DataTypes.STRING(128),
     TZ: DataTypes.STRING,
