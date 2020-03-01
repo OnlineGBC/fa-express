@@ -1,6 +1,7 @@
 const socket = io.connect();
 
 let table;
+let timeZones;
 const logsTable = $('#status-box')
   .DataTable({
     responsive: true,
@@ -45,7 +46,7 @@ const logsTable = $('#status-box')
             return '-';
           }
           if (type === 'display') {
-            data = `${data} ${row.TimeScheduled} ${row.TZ}`;
+            data = `${data} ${row.TimeScheduled}`;
           }
           return `<span style="font-weight: bold;">${data}</span>`;
         },
@@ -65,6 +66,13 @@ const logsTable = $('#status-box')
     ],
   });
 
+$('#action-buttons .dropdown-item')
+  .click(function () {
+    const targetModalId = $(this)
+      .data('target');
+    $(targetModalId)
+      .modal('show');
+  });
 
 $(() => {
   $('#time')
@@ -233,8 +241,9 @@ $(() => {
     url: '/api/timezones',
     method: 'GET',
   })
-    .then((timezones) => {
-      for (const item of timezones) {
+    .then((zones) => {
+      timeZones = zones;
+      for (const item of zones) {
         $('#zone')
           .append($(`<option value="${item.hours}">${item.text}</option>`));
       }
@@ -570,13 +579,18 @@ $(() => {
       .map((element) => table.row(element)
         .data().id);
 
-    const timezone = $('#zone')
+    const timezoneHours = $('#zone')
       .val() || '';
+    const selectedTimezoneText = $('#zone option:selected')
+      .text();
+    const timezone = timezoneHours ? timeZones.find(({ text }) => text === selectedTimezoneText).timezone : '';
+
+
     let scheduleAt;
     if (!isImmediate) {
       scheduleAt = (new Date(`${dateValue} ${$('#time')
         .val()} ${$('#format')
-        .val()} ${timezone}`)).getTime();
+        .val()} GMT${timezoneHours}`)).getTime();
     }
 
     if (!isValid || (scheduleAt < Date.now())) {
@@ -605,6 +619,7 @@ $(() => {
         machineIds,
         isImmediate,
         scheduleAt,
+        timezone,
       }),
       dataType: 'json',
       contentType: 'application/json',

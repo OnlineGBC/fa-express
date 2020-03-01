@@ -10,12 +10,14 @@ router.post('/', async (req, res) => {
     scriptName,
     scheduleAt,
     emailAddress,
+    timezone,
   } = req.body;
 
   try {
     await automationActions.runScript(scriptName, machineIds, isImmediate, {
       scheduleAt,
       emailAddress,
+      timezone,
     });
     res.json({
       status: 'success',

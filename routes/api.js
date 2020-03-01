@@ -46,6 +46,7 @@ router.get('/timezones', (req, res) => {
     return {
       hours: moment.tz(timezone)
         .format('Z'),
+      timezone,
       text: `${moment.tz(timezone)
         .format('z Z')} (${timezone})`,
     };
