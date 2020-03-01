@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const eol = require('eol');
 const { promisify } = require('util');
 
 const readFile = promisify(fs.readFile);
@@ -11,7 +12,8 @@ async function saveAction(filename, extension, menuTitle, { filePath, contents }
   const targetName = `${filename}.${extension}`;
   const newFilePath = path.join('./scripts/', targetName);
   if (contents) {
-    await writeFile(newFilePath, contents, { encoding: 'utf8' });
+    const normalizedContent = eol.lf(contents);
+    await writeFile(newFilePath, normalizedContent, { encoding: 'utf8' });
   } else {
     await rename(filePath, newFilePath);
   }
