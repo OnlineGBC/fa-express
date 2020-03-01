@@ -1,7 +1,7 @@
 const socket = io.connect();
 
 let table;
-const stateTable = $('#status-box')
+const logsTable = $('#status-box')
   .DataTable({
     responsive: true,
     paginate: true,
@@ -11,7 +11,6 @@ const stateTable = $('#status-box')
       [10, 25, 50, -1],
       [10, 25, 50, /* 100, */ 'All'],
     ],
-    ajax: '/api/partial_logs/',
     columns: [
       { data: 'id' },
       { data: 'HostName' },
@@ -68,12 +67,6 @@ const stateTable = $('#status-box')
 
 
 $(() => {
-  setInterval(() => {
-    if (stateTable) {
-      stateTable.ajax.reload();
-    }
-  }, 5000);
-
   $('#time')
     .inputmask('hh:mm', {
       placeholder: 'hh:mm',
@@ -579,14 +572,11 @@ $(() => {
 
     const timezone = $('#zone')
       .val() || '';
-    console.log('machineIds', machineIds);
-
     let scheduleAt;
     if (!isImmediate) {
       scheduleAt = (new Date(`${dateValue} ${$('#time')
         .val()} ${$('#format')
         .val()} ${timezone}`)).getTime();
-      console.log('scheduleAt', scheduleAt);
     }
 
     if (!isValid) {
@@ -611,12 +601,7 @@ $(() => {
       }),
       dataType: 'json',
       contentType: 'application/json',
-    })
-      .then(() => {
-        if (stateTable) {
-          stateTable.ajax.reload();
-        }
-      });
+    });
   });
 
   /**
@@ -740,6 +725,11 @@ $(() => {
           alert('Problem submitting form, please try again');
         }
       });
+  });
+
+  socket.on('log', (log) => {
+    logsTable.row.add(log)
+      .draw(false);
   });
 });
 
@@ -928,7 +918,7 @@ $('.log-container')
       .closest('tr');
     const $modal = $('#log-form-modal');
     const $form = $('#log-form');
-    const data = stateTable.row($row)
+    const data = logsTable.row($row)
       .data();
     console.log(data, '---');
     $form.validate({

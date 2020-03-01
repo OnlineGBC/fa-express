@@ -17,11 +17,14 @@ class Logger {
     this.onSaveLogListeners.push(listener);
   }
 
-  async writeLogFile(data, fileName, logId) {
-    await writeFile(LOGS_DIR + fileName, data);
+  notifyListeners(log) {
     for (const listener of this.onSaveLogListeners) {
-      listener(data, fileName, logId);
+      listener(log);
     }
+  }
+
+  async writeLogFile(fileName, log) {
+    await writeFile(LOGS_DIR + fileName, log.content);
   }
 }
 

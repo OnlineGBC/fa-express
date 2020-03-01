@@ -53,14 +53,6 @@ router.get('/timezones', (req, res) => {
   return res.json(mapped);
 });
 
-router.get('/partial_logs/', (req, res) => {
-  const { lastLogId } = req.session;
-  database.getLogsGreaterThanId(lastLogId)
-    .then((result) => {
-      res.json({ data: result });
-    });
-});
-
 router.get('/logs/', (req, res) => {
   database.logsModel.findAll({
     order: [['id', 'DESC']],

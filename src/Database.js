@@ -70,15 +70,19 @@ class Database {
     });
   }
 
-  async updateLogContentById(id, content, errorCode) {
-    if (typeof errorCode !== 'number') {
-      errorCode = null;
-    }
-    const logFile = await this.logsModel.findOne({
+  findLogById(id) {
+    return this.logsModel.findOne({
       where: {
         id,
       },
     });
+  }
+
+  async updateLogContentById(id, content, errorCode) {
+    if (typeof errorCode !== 'number') {
+      errorCode = null;
+    }
+    const logFile = await this.findLogById(id);
     if (!logFile) {
       throw new Error('Log not found');
     }
@@ -87,13 +91,6 @@ class Database {
         content,
         ErroCode: errorCode,
       });
-  }
-
-  getLogsGreaterThanId(id) {
-    return this.logsModel.findAll({
-      where: { id: { [Op.gt]: id } },
-      order: [['id', 'DESC']],
-    });
   }
 }
 

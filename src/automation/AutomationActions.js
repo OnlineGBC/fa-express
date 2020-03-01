@@ -52,6 +52,7 @@ class AutomationActions {
       const machineId = machinesIds[index];
       const scheduledAt = immediate ? null : runAt;
       const log = await this.database.saveLog(machineId, null, now, scheduledAt, options.timezone);
+      this.logger.notifyListeners(log);
       await utils.delay(timeout);
       return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
         logId: log.id,
@@ -119,8 +120,8 @@ class AutomationActions {
           .catch(console.error);
       }
     }
-    this.database.updateLogContentById(logId, logContent, errorCode);
-    this.logger.writeLogFile(logContent, logFileName, logId);
+    const log = await this.database.updateLogContentById(logId, logContent, errorCode);
+    this.logger.writeLogFile(logFileName, log);
   }
 }
 
