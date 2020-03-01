@@ -579,7 +579,9 @@ $(() => {
         .val()} ${timezone}`)).getTime();
     }
 
-    if (!isValid) {
+    if (!isValid || (scheduleAt < Date.now())) {
+      $schedulerForm.find('.invalid-schedule-date')
+        .show();
       return;
     }
 
@@ -608,84 +610,6 @@ $(() => {
       contentType: 'application/json',
     });
   });
-
-  /**
-   * Handle sending all checked items to server
-   * when an action button is clicked
-   */
-
-  $('#action-buttons .dropdown-item')
-    .click(function (e) {
-      e.preventDefault();
-      const action = $(this)
-        .data('action');
-      const items = $('#automation tbody .selected')
-        .map(function () {
-          return table.row(this)
-            .data();
-          // /return this;
-        })
-        .get();
-
-      thisModal = $(this)
-        .data('target');
-      $(thisModal)
-        .modal('show');
-
-      $('#task_name')
-        .val(action);
-
-      /* 		if (items.length) {
-            // array of request promises
-            const promises = items.map((item, index) => {
-              const filename = Math.random().toString(36).substring(7) + ".txt";
-              item.filename = filename;
-              item.index = index;
-              console.log(filename + '  ' + item.IFN);
-              const postData = JSON.stringify({ action, item });
-              return $.ajax({
-                url: '/api/automation/actions',
-                method: 'POST',
-                data: postData,
-                contentType: 'application/json'
-
-              }).then(res => {
-                const itemCopy = Object.assign({}, item);
-                itemCopy.status = 'success';
-                return itemCopy;
-              })
-            });
-
-            Promise.all(promises).then(res => {
-              // TODO: More robust visual print out of items succeeded/failed
-              const total = res.length;
-              console.log(res);
-              output = '';
-              res.forEach(function (value, index) {
-                output += '<tr>';
-                output += '<td>' + value.SID + '</td>';
-                output += '<td>' + value.HostName + '</td>';
-                output += '<td>' + value.OSType + '</td>';
-                output += '<td>' + value.IFN + '</td>';
-                output += '<td><a href="/logs/' + value.filename + '" class="status">' + value.status + '</a></td>';
-                output += '<tr>';
-              });
-              $('.status-box tbody').append(output);
-              $('.status').click(function (e) {
-                e.preventDefault();
-                $('#logs').show();
-                $('.log-data').hide();
-                index = $('.status').index(this);
-                $('#log-' + index).show();
-              });
-              const counts = res.reduce((a, c) => {
-                a[c.status]++;
-                return a;
-              }, { success: 0, fail: 0 });
-
-            })
-          } */
-    });
 
   /**
    * Form submit event handler

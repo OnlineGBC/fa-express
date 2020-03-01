@@ -65,62 +65,67 @@ async function updateActions() {
 
 $(document)
   .ready(() => {
-    const customActionModal = $('#customActionModal');
-    customActionModal.on('shown.bs.modal', () => {
-      showScene(customActionModal, 'default');
+    const $customActionModal = $('#customActionModal');
+    const $schedulerModal = $('#scheduler_modal');
+    $customActionModal.on('shown.bs.modal', () => {
+      showScene($customActionModal, 'default');
+    });
+    $schedulerModal.on('shown.bs.modal', () => {
+      $schedulerModal.find('.invalid-schedule-date')
+        .hide();
     });
 
     $('.custom-action-scene.default button')
       .click((e) => {
         e.preventDefault();
-        const selectedMethod = customActionModal.find('input[name="custom-action-method"]:checked')
+        const selectedMethod = $customActionModal.find('input[name="custom-action-method"]:checked')
           .val();
-        showScene(customActionModal, selectedMethod);
+        showScene($customActionModal, selectedMethod);
       });
 
     $('.custom-action-scene.upload.compose button')
       .click((e) => {
         e.preventDefault();
-        const selectedMethod = customActionModal.find('input[name="custom-action-method"]:checked')
+        const selectedMethod = $customActionModal.find('input[name="custom-action-method"]:checked')
           .val();
         if (selectedMethod === 'upload') {
-          const file = customActionModal.find('#script-file')[0].files[0];
+          const file = $customActionModal.find('#script-file')[0].files[0];
           if (!file) {
             return false;
           }
         } else {
-          const scriptContents = customActionModal.find('#script-contents')
+          const scriptContents = $customActionModal.find('#script-contents')
             .val();
           if (!scriptContents.trim()) {
             return false;
           }
         }
-        showScene(customActionModal, 'prompt');
+        showScene($customActionModal, 'prompt');
       });
 
     $('.custom-action-scene.prompt button')
       .click(async (e) => {
         e.preventDefault();
-        const fileName = customActionModal.find('#fileName')
+        const fileName = $customActionModal.find('#fileName')
           .val();
-        const extension = customActionModal.find('#fileExtension')
+        const extension = $customActionModal.find('#fileExtension')
           .val();
-        const menuTitle = customActionModal.find('#menuTitle')
+        const menuTitle = $customActionModal.find('#menuTitle')
           .val()
           .trim();
-        const selectedMethod = customActionModal.find('input[name="custom-action-method"]:checked')
+        const selectedMethod = $customActionModal.find('input[name="custom-action-method"]:checked')
           .val();
         if (!fileName || !extension || !menuTitle.trim()) {
           return false;
         }
         const data = {};
         if (selectedMethod === 'upload') {
-          data.file = customActionModal.find('#script-file')[0].files[0];
+          data.file = $customActionModal.find('#script-file')[0].files[0];
         } else {
-          data.contents = customActionModal.find('#script-contents')
+          data.contents = $customActionModal.find('#script-contents')
             .val();
         }
-        customActionModal.modal('hide');
+        $customActionModal.modal('hide');
         await submitNewAction(fileName, extension, menuTitle, data);
         updateActions();
       });
