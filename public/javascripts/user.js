@@ -594,14 +594,24 @@ $(() => {
     }
 
     if (!isValid || (scheduleAt < Date.now())) {
-      $schedulerForm.find('.invalid-schedule-date')
-        .show();
+      $schedulerForm.find('.error-message')
+        .text('Please select a valid date');
       return;
     }
 
     const scriptName = $schedulerModal.data('scriptName');
     const emailAddress = $('#email')
-      .val();
+      .val()
+      .trim();
+
+    const sendMail = !!(+$schedulerForm.find('[name="send-email"]:checked')
+      .val());
+
+    if (sendMail && !emailAddress) {
+      $schedulerForm.find('.error-message')
+        .text('Please enter the email address');
+      return;
+    }
 
     $schedulerModal.modal('hide');
     $.alert({

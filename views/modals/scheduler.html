@@ -16,14 +16,35 @@
         <div class="modal-body">
           <div class="main-form">
             <div class="item">
-              <p>Would you like to receive an email?</p>
+              <label for="ref_num">Reference Number</label>
               <input
                   type="text"
-                  id="email"
-                  name="email"
+                  id="ref_num"
+                  name="ref_num"
                   class="form-control"
-                  placeholder="Email Address"
               />
+            </div>
+            <div class="item">
+              <label>Do you want to receive an email with the logs of these Actions?</label>
+              <div class="radio">
+                <input id="send-email" type="radio" name="send-email" value="1" checked>
+                <label style="width: 100%;">
+                  <input
+                      type="text"
+                      id="email"
+                      name="email"
+                      class="form-control"
+                      onfocus="$('#send-email').click()"
+                      placeholder="Yes (Enter email here)"/>
+                </label>
+              </div>
+              <div class="radio">
+                <input id="do-not-send-email" type="radio" name="send-email" value="0" checked>
+                <label for="do-not-send-email">
+                  No Email
+                </label>
+              </div>
+
             </div>
             <div class="item">
               <label for="schedule">When to start change</label>
@@ -67,8 +88,8 @@
                   </select>
                 </div>
               </div>
-              <p class="invalid-schedule-date" style="color: red; display: none;">Please select a valid date</p>
             </div>
+            <p class="error-message" style="color: red;"></p>
             <input type="hidden" id="task_name" name="task_name" value=""/>
           </div>
         </div>

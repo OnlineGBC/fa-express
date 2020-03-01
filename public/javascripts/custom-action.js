@@ -66,13 +66,8 @@ async function updateActions() {
 $(document)
   .ready(() => {
     const $customActionModal = $('#customActionModal');
-    const $schedulerModal = $('#scheduler_modal');
     $customActionModal.on('shown.bs.modal', () => {
       showScene($customActionModal, 'default');
-    });
-    $schedulerModal.on('shown.bs.modal', () => {
-      $schedulerModal.find('.invalid-schedule-date')
-        .hide();
     });
 
     $('.custom-action-scene.default button')
