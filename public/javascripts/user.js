@@ -595,7 +595,7 @@ $(() => {
 
     if (!isValid || (scheduleAt < Date.now())) {
       $schedulerForm.find('.error-message')
-        .text('Please select a valid date');
+        .text('Please select a valid date, time and time zone in the future');
       return;
     }
 
