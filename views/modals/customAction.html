@@ -40,26 +40,38 @@
             <input id="script-file" class="file" name="file" type="file"/>
           </div>
           <div class="custom-action-scene compose form-group">
-            <label for="script-contents">Example textarea</label>
+            <label for="script-contents">Script Content</label>
             <textarea class="form-control" id="script-contents" rows="10"
-                      placeholder="Paste your script here"></textarea>
+                      placeholder="Paste your script here" autocomplete="off"></textarea>
           </div>
           <div class="custom-action-scene prompt">
             <div class="form-group">
               <label for="fileName">File Name</label>
-              <input id="fileName" type="text" class="form-control" placeholder="File Name" aria-label="File Name">
+              <input
+                  id="fileName"
+                  type="text"
+                  class="form-control"
+                  placeholder="File Name"
+                  autocomplete="off"
+                  aria-label="File Name">
             </div>
             <div class="form-group">
               <label for="fileExtension">Extension</label>
               <select id="fileExtension" class="form-control">
                 <option value="sh" selected>.sh</option>
-                <option value="ps1">.ps1</option>
                 <option value="cmd">.cmd</option>
               </select>
             </div>
             <div class="form-group">
               <label for="menuTitle">Menu Title</label>
-              <input id="menuTitle" type="text" class="form-control" placeholder="Menu Title" aria-label="Menu Title" maxlength="20">
+              <input
+                  id="menuTitle"
+                  type="text"
+                  class="form-control"
+                  placeholder="Menu Title"
+                  aria-label="Menu Title"
+                  autocomplete="off"
+                  maxlength="40">
             </div>
             <p style="color:red;">
               Please test this script carefully against a safe server and contact technical support

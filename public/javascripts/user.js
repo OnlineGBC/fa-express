@@ -293,6 +293,11 @@ $(() => {
   const $schedulerForm = $('#scheduler-form');
   const $schedulerModal = $('#scheduler_modal');
 
+  $schedulerModal.on('shown.bs.modal', () => {
+    $schedulerModal.find('input[type="text"],textarea')
+      .val('');
+  });
+
   $table
     .find('thead th:first')
     .append(

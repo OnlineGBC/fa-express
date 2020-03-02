@@ -9,6 +9,9 @@ const rename = promisify(fs.rename);
 const readdir = promisify(fs.readdir);
 
 async function saveAction(filename, extension, menuTitle, { filePath, contents }) {
+  if (!['sh', 'cmd'].includes(extension)) {
+    throw new Error('Invalid script extension');
+  }
   const targetName = `${filename}.${extension}`;
   const newFilePath = path.join('./scripts/', targetName);
   if (contents) {

@@ -58,7 +58,7 @@ block content
         .col-12.mr-5.pl-5(style='flex: 1; display: flex; justify-content: center;')
           pre#Content.form-control(style="flex: 1;height: auto;")
             if data.DateScheduled != null && data.content == null
-              | Current job will run at #{data.DateScheduled}
+              | Current job will run at #{data.DateScheduled}, #{data.TimeScheduled}
             else if(data.content == null)
               | Still running...
             else
