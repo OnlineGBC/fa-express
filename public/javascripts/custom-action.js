@@ -68,6 +68,8 @@ $(document)
     const $customActionModal = $('#customActionModal');
     $customActionModal.on('shown.bs.modal', () => {
       showScene($customActionModal, 'default');
+      $customActionModal.find('input[type="text"],textarea')
+        .val('');
     });
 
     $('.custom-action-scene.default button')
