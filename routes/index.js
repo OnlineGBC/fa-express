@@ -9,4 +9,9 @@ router.get('/', (req, res) => {
   });
 });
 
+router.get('/favicon.ico', (req, res) => {
+  res.statusCode = 200;
+  res.end();
+});
+
 module.exports = router;
