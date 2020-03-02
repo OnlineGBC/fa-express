@@ -629,7 +629,7 @@ $(() => {
       url: '/api/automation/actions',
       method: 'POST',
       data: JSON.stringify({
-        emailAddress,
+        emailAddress: sendMail ? emailAddress : '',
         scriptName,
         machineIds,
         isImmediate,
