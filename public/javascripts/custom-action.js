@@ -66,15 +66,17 @@ async function updateActions() {
 $(document)
   .ready(() => {
     const $customActionModal = $('#customActionModal');
+    const $scriptFile = $customActionModal.find('#script-file');
+
     $customActionModal.on('shown.bs.modal', () => {
       $customActionModal.find('.selected-file')
         .text('');
       showScene($customActionModal, 'default');
       $customActionModal.find('input[type="text"],textarea')
         .val('');
+      $scriptFile[0].value = null;
     });
 
-    const $scriptFile = $customActionModal.find('#script-file');
     $scriptFile
       .change(() => {
         $customActionModal.find('.selected-file')
