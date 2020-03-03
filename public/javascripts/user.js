@@ -291,6 +291,11 @@ $(() => {
   const $schedulerForm = $('#scheduler-form');
   const $schedulerModal = $('#scheduler_modal');
 
+  $schedulerModal.on('shown.bs.modal', () => {
+    $('#time,#date')
+      .val('');
+  });
+
   $table
     .find('thead th:first')
     .append(
