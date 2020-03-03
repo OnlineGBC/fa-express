@@ -93,7 +93,7 @@ $(() => {
       return false;
     });
 
-  const userData = [];
+  let userData = [];
   const $upload_modal = $('#upload-modal');
 
   // File Upload handler
@@ -110,7 +110,7 @@ $(() => {
         success: (res) => {
           console.log(res);
           const uColumns = res.columns;
-          const userData = res.data;
+          userData = res.data;
           let $u_options = '';
           uColumns.forEach((value) => {
             console.log(value);
@@ -141,26 +141,24 @@ $(() => {
   $('#upload-form')
     .submit(function (e) {
       e.preventDefault();
-
-      $form = $(this);
+      const $form = $(this);
       // Create data with new keyMap
       const u_data = [];
       let u_data_obj = {};
-      keyMap = $form.serializeArray();
+      const keyMap = $form.serializeArray();
 
       userData.forEach((value) => {
         keyMap.forEach((key) => {
-          old_key = key.value;
+          const old_key = key.value;
           u_data_obj[key.name] = value[old_key];
         });
 
         u_data.push(u_data_obj);
         u_data_obj = {};
-        console.log(u_data);
       });
 
+      console.log('u_data', u_data);
       // Check if all records are valid
-      const errors = false;
       validateAndUploadRecords($form, u_data, 0);
     });
 
