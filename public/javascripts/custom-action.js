@@ -67,10 +67,19 @@ $(document)
   .ready(() => {
     const $customActionModal = $('#customActionModal');
     $customActionModal.on('shown.bs.modal', () => {
+      $customActionModal.find('.selected-file')
+        .text('');
       showScene($customActionModal, 'default');
       $customActionModal.find('input[type="text"],textarea')
         .val('');
     });
+
+    const $scriptFile = $customActionModal.find('#script-file');
+    $scriptFile
+      .change(() => {
+        $customActionModal.find('.selected-file')
+          .text('Selected file: ' + $scriptFile[0].files[0].name);
+      });
 
     $('.custom-action-scene.default button')
       .click((e) => {
