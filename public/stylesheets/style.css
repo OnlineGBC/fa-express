@@ -67,12 +67,6 @@ div.checkbox{
     font-family: sans-serif;
 }
 
-#scheduler_modal .form-control {
-    padding: 10px;
-    /* background: #3b3b3b; */
-    /* border: 1px solid #3b3b3b; */
-}
-
 .title {
     font-weight: normal;
     margin-bottom: 35px;
@@ -128,7 +122,7 @@ select#format {
 select#zone {
     flex: 3;
 }
-.hidden_fields{
+.hidden, .hidden_fields{
     display: none;
 }
 
@@ -141,6 +135,6 @@ select#zone {
     width: 100%;
 }
 
-input#file {
+input#file, input.file {
     display: none;
 }

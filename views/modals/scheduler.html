@@ -1,0 +1,110 @@
+<div class="modal hide" id="scheduler_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <form id="scheduler-form">
+      <div class="modal-content">
+        <div class="modal-header" style="background: #eaeaea">
+          <h3 class="modal-title">Run/Schedule Start Apps</h3>
+        </div>
+        <div class="modal-body">
+          <div class="main-form">
+            <div class="item">
+              <label for="ref_num">Reference Number</label>
+              <input
+                  type="text"
+                  id="ref_num"
+                  name="ref_num"
+                  class="form-control"
+              />
+            </div>
+            <div class="item">
+              <label>Do you want to receive an email with the logs of these Actions?</label>
+              <div class="radio">
+                <input id="send-email" type="radio" name="send-email" value="1" checked>
+                <label style="width: 100%;">
+                  <input
+                      type="text"
+                      id="email"
+                      name="email"
+                      class="form-control"
+                      onfocus="$('#send-email').click()"
+                      placeholder="Yes (Enter email here)"/>
+                </label>
+              </div>
+              <div class="radio">
+                <input id="do-not-send-email" type="radio" name="send-email" value="0" checked>
+                <label for="do-not-send-email">
+                  No Email
+                </label>
+              </div>
+
+            </div>
+            <div class="item">
+              <label for="schedule">When to start change</label>
+              <select
+                  id="schedule"
+                  name="schedule"
+                  class="form-control"
+                  onchange="showFields(this.value)">
+                <option value="immediate" selected>Immediate</option>
+                <option value="specified_time">At specified time</option>
+              </select>
+            </div>
+            <div class="hidden_fields">
+              <div class="item">
+                <p>Date of change</p>
+                <input
+                    id="date"
+                    class="form-control"
+                    autocomplete="off"
+                    placeholder="mm/dd/yyyy"
+                    name="date"
+                />
+                <span class="glyphicon glyphicon-calendar"></span>
+              </div>
+              <div class="item">
+                <p>Time of change</p>
+                <div class="flex-box">
+                  <input
+                      id="time"
+                      class="form-control"
+                      autocomplete="off"
+                      name="time"
+                      placeholder="hh:mm"
+                  />
+                  <select id="format" name="format">
+                    <option value="am">AM</option>
+                    <option value="pm">PM</option>
+                  </select>
+                  <select id="zone" name="zone" class="form-dropdown" autocomplete="off">
+                    <option selected disabled>Select Timezone</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <p class="error-message" style="color: red;"></p>
+            <input type="hidden" id="task_name" name="task_name" value=""/>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" style="position:absolute; left: 15px;" data-dismiss="modal">
+            Go Back
+          </button>
+          <button class="btn btn-primary" type="submit">
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  function showFields(value) {
+    if (value === 'immediate') {
+      $('.hidden_fields')
+        .hide();
+    } else {
+      $('.hidden_fields')
+        .show();
+    }
+  }
+</script>

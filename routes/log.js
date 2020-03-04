@@ -1,24 +1,28 @@
-const express = require("express");
+const express = require('express');
+
 const router = express.Router();
-const model = require("../model");
+const { database } = require('../container');
 
 /* GET users listing. */
-router.get("/", function(req, res, next) {
-  res.render("logs", {
-    title: "Robotics Process Automation"
+router.get('/', (req, res) => {
+  res.render('logs', {
+    title: 'Robotics Process Automation',
   });
 });
 
-router.get("/:id", function(req, res, next) {
-  const id = req.params.id;
-  model.Logs.findOne({ where: { id: id } }).then(function(result) {
-    let bytesView = new Uint8Array(result.content);
-    let content = unescape(new TextDecoder().decode(bytesView));
-
-    res.render("log-detail", {
-      data: result,
-      content: content
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  database.logsModel.findOne({ where: { id } })
+    .then((result) => {
+      if (!result) {
+        return res.redirect('/logs');
+      }
+      const content = result.content && result.content.toString('utf8');
+      res.render('log-detail', {
+        data: result,
+        content,
+      });
     });
-  });
 });
+
 module.exports = router;

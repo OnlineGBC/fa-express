@@ -1,0 +1,98 @@
+<div class="modal bd-example-modal-lg" id="customActionModal" tabindex="-1" role="dialog" autocomplete="off">
+  <div class="modal-dialog" role="document">
+    <form onsubmit="return false">
+      <div class="modal-content">
+        <div class="modal-header" style="background: #eaeaea">
+          <h4 class="modal-title custom-action-scene default">New Custom Action</h4>
+          <h4 class="modal-title custom-action-scene upload">Please upload a tested, working, script file:</h4>
+          <h4 class="modal-title custom-action-scene compose">Please compose a script here (not recommended)</h4>
+          <h4 class="modal-title custom-action-scene prompt">Save As</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="custom-action-scene default">
+            <div class="radio">
+              <input id="upload-batch" type="radio" name="custom-action-method" value="upload" checked>
+              <label for="upload-batch">
+                Upload a working batch
+              </label>
+            </div>
+            <div class="radio">
+              <input id="create-new-batch" type="radio" name="custom-action-method" value="compose">
+              <label for="create-new-batch">
+                Create a new one online
+              </label>
+            </div>
+            <p style="color:red;">
+              Either way, please make sure your script works! An individual command or script that fails in standalone
+              mode will also fail in automated mode and could cause a lot more damage!!
+              Remember, you are not allowed to run Windows commands on a Linux/Unix server or vice-versa"
+            </p>
+          </div>
+          <div class="custom-action-scene upload">
+            <div class="contents">
+              <button class="btn btn-success" style="padding: 10px;" onclick="$('#script-file').click(); return false;">
+                Choose File
+              </button>
+            </div>
+            <input id="script-file" class="file" name="file" type="file"/>
+            <h4 class="selected-file" style="font-weight:bold;text-align: left;margin:0 10px">Selected File: </h4>
+          </div>
+          <div class="custom-action-scene compose form-group">
+            <label for="script-contents">Script Content</label>
+            <textarea class="form-control" id="script-contents" rows="10"
+                      placeholder="Paste your script here" autocomplete="off"></textarea>
+          </div>
+          <div class="custom-action-scene prompt">
+            <div class="form-group">
+              <label for="fileName">File Name</label>
+              <input
+                  id="fileName"
+                  type="text"
+                  class="form-control"
+                  placeholder="File Name"
+                  autocomplete="off"
+                  aria-label="File Name">
+            </div>
+            <div class="form-group">
+              <label for="fileExtension">Extension</label>
+              <select id="fileExtension" class="form-control">
+                <option value="sh" selected>.sh</option>
+                <option value="cmd">.cmd</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="menuTitle">Menu Title</label>
+              <input
+                  id="menuTitle"
+                  type="text"
+                  class="form-control"
+                  placeholder="Menu Title"
+                  aria-label="Menu Title"
+                  autocomplete="off"
+                  maxlength="40">
+            </div>
+            <p style="color:red;">
+              Please test this script carefully against a safe server and contact technical support
+              for help if needed!
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <div class="custom-action-scene default">
+            <button class="btn btn-primary">Next</button>
+          </div>
+          <div class="custom-action-scene upload compose">
+            <button class="btn btn-primary">Next</button>
+          </div>
+          <div class="custom-action-scene prompt">
+            <button class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

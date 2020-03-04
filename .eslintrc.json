@@ -1,0 +1,30 @@
+{
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": "eslint-config-airbnb-base",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2018
+  },
+  "plugins": [
+    "html"
+  ],
+  "rules": {
+    "no-param-reassign": 0,
+    "consistent-return": 0,
+    "func-names": 0,
+    "no-console": 0,
+    "radix": 0,
+    "no-constant-condition": 0,
+    "max-len": 1,
+    "no-plusplus": 0,
+    "no-restricted-syntax": 1,
+    "no-continue": 1,
+    "quotes": [
+      1,
+      "single"
+    ]
+  }
+}

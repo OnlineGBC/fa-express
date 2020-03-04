@@ -1,7 +1,6 @@
 extends layout
 
 block content
-    input(type='hidden', id='lastLogId', name='lastLogId', value='#{lastLogId}')
     .container#automation-main
         .row
             .col
@@ -29,7 +28,7 @@ block content
                             th Order
                             th CUSTNAME
                             th LOCATION
-                            th HOST_TYPE                           
+                            th HOST_TYPE
                             th ACTION
                     tbody
                         tr
@@ -49,19 +48,21 @@ block content
                             td CDIR
                             td CUSTNAME
                             td LOCATION
-                            td 
+                            td
                                 a.edit(href='#')
                                     i.fa.fa-pencil
                                 a.delete(href='#')
                                     i.fa.fa-trash
 
     include log-display.html
-    include crud-form.html
-    include scheduler.html
-    include upload.html
-    include uploadFile.html
+    include modals/crud-form.html
+    include modals/scheduler.html
+    include modals/upload.html
+    include modals/uploadFile.html
+    include modals/customAction.html
+
 block scripts
     script(src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js")
-    script(src='/javascripts/user.js')   
-                        
-                        
+    script(src='/javascripts/user.js')
+    script(src='/javascripts/custom-action.js')
+
