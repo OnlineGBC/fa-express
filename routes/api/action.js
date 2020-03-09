@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   const { body, files } = req;
-  const { fileName, extension, menuTitle, fileContents } = body;
+  const { fileName, extension, menuTitle, fileContents, folder } = body;
   if (fileName && extension && menuTitle && (fileContents || files.file)) {
     try {
       const fileInfo = {};
@@ -14,7 +14,13 @@ router.post("/", async (req, res) => {
       } else {
         fileInfo.filePath = files.file.tempFilePath;
       }
-      await actionUtils.saveAction(fileName, extension, menuTitle, fileInfo);
+      await actionUtils.saveAction(
+        fileName,
+        extension,
+        menuTitle,
+        fileInfo,
+        folder
+      );
       res.json({
         status: "success"
       });
@@ -35,6 +41,28 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   const actions = await actionUtils.listActions();
   res.json(actions);
+});
+
+router.post("/createsubfolder", async (req, res) => {
+  const foldername = req.body.name || "";
+  if (foldername == "") return res.json({ status: 0 });
+
+  if (actionUtils.createSubFolder(foldername)) return res.json({ status: 1 });
+  return res.json({ status: 0 });
+});
+
+router.post("/updatename", async (req, res) => {
+  const { filePath, fileName, menuName, type } = req.body;
+  const result = await actionUtils.updateFileName(filePath, fileName, menuName, type);
+  if (result) return res.json({ status: 1 });
+  return res.json({ status: 0 });
+});
+
+router.delete("/deletefile", async (req, res) => {
+  const { filePath } = req.body;
+  const result = await actionUtils.deleteFile(filePath);
+  if (result) return res.json({ status: 1 });
+  return res.json({ status: 0 });
 });
 
 module.exports = router;

@@ -1,7 +1,7 @@
-const path = require('path');
-const { promisify } = require('util');
-const childProcess = require('child_process');
-const utils = require('../utils');
+const path = require("path");
+const { promisify } = require("util");
+const childProcess = require("child_process");
+const utils = require("../utils");
 
 const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
@@ -13,32 +13,45 @@ class AutomationActions {
     this.logger = logger;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}) {
+  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder) {
     if (!scriptName) {
-      throw new Error('Invalid scriptName parameter');
+      throw new Error("Invalid scriptName parameter");
     }
-    const scriptPath = path.resolve(__dirname, '../../scripts', scriptName);
+    const scriptPath =
+      folder == ""
+        ? path.resolve(__dirname, "../../scripts", scriptName)
+        : path.resolve(__dirname, "../../scripts/" + folder, scriptName);
     const fileExists = await utils.checkFileExists(scriptPath);
     if (!fileExists) {
-      throw new Error('script not found');
+      throw new Error("script not found");
     }
 
     if (!machinesIds || !Array.isArray(machinesIds) || !machinesIds.length) {
-      throw new Error('Invalid machineIds parameter');
+      throw new Error("Invalid machineIds parameter");
     }
     const machines = await this.database.findMachineDetailsByIds(machinesIds);
     if (!machines.length) {
-      throw new Error('No machines found with specified ids');
+      throw new Error("No machines found with specified ids");
     }
     let runAt;
     if (!isImmediate) {
       const { scheduleAt } = options;
-      if (typeof scheduleAt !== 'number' || !(new Date(scheduleAt)).getTime() || scheduleAt < Date.now()) {
-        throw new Error('Invalid scheduleAt parameter');
+      if (
+        typeof scheduleAt !== "number" ||
+        !new Date(scheduleAt).getTime() ||
+        scheduleAt < Date.now()
+      ) {
+        throw new Error("Invalid scheduleAt parameter");
       }
       runAt = scheduleAt;
     }
-    return this.scheduleScript(runAt, scriptPath, machinesIds, machines, options);
+    return this.scheduleScript(
+      runAt,
+      scriptPath,
+      machinesIds,
+      machines,
+      options
+    );
   }
 
   async scheduleScript(runAt, scriptPath, machinesIds, machines, options) {
@@ -49,89 +62,121 @@ class AutomationActions {
     const immediate = runAt === now;
     const timeout = runAt - now;
 
-    Promise.all(machines.map(async (machineDetails, index) => {
-      const machineId = machinesIds[index];
-      const scheduledAt = immediate ? null : runAt;
-      const log = await this.database.saveLog(machineId, null, now, scheduledAt, options.timezone);
-      this.logger.notifyListeners(log);
-      await utils.delay(timeout);
-      return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
-        logId: log.id,
-        ...options,
-      });
-    }));
+    Promise.all(
+      machines.map(async (machineDetails, index) => {
+        const machineId = machinesIds[index];
+        const scheduledAt = immediate ? null : runAt;
+        const log = await this.database.saveLog(
+          machineId,
+          null,
+          now,
+          scheduledAt,
+          options.timezone
+        );
+        this.logger.notifyListeners(log);
+        await utils.delay(timeout);
+        return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
+          logId: log.id,
+          ...options
+        });
+      })
+    );
   }
 
-  async runScriptOnMachine(scriptPath, machineId, machineDetails, options = {}) {
-    const {
-      emailAddress = '',
-      logId,
-    } = options;
+  async runScriptOnMachine(
+    scriptPath,
+    machineId,
+    machineDetails,
+    options = {}
+  ) {
+    const { emailAddress = "", logId } = options;
     const { loginId, internalFacingNetworkIp, osType } = machineDetails;
     const hostWithLogin = `${loginId}@${internalFacingNetworkIp}`;
     const logFileName = utils.randomLogFileName();
 
     const scriptBaseName = path.basename(scriptPath);
 
-    const isWindows = osType.toLowerCase()
-      .includes('windows');
+    const isWindows = osType.toLowerCase().includes("windows");
 
-    const tempFilePath = isWindows ? `C:\\temp\\${scriptBaseName}` : `/tmp/${scriptBaseName}`;
-    const executableTmpFilePath = isWindows ? `C:/temp/${scriptBaseName}` : `/tmp/${scriptBaseName}`;
-    const scpDestination = isWindows ? '/C:/temp/.' : '/tmp/.';
+    const tempFilePath = isWindows
+      ? `C:\\temp\\${scriptBaseName}`
+      : `/tmp/${scriptBaseName}`;
+    const executableTmpFilePath = isWindows
+      ? `C:/temp/${scriptBaseName}`
+      : `/tmp/${scriptBaseName}`;
+    const scpDestination = isWindows ? "/C:/temp/." : "/tmp/.";
 
     const commands = {
       copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
-      remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${isWindows ? 'del' : 'rm'} ${tempFilePath}`,
-      chmod: isWindows ? null : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`,
+      remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${
+        isWindows ? "del" : "rm"
+      } ${tempFilePath}`,
+      chmod: isWindows
+        ? null
+        : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`
     };
 
-    let logContent = '';
+    let logContent = "";
     let errorCode;
     try {
       await exec(commands.copy);
-      console.log(`script copied to the remote server ${internalFacingNetworkIp}`);
+      console.log(
+        `script copied to the remote server ${internalFacingNetworkIp}`
+      );
       if (commands.chmod) {
         await exec(commands.chmod);
-        console.log('script made executable successfully');
+        console.log("script made executable successfully");
       }
 
-      const stdout = await this.executeScriptOnHost(hostWithLogin, executableTmpFilePath);
+      const stdout = await this.executeScriptOnHost(
+        hostWithLogin,
+        executableTmpFilePath
+      );
       // Dispatch mail
       if (emailAddress) {
-        this.mailer.sendMail(stdout, emailAddress)
-          .catch(console.error);
+        this.mailer.sendMail(stdout, emailAddress).catch(console.error);
       }
 
       logContent = stdout;
-      console.log('The Log file saved');
+      console.log("The Log file saved");
       await exec(commands.remove);
-      console.log('Script removed from the remote server');
+      console.log("Script removed from the remote server");
     } catch (error) {
-      console.error('Error while executing the script', error);
+      console.error("Error while executing the script", error);
       logContent = error.toString();
       errorCode = error.code;
       // TODO: only send if the occurred while copying/executing the script.
       if (emailAddress) {
-        this.mailer.sendMail(
-          'Error occurred. Please contact developer or your internal technical support.',
-          emailAddress,
-        )
+        this.mailer
+          .sendMail(
+            "Error occurred. Please contact developer or your internal technical support.",
+            emailAddress
+          )
           .catch(console.error);
       }
     }
-    const log = await this.database.updateLogContentById(logId, logContent, errorCode);
+    const log = await this.database.updateLogContentById(
+      logId,
+      logContent,
+      errorCode
+    );
     this.logger.writeLogFile(logFileName, log);
   }
 
   async executeScriptOnHost(hostWithLogin, scriptPath) {
-    const ls = spawn('ssh', ['-n', '-o', 'StrictHostKeyChecking=no', hostWithLogin, scriptPath]);
-    let fullOutput = '';
-    ls.stdout.on('data', (data) => {
+    const ls = spawn("ssh", [
+      "-n",
+      "-o",
+      "StrictHostKeyChecking=no",
+      hostWithLogin,
+      scriptPath
+    ]);
+    let fullOutput = "";
+    ls.stdout.on("data", data => {
       fullOutput += data.toString();
     });
-    return new Promise((resolve) => {
-      ls.on('exit', () => resolve(fullOutput));
+    return new Promise(resolve => {
+      ls.on("exit", () => resolve(fullOutput));
     });
   }
 }

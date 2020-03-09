@@ -1,9 +1,9 @@
-const express = require('express');
-const { automationActions } = require('../../container');
+const express = require("express");
+const { automationActions } = require("../../container");
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const {
     isImmediate = true,
     machineIds,
@@ -11,23 +11,29 @@ router.post('/', async (req, res) => {
     scheduleAt,
     emailAddress,
     timezone,
+    folder
   } = req.body;
 
   try {
-    await automationActions.runScript(scriptName, machineIds, isImmediate, {
-      scheduleAt,
-      emailAddress,
-      timezone,
-    });
+    await automationActions.runScript(
+      scriptName,
+      machineIds,
+      isImmediate,
+      {
+        scheduleAt,
+        emailAddress,
+        timezone
+      },
+      folder
+    );
     res.json({
-      status: 'success',
+      status: "success"
     });
   } catch (error) {
-    res.status(400)
-      .json({
-        status: 'error',
-        error: error.message,
-      });
+    res.status(400).json({
+      status: "error",
+      error: error.message
+    });
   }
 });
 

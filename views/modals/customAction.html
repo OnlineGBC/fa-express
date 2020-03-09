@@ -11,6 +11,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+        <input type="hidden" name="custom-action-kind"/>
         <div class="modal-body">
           <div class="custom-action-scene default">
             <div class="radio">
@@ -95,4 +96,10 @@
       </div>
     </form>
   </div>
+</div>
+
+<div class="dropdown-menu dropdown-menu-sm" id="context-menu">
+  <input type="hidden" name="context-action"/>
+  <a class="dropdown-item context-edit" href="#">Edit</a>
+  <a class="dropdown-item context-delete" href="#">Delete</a>
 </div>
