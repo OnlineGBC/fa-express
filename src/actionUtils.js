@@ -130,14 +130,33 @@ updateFolderName = async (path, name) => {
   return true
 }
 
-deleteFile = async path => {
-  //delete file
-  if (fs.existsSync(path)) {
-    fs.unlinkSync(path);
-    fs.unlinkSync(path + ".action-name");
+deleteFile = async (path, type) => {
+  console.log(path, type)
+  if (type == "folder") {
+    path = './scripts/' + path
+    deleteFolderRecursive(path)
+  } else {
+    if (fs.existsSync(path)) {
+      fs.unlinkSync(path);
+      fs.unlinkSync(path + ".action-name");
+    }
   }
 
   return true;
+};
+
+deleteFolderRecursive = (filepath) => {
+  if (fs.existsSync(filepath)) {
+    fs.readdirSync(filepath).forEach((file, index) => {
+      const curPath = path.join(filepath, file);
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(filepath);
+  }
 };
 
 module.exports = {

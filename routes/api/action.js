@@ -66,8 +66,8 @@ router.post("/updatefoldename", async (req, res) => {
 });
 
 router.delete("/deletefile", async (req, res) => {
-  const { filePath } = req.body;
-  const result = await actionUtils.deleteFile(filePath);
+  const { filePath, type } = req.body;
+  const result = await actionUtils.deleteFile(filePath, type);
   if (result) return res.json({ status: 1 });
   return res.json({ status: 0 });
 });

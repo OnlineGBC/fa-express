@@ -424,12 +424,12 @@ $(document).ready(() => {
   });
 
   $(".context-delete").on("click", e => {
-    let type = $('#context-menu input[name="context-delete"]').val();
+    let type = $('#context-menu input[name="context-type"]').val();
     if (type == 'file') {
       showContextModal($contextModal, "delete");
       $contextModal.modal("show");
     } else {
-      showContextModal($contextModal, "folder-delete");
+      showContextModal($contextModal, "f_delete");
       $contextModal.modal("show");
     }
 
@@ -463,7 +463,7 @@ $(document).ready(() => {
     });
   });
 
-  $(".custom-context-scene.folder-delete button").on("click", () => {
+  $(".custom-context-scene.f_delete button").on("click", () => {
     let filePath = $('#context-menu input[name="context-action"]').val();
     $.ajax({
       url: "/api/action/deletefile",
