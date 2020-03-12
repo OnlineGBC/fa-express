@@ -58,6 +58,13 @@ router.post("/updatename", async (req, res) => {
   return res.json({ status: 0 });
 });
 
+router.post("/updatefoldename", async (req, res) => {
+  const { folderName, folder } = req.body;
+  const result = await actionUtils.updateFolderName(folderName, folder);
+  if (result) return res.json({ status: 1 });
+  return res.json({ status: 0 });
+});
+
 router.delete("/deletefile", async (req, res) => {
   const { filePath } = req.body;
   const result = await actionUtils.deleteFile(filePath);

@@ -56,7 +56,10 @@ async function listActions() {
         });
         return {
           scriptName: fileName.replace(".action-name", ""),
-          menuTitle
+          menuTitle,
+          filePath: path.resolve(
+            path.join(baseDir, fileName.replace(".action-name", ""))
+          )
         };
       })
   );
@@ -91,27 +94,41 @@ async function listActions() {
 }
 
 updateFileName = async (path, name, menu, type) => {
-  let chName = path.split("\\");
-  chName[chName.length - 1] = name;
+  // let chName = path.split("\\");
+  // chName[chName.length - 1] = name;
   if (type == "save") {
-    fs.renameSync(path, chName.join("\\"));
-    if(menu != "") {
+    if (path != name)
+      fs.renameSync(path, name);
+    if (menu != "") {
       const normalizedContent = eol.lf(menu);
-      await writeFile(chName.join("\\") + ".action-name", normalizedContent, { encoding: "utf8" });
-      fs.unlinkSync(path + ".action-name")
-    }else
-      fs.renameSync(path + ".action-name", chName.join("\\") + ".action-name");
+
+      await writeFile(name + ".action-name", normalizedContent, { encoding: "utf8" });
+      if (path != name) {
+        fs.unlinkSync(path + ".action-name")
+      }
+    } else
+      fs.renameSync(path + ".action-name", name + ".action-name");
   } else {
-    fs.copyFileSync(path, chName.join("\\"));
-    if(menu != "") {
+    if (path != name)
+      fs.copyFileSync(path, name);
+    if (menu != "") {
       const normalizedContent = eol.lf(menu);
-      await writeFile(chName.join("\\") + ".action-name", normalizedContent, { encoding: "utf8" });
-    }else
-      fs.copyFileSync(path + ".action-name", chName.join("\\") + ".action-name");
+      await writeFile(name + ".action-name", normalizedContent, { encoding: "utf8" });
+    } else
+      if (path != name)
+        fs.copyFileSync(path + ".action-name", chName.join("\\") + ".action-name");
   }
 
   return true;
 };
+
+updateFolderName = async (path, name) => {
+  const baseDir = "./scripts/";
+  if (path != name) {
+    fs.renameSync(baseDir + path, baseDir + name)
+  }
+  return true
+}
 
 deleteFile = async path => {
   //delete file
@@ -128,5 +145,6 @@ module.exports = {
   listActions,
   createSubFolder,
   updateFileName,
-  deleteFile
+  deleteFile,
+  updateFolderName
 };

@@ -5,6 +5,8 @@
         <div class="modal-header" style="background: #eaeaea">
           <h4 class="modal-title custom-context-scene default">Edit Action</h4>
           <h4 class="modal-title custom-context-scene delete">Delete Action</h4>
+          <h4 class="modal-title custom-context-scene folder-edit">Edit Folder</h4>
+          <h4 class="modal-title custom-context-scene folder-delete">Delete Folder</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -22,11 +24,21 @@
               <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
             </div>
           </div>
+
+          <div class="custom-context-scene folder-edit">
+            <div class="form-group">
+              <label for="folder-name">Folder Name</label>
+              <input type="text" class="form-control" id="file-name" name='folder-name' aria-describedby="emailHelp" placeholder="Enter File Name">
+              <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+            </div>
+          </div>
           <div class="custom-context-scene delete">
             <div class="form-group">
-              <!-- <label for="folder-name">Folder Name</label>
-              <input type="text" class="form-control" id="folder-name" name='folder-name' aria-describedby="emailHelp" placeholder="Enter Folder Name"> -->
-              <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+              <h5>Do you continue?</h5>
+            </div>
+          </div>
+          <div class="custom-context-scene folder-delete">
+            <div class="form-group">
               <h5>Do you continue?</h5>
             </div>
           </div>
@@ -37,7 +49,13 @@
             <button class="btn btn-primary saveas">Save As</button>
             <button class="btn btn-primary save">Save</button>
           </div>
+          <div class="custom-context-scene folder-edit">
+            <button class="btn btn-primary folder-save">Save</button>
+          </div>
           <div class="custom-context-scene delete">
+            <button class="btn btn-primary">Delete</button>
+          </div>
+          <div class="custom-context-scene folder-delete">
             <button class="btn btn-primary">Delete</button>
           </div>
         </div>
