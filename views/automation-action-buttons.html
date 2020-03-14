@@ -1,38 +1,46 @@
 <div class="row" id="action-buttons" style="display: none">
   <div class="col">
     <div id="appActionsDropdown" class="dropdown" style="display: inline-block">
-      <button
-          class="btn btn-warning dropdown-toggle"
-          type="button"
-          id="appActionButton"
-          data-toggle="dropdown"
-          aria-haspopup="true"
-          aria-expanded="false">
+      <button class="btn btn-warning dropdown-toggle" type="button" id="appActionButton" data-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
         Actions
       </button>
-      <div class="dropdown-menu" aria-labelledby="appActionButton">
-        <a class="dropdown-item"
-           href="#"
-           data-action="app_stop"
-           data-target="#customActionModal">
+      <ul class="dropdown-menu drag-menu" aria-labelledby="appActionButton">
+        <li class="app-custom-files"><a tabindex="-1" href="#" data-action="app_stop" id="action-modal-show" class="dropdown-item">Custom Action</a></li>
+        <li class="dropdown-submenu">
+          <a class="test" tabindex="-1" href="#" data-menu="sub-menu">New Sub-Menu<span class="fa fa-caret-right"></span></a>
+          <ul class="dropdown-menu"  aria-labelledby="appActionButton1">
+            <li class="app-custom-folders"><a tabindex="-1" href="#" data-target="#customFolderModal" class="dropdown-item">Create Folder</a></li>
+          </ul>
+        </li>
+      </ul>
+      <!-- <div class="dropdown-menu" aria-labelledby="appActionButton">
+        <a class="dropdown-item  app-custom-action" href="#" data-action="app_stop" data-target="#customActionModal">
           Custom Action
         </a>
-      </div>
+        <div class="dropdown-submenu" style="position: relative;">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+            aria-expanded="false">
+            <span class="nav-label">New Sub-Menu</span></a>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="appActionButton1">
+            <a href="#">3rd level dropdown</a>
+          </div>
+        </div>
+      </div> -->
     </div>
   </div>
 </div>
-<button
-    style="display: none;"
-    class="btn btn-primary"
-    id="upload-btn"
-    data-toggle="modal"
-    data-target="#upload-file-modal">
+
+<button style="display: none;" class="btn btn-primary" id="upload-btn" data-toggle="modal"
+  data-target="#upload-file-modal">
   Upload CSV
 </button>
-<a style="display: none;margin-left: 5px;color: white;position: relative; z-index: 10;"
-   class="btn btn-primary"
-   href="/logs"
-   target="_blank"
-   id="logs-btn">
+<a style="display: none;margin-left: 5px;color: white;position: relative; z-index: 10;" class="btn btn-primary"
+  href="/logs" target="_blank" id="logs-btn">
   Logs
 </a>
+
+
+
+
