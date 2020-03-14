@@ -1,0 +1,3 @@
+uname -a
+find /lib
+
