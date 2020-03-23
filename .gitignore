@@ -12,7 +12,7 @@ null
 logs
 *.log
 npm-debug.log*
-
+/.env
 
 .idea
 # Runtime data

@@ -44,6 +44,14 @@ function createSubFolder(name) {
   return true;
 }
 
+async function getFileContent(path) {
+  if(fs.existsSync(path)) {
+    const data = fs.readFileSync(path, {encoding: 'utf-8'});
+    return data
+  }
+  return ""
+}
+
 async function listActions() {
   const baseDir = "./scripts";
   const files = await readdir(baseDir);
@@ -93,7 +101,7 @@ async function listActions() {
   return { files: fileList, folders };
 }
 
-updateFileName = async (path, name, menu, type) => {
+updateFileName = async (path, name, menu, type, fileContents) => {
   // let chName = path.split("\\");
   // chName[chName.length - 1] = name;
   if (type == "save") {
@@ -108,6 +116,10 @@ updateFileName = async (path, name, menu, type) => {
       }
     } else
       fs.renameSync(path + ".action-name", name + ".action-name");
+    if (fileContents) {
+      const normalizedContent = eol.lf(fileContents);
+      await writeFile(name, normalizedContent, { encoding: "utf8" });
+    }
   } else {
     if (path != name)
       fs.copyFileSync(path, name);
@@ -117,6 +129,11 @@ updateFileName = async (path, name, menu, type) => {
     } else
       if (path != name)
         fs.copyFileSync(path + ".action-name", chName.join("\\") + ".action-name");
+        
+    if (fileContents) {
+      const normalizedContent = eol.lf(fileContents);
+      await writeFile(name, normalizedContent, { encoding: "utf8" });
+    }
   }
 
   return true;
@@ -165,5 +182,6 @@ module.exports = {
   createSubFolder,
   updateFileName,
   deleteFile,
-  updateFolderName
+  updateFolderName,
+  getFileContent
 };

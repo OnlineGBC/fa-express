@@ -43,6 +43,13 @@ router.get("/", async (req, res) => {
   res.json(actions);
 });
 
+router.post("/getfilecontent", async (req, res) => {
+  const data = await actionUtils.getFileContent(req.body.filePath);
+  res.writeHead(200, {'Content-Type' : 'text/html'});
+  res.write(data);
+  res.end();
+});
+
 router.post("/createsubfolder", async (req, res) => {
   const foldername = req.body.name || "";
   if (foldername == "") return res.json({ status: 0 });
@@ -52,8 +59,8 @@ router.post("/createsubfolder", async (req, res) => {
 });
 
 router.post("/updatename", async (req, res) => {
-  const { filePath, fileName, menuName, type } = req.body;
-  const result = await actionUtils.updateFileName(filePath, fileName, menuName, type);
+  const { filePath, fileName, menuName, type, fileContents } = req.body;
+  const result = await actionUtils.updateFileName(filePath, fileName, menuName, type, fileContents);
   if (result) return res.json({ status: 1 });
   return res.json({ status: 0 });
 });
