@@ -568,11 +568,13 @@ makeUpdateFolderName = $modal => {
 
 setBtnActive = ($contextModal, active) => {
   if(active) {
-    $contextModal.find('.default button.saveas').css('background-color', '');
+    $contextModal.find('.default button.saveas').css('background', '');
+    $contextModal.find('.default button.saveas').css('opacity', '');
     $contextModal.find('.default button.saveas').addClass('btn-primary');
     $contextModal.find('.default button.saveas').attr('disabled', false);
   }else{
-    $contextModal.find('.default button.saveas').css('background-color', '#eaeaea');
+    $contextModal.find('.default button.saveas').css('background', 'rgba(234, 234, 234, 1.0)');
+    $contextModal.find('.default button.saveas').css('opacity', '1.0');
     $contextModal.find('.default button.saveas').removeClass('btn-primary');
     $contextModal.find('.default button.saveas').attr('disabled', true);
   }
