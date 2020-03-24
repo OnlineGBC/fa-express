@@ -128,7 +128,7 @@ updateFileName = async (path, name, menu, type, fileContents) => {
       await writeFile(name + ".action-name", normalizedContent, { encoding: "utf8" });
     } else
       if (path != name)
-        fs.copyFileSync(path + ".action-name", chName.join("\\") + ".action-name");
+        fs.copyFileSync(path + ".action-name", name + ".action-name");
         
     if (fileContents) {
       const normalizedContent = eol.lf(fileContents);
