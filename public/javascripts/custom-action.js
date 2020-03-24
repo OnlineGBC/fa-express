@@ -304,25 +304,50 @@ $(document).ready(() => {
     showScene($customActionModal, selectedMethod);
   });
 
-  $('#file-name').on('keydown', function() {
+  $('#file-name').on('change', function(e) {
     var file_name = $('#context-menu input[name="context-action"]').val();
     var menu_name = $contextModal.find('input[name="menu-name"]').val();
     if ($(this).val() != file_name && menuTitle_before != menu_name) {
-      $contextModal.find('.default button.saveas').attr('disabled', false);
+      e.preventDefault()
+      setBtnActive($contextModal, true)
     }else{
-      $contextModal.find('.default button.saveas').attr('disabled', true);
+      setBtnActive($contextModal, false)
     }
   })
 
-  $('#menu-name').on('keydown', function() {
+  $('#menu-name').on('change', function() {
     var file_name_before = $('#context-menu input[name="context-action"]').val();
     var file_name = $contextModal.find('input[name="file-name"]').val();
     if (file_name_before != file_name && menuTitle_before != $(this).val()) {
-      $contextModal.find('.default button.saveas').attr('disabled', false);
+      // $contextModal.find('.default button.saveas').attr('disabled', false);
+      setBtnActive($contextModal, true)
     }else{
-      $contextModal.find('.default button.saveas').attr('disabled', true);
+      // $contextModal.find('.default button.saveas').attr('disabled', true);
+      setBtnActive($contextModal, false)
     }
   })
+
+  // $('#file-name').on('keydown', function() {
+  //   var file_name = $('#context-menu input[name="context-action"]').val();
+  //   var menu_name = $contextModal.find('input[name="menu-name"]').val();
+  //   if ($(this).val() != file_name && menuTitle_before != menu_name) {
+  //     setBtnActive($contextModal, true)
+  //   }else{
+  //     setBtnActive($contextModal, false)
+  //   }
+  // })
+
+  // $('#menu-name').on('keydown', function() {
+  //   var file_name_before = $('#context-menu input[name="context-action"]').val();
+  //   var file_name = $contextModal.find('input[name="file-name"]').val();
+  //   if (file_name_before != file_name && menuTitle_before != $(this).val()) {
+  //     // $contextModal.find('.default button.saveas').attr('disabled', false);
+  //     setBtnActive($contextModal, true)
+  //   }else{
+  //     // $contextModal.find('.default button.saveas').attr('disabled', true);
+  //     setBtnActive($contextModal, false)
+  //   }
+  // })
 
   $(".custom-folder-scene.default button").click(async e => {
     e.preventDefault();
@@ -516,7 +541,8 @@ getFileContent = (filePath, $modal) => {
     },
     success: function(data) {
       // console.log(data)
-      $modal.find('.default button.saveas').attr('disabled', true);
+      // $modal.find('.default button.saveas').attr('disabled', true);
+      setBtnActive($modal, false)
       $modal.find('#script-edit-contents').val(data);
       showContextModal($modal, "default");
     }
@@ -539,6 +565,18 @@ makeUpdateFolderName = $modal => {
     }
   });
 };
+
+setBtnActive = ($contextModal, active) => {
+  if(active) {
+    $contextModal.find('.default button.saveas').css('background-color', '');
+    $contextModal.find('.default button.saveas').addClass('btn-primary');
+    $contextModal.find('.default button.saveas').attr('disabled', false);
+  }else{
+    $contextModal.find('.default button.saveas').css('background-color', '#eaeaea');
+    $contextModal.find('.default button.saveas').removeClass('btn-primary');
+    $contextModal.find('.default button.saveas').attr('disabled', true);
+  }
+}
 
 makeUpdateFileName = ($modal, type) => {
   let data = {
