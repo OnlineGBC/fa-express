@@ -304,6 +304,26 @@ $(document).ready(() => {
     showScene($customActionModal, selectedMethod);
   });
 
+  $('#file-name').on('keydown', function() {
+    var file_name = $('#context-menu input[name="context-action"]').val();
+    var menu_name = $contextModal.find('input[name="menu-name"]').val();
+    if ($(this).val() != file_name && menuTitle_before != menu_name) {
+      $contextModal.find('.default button.saveas').attr('disabled', false);
+    }else{
+      $contextModal.find('.default button.saveas').attr('disabled', true);
+    }
+  })
+
+  $('#menu-name').on('keydown', function() {
+    var file_name_before = $('#context-menu input[name="context-action"]').val();
+    var file_name = $contextModal.find('input[name="file-name"]').val();
+    if (file_name_before != file_name && menuTitle_before != $(this).val()) {
+      $contextModal.find('.default button.saveas').attr('disabled', false);
+    }else{
+      $contextModal.find('.default button.saveas').attr('disabled', true);
+    }
+  })
+
   $(".custom-folder-scene.default button").click(async e => {
     e.preventDefault();
     const selectedMethod = $customFolderModal
@@ -409,7 +429,7 @@ $(document).ready(() => {
     e.stopPropagation();
     e.preventDefault();
   });
-
+  var menuTitle_before = ""
   $(".context-edit").on("click", e => {
     let filePath = $('#context-menu input[name="context-action"]').val();
     let type = $('#context-menu input[name="context-type"]').val();
@@ -418,6 +438,7 @@ $(document).ready(() => {
     if (type == "file") {
       getFileContent(filePath, $contextModal);
       // showContextModal($contextModal, "default");
+      menuTitle_before = name;
       $contextModal.find('input[name="file-name"]').val(filePath);
       $contextModal.find('input[name="menu-name"]').val(name);
     } else {
@@ -495,6 +516,7 @@ getFileContent = (filePath, $modal) => {
     },
     success: function(data) {
       // console.log(data)
+      $modal.find('.default button.saveas').attr('disabled', true);
       $modal.find('#script-edit-contents').val(data);
       showContextModal($modal, "default");
     }
