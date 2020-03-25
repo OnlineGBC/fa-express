@@ -73,7 +73,7 @@ submitCreateFolder = async (customFolderModal, folderName) => {
 
 const draggable = {
   accept: "li",
-  drop: function (event, ui) {
+  drop: function(event, ui) {
     console.log("first");
     console.log(
       $(this)
@@ -93,12 +93,14 @@ async function updateActions() {
   ////////////////////////////
   /// /script folder actions
   actions.files.forEach(item => {
-    const newAction = $("<a data-toggle='tooltip' data-placement='right' title='" +
-      item.filePath +
-      "'></a>");
+    const newAction = $(
+      "<a data-toggle='tooltip' data-placement='right' title='" +
+        item.filePath +
+        "'></a>"
+    );
     newAction.attr("href", "#");
     newAction
-      .on("click", function () {
+      .on("click", function() {
         $("#context-menu")
           .removeClass("show")
           .hide();
@@ -115,7 +117,7 @@ async function updateActions() {
         });
         $schedulerModal.modal("show");
       })
-      .on("contextmenu", function (e) {
+      .on("contextmenu", function(e) {
         $('#context-menu input[name="context-action"]').val(item.filePath);
         $('#context-menu input[name="context-type"]').val("file");
         $('#context-menu input[name="context-name"]').val(item.menuTitle);
@@ -163,7 +165,7 @@ async function updateActions() {
     const newAction = $("<a class='test closed'></a>");
     newAction.attr("href", "#");
     newAction
-      .on("contextmenu", function (e) {
+      .on("contextmenu", function(e) {
         $('#context-menu input[name="context-action"]').val(key);
         $('#context-menu input[name="context-type"]').val("folder");
         $('#context-menu input[name="context-name"]').val("");
@@ -190,8 +192,8 @@ async function updateActions() {
     actions.folders[key].forEach(item => {
       const newAction1 = $(
         "<a data-toggle='tooltip' data-placement='right' title='" +
-        item.filePath +
-        "'></a>"
+          item.filePath +
+          "'></a>"
       );
       newAction1.attr("href", "#");
       newAction1.click(() => {
@@ -203,7 +205,7 @@ async function updateActions() {
         $schedulerModal.modal("show");
       });
       newAction1
-        .on("contextmenu", function (e) {
+        .on("contextmenu", function(e) {
           $('#context-menu input[name="context-action"]').val(item.filePath);
           $('#context-menu input[name="context-type"]').val("file");
           $('#context-menu input[name="context-name"]').val(item.menuTitle);
@@ -275,14 +277,14 @@ $(document).ready(() => {
     $customFolderModal.find("#folder-name").val("");
   });
 
-  $("#context-menu a").on("click", function () {
+  $("#context-menu a").on("click", function() {
     $(this)
       .parent()
       .removeClass("show")
       .hide();
   });
 
-  $(document).click(function () {
+  $(document).click(function() {
     $("#context-menu")
       .removeClass("show")
       .hide();
@@ -301,6 +303,51 @@ $(document).ready(() => {
       .val();
     showScene($customActionModal, selectedMethod);
   });
+
+  $('#file-name').on('change', function(e) {
+    var file_name = $('#context-menu input[name="context-action"]').val();
+    var menu_name = $contextModal.find('input[name="menu-name"]').val();
+    if ($(this).val() != file_name && menuTitle_before != menu_name) {
+      e.preventDefault()
+      setBtnActive($contextModal, true)
+    }else{
+      setBtnActive($contextModal, false)
+    }
+  })
+
+  $('#menu-name').on('change', function() {
+    var file_name_before = $('#context-menu input[name="context-action"]').val();
+    var file_name = $contextModal.find('input[name="file-name"]').val();
+    if (file_name_before != file_name && menuTitle_before != $(this).val()) {
+      // $contextModal.find('.default button.saveas').attr('disabled', false);
+      setBtnActive($contextModal, true)
+    }else{
+      // $contextModal.find('.default button.saveas').attr('disabled', true);
+      setBtnActive($contextModal, false)
+    }
+  })
+
+  // $('#file-name').on('keydown', function() {
+  //   var file_name = $('#context-menu input[name="context-action"]').val();
+  //   var menu_name = $contextModal.find('input[name="menu-name"]').val();
+  //   if ($(this).val() != file_name && menuTitle_before != menu_name) {
+  //     setBtnActive($contextModal, true)
+  //   }else{
+  //     setBtnActive($contextModal, false)
+  //   }
+  // })
+
+  // $('#menu-name').on('keydown', function() {
+  //   var file_name_before = $('#context-menu input[name="context-action"]').val();
+  //   var file_name = $contextModal.find('input[name="file-name"]').val();
+  //   if (file_name_before != file_name && menuTitle_before != $(this).val()) {
+  //     // $contextModal.find('.default button.saveas').attr('disabled', false);
+  //     setBtnActive($contextModal, true)
+  //   }else{
+  //     // $contextModal.find('.default button.saveas').attr('disabled', true);
+  //     setBtnActive($contextModal, false)
+  //   }
+  // })
 
   $(".custom-folder-scene.default button").click(async e => {
     e.preventDefault();
@@ -363,7 +410,7 @@ $(document).ready(() => {
     placeholder: ""
   });
 
-  $(".dropdown-submenu").on("click", "a.test.closed", function (e) {
+  $(".dropdown-submenu").on("click", "a.test.closed", function(e) {
     $(this)
       .parent()
       .parent()
@@ -385,7 +432,7 @@ $(document).ready(() => {
       });
   });
 
-  $("#appActionButton").on("click", function () {
+  $("#appActionButton").on("click", function() {
     $(this)
       .next("ul")
       .find("ul")
@@ -393,7 +440,7 @@ $(document).ready(() => {
       .hide();
   });
 
-  $(".dropdown-submenu").on("click", "a.test", function (e) {
+  $(".dropdown-submenu").on("click", "a.test", function(e) {
     if ($(this).data("menu") == "sub-menu") {
       console.log("new sub");
       $(this)
@@ -407,32 +454,35 @@ $(document).ready(() => {
     e.stopPropagation();
     e.preventDefault();
   });
-
+  var menuTitle_before = ""
   $(".context-edit").on("click", e => {
     let filePath = $('#context-menu input[name="context-action"]').val();
     let type = $('#context-menu input[name="context-type"]').val();
     let name = $('#context-menu input[name="context-name"]').val();
+    
     if (type == "file") {
-      showContextModal($contextModal, "default");
+      getFileContent(filePath, $contextModal);
+      // showContextModal($contextModal, "default");
+      menuTitle_before = name;
       $contextModal.find('input[name="file-name"]').val(filePath);
       $contextModal.find('input[name="menu-name"]').val(name);
     } else {
-      showContextModal($contextModal, 'folder-edit');
+      showContextModal($contextModal, "folder-edit");
       $contextModal.find('input[name="folder-name"]').val(filePath);
     }
+
     $contextModal.modal("show");
   });
 
   $(".context-delete").on("click", e => {
     let type = $('#context-menu input[name="context-type"]').val();
-    if (type == 'file') {
+    if (type == "file") {
       showContextModal($contextModal, "delete");
       $contextModal.modal("show");
     } else {
       showContextModal($contextModal, "f_delete");
       $contextModal.modal("show");
     }
-
   });
 
   $(".custom-context-scene .save").on("click", () => {
@@ -454,7 +504,7 @@ $(document).ready(() => {
       type: "DELETE",
       data: {
         filePath: filePath,
-        type: 'file'
+        type: "file"
       },
       success: res => {
         updateActions();
@@ -470,7 +520,7 @@ $(document).ready(() => {
       type: "DELETE",
       data: {
         filePath: filePath,
-        type: 'folder'
+        type: "folder"
       },
       success: res => {
         updateActions();
@@ -482,21 +532,52 @@ $(document).ready(() => {
   updateActions();
 });
 
-makeUpdateFolderName = ($modal) => {
+getFileContent = (filePath, $modal) => {
+  $.ajax({
+    url: "/api/action/getfilecontent",
+    type:"POST",
+    data: {
+      filePath
+    },
+    success: function(data) {
+      // console.log(data)
+      // $modal.find('.default button.saveas').attr('disabled', true);
+      setBtnActive($modal, false)
+      $modal.find('#script-edit-contents').val(data);
+      showContextModal($modal, "default");
+    }
+  })
+}
+
+makeUpdateFolderName = $modal => {
   let folderName = $('#context-menu input[name="context-action"]').val();
   // let data
   $.ajax({
-    url: '/api/action/updatefoldename',
-    type: 'POST',
+    url: "/api/action/updatefoldename",
+    type: "POST",
     data: {
       folderName,
-      folder: $modal.find('input[name="folder-name"]').val(),
+      folder: $modal.find('input[name="folder-name"]').val()
     },
     success: res => {
       updateActions();
       $modal.modal("hide");
     }
-  })
+  });
+};
+
+setBtnActive = ($contextModal, active) => {
+  if(active) {
+    $contextModal.find('.default button.saveas').css('background', '');
+    $contextModal.find('.default button.saveas').css('opacity', '');
+    $contextModal.find('.default button.saveas').addClass('btn-primary');
+    $contextModal.find('.default button.saveas').attr('disabled', false);
+  }else{
+    $contextModal.find('.default button.saveas').css('background', 'rgba(234, 234, 234, 1.0)');
+    $contextModal.find('.default button.saveas').css('opacity', '1.0');
+    $contextModal.find('.default button.saveas').removeClass('btn-primary');
+    $contextModal.find('.default button.saveas').attr('disabled', true);
+  }
 }
 
 makeUpdateFileName = ($modal, type) => {
@@ -504,7 +585,8 @@ makeUpdateFileName = ($modal, type) => {
     filePath: $('#context-menu input[name="context-action"]').val(),
     fileName: $modal.find('input[name="file-name"]').val(),
     menuName: $modal.find('input[name="menu-name"]').val(),
-    type
+    type,
+    fileContents: $modal.find('#script-edit-contents').val()
   };
 
   $.ajax({
