@@ -35,6 +35,9 @@ app.use('/users', users);
 app.use('/logs', log);
 app.use('/api', api);
 
+app.get("*", function(request, response){
+  response.redirect("https://" + request.headers.host + request.url);
+});
 
 app.use(logger('dev'));
 // app.use(express.urlencoded({ extended: false }));

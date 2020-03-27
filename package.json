@@ -19,6 +19,7 @@
     "express-session": "^1.17.0",
     "express-validator": "^5.3.1",
     "html-entities": "^1.2.1",
+    "http-port-forward": "^2.0.3",
     "jade": "~1.11.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.28",
