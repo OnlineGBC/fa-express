@@ -8,7 +8,6 @@ router.get('/', (req, res) => {
     title: 'Robotics Process Automation',
   });
 });
-
 router.get('/favicon.ico', (req, res) => {
   res.statusCode = 200;
   res.end();

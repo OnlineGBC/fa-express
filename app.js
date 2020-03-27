@@ -13,6 +13,18 @@ require('./container');
 
 const app = express();
 
+app.enable('trust proxy');
+
+app.use (function (req, res, next) {
+        if (req.secure) {
+                // request was via https, so do no special handling
+                next();
+        } else {
+                // request was via http, so redirect to https
+                res.redirect('https://' + req.headers.host + req.url);
+        }
+});
+
 app.use(session({ secret: 'secret' }));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,9 +47,6 @@ app.use('/users', users);
 app.use('/logs', log);
 app.use('/api', api);
 
-app.get("*", function(request, response){
-  response.redirect("https://" + request.headers.host + request.url);
-});
 
 app.use(logger('dev'));
 // app.use(express.urlencoded({ extended: false }));
