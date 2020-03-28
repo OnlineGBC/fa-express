@@ -6,6 +6,7 @@
 
 const debug = require('debug')('fa-express:server');
 const http = require('http');
+const fs = require('fs');
 const socket = require('socket.io');
 const app = require('../app');
 const { logger } = require('../container');
@@ -22,7 +23,6 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
 const server = http.createServer(app);
 
 /**
