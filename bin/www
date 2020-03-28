@@ -5,7 +5,7 @@
  */
 
 const debug = require('debug')('fa-express:server');
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const socket = require('socket.io');
 const app = require('../app');
@@ -23,11 +23,11 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-const options = {
+/* const options = {
   key: fs.readFileSync('./ssl/private.key'),
   cert: fs.readFileSync('./ssl/certificate.crt')
-};
-const server = https.createServer(options,app);
+}; */
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
