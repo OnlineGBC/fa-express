@@ -123,8 +123,8 @@ class AutomationActions {
     };
 
     let logContent = "";
-    /*let errorCode;
-    console.log('Destination'+logId);
+    let errorCode;
+    /*console.log('Destination'+logId);
     logContent = await (await exec('dir')).stdout;
     console.log('creating log'); */
 
@@ -173,9 +173,7 @@ class AutomationActions {
     console.log('logs done');
     this.logger.writeLogFile(logFileName, log);
     //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
-    let returnCodeCommand = 'echo.%errorlevel%';
     if(isSequential){
-      let errorCode = await (await exec(returnCodeCommand)).stdout;
       return errorCode;
     }
   }
