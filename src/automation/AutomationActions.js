@@ -13,7 +13,7 @@ class AutomationActions {
     this.logger = logger;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder) {
+  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true) {
     if (!scriptName) {
       throw new Error("Invalid scriptName parameter");
     }
@@ -50,11 +50,12 @@ class AutomationActions {
       scriptPath,
       machinesIds,
       machines,
-      options
+      options,
+      isSequential
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options) {
+  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential) {
     const now = Date.now();
     if (!runAt) {
       runAt = now;
@@ -62,7 +63,7 @@ class AutomationActions {
     const immediate = runAt === now;
     const timeout = runAt - now;
 
-    Promise.all(
+    const thePromise = Promise.all(
       machines.map(async (machineDetails, index) => {
         const machineId = machinesIds[index];
         const scheduledAt = immediate ? null : runAt;
@@ -78,16 +79,21 @@ class AutomationActions {
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
           logId: log.id,
           ...options
-        });
+        },
+        isSequential);
       })
     );
+    if(isSequential){
+      return thePromise;
+    }
   }
 
   async runScriptOnMachine(
     scriptPath,
     machineId,
     machineDetails,
-    options = {}
+    options = {},
+    isSequential
   ) {
     const { emailAddress = "", logId } = options;
     const { loginId, internalFacingNetworkIp, osType } = machineDetails;
@@ -116,8 +122,12 @@ class AutomationActions {
         : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`
     };
 
-    let logContent = "";
+    /* let logContent = "";
     let errorCode;
+    console.log('Destination'+logId);
+    logContent = await (await exec('dir')).stdout;
+    console.log('creating log'); */
+
     try {
       await exec(commands.copy);
       console.log(
@@ -160,7 +170,14 @@ class AutomationActions {
       logContent,
       errorCode
     );
+    console.log('logs done');
     this.logger.writeLogFile(logFileName, log);
+    //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
+    let returnCodeCommand = 'echo.%errorlevel%';
+    if(isSequential){
+      let errorCode = await (await exec(returnCodeCommand)).stdout;
+      return errorCode;
+    }
   }
 
   async executeScriptOnHost(hostWithLogin, scriptPath) {

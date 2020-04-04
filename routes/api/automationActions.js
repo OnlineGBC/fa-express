@@ -26,6 +26,7 @@ router.post("/", async (req, res) => {
       },
       folder
     );
+    console.log('done');
     res.json({
       status: "success"
     });

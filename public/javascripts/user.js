@@ -284,7 +284,7 @@ $(() => {
     // 'scrollY': 600,
     initComplete: tableInitCallback,
     dom:
-      "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-1'B><'col-sm-6 col-md-1'<'#upload-container'>><'col-sm-6 col-md-4'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
+      "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-1'B><'col-sm-6 col-md-2'<'#upload-container'>><'col-sm-6 col-md-3'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
     rowId: "id",
     buttons: [
       {
@@ -565,21 +565,66 @@ $(() => {
       content: "Please, wait while the job is processing!"
     });
 
-    return $.ajax({
-      url: "/api/automation/actions",
-      method: "POST",
-      data: JSON.stringify({
-        emailAddress: sendMail ? emailAddress : "",
-        scriptName,
-        machineIds,
-        isImmediate,
-        scheduleAt,
-        timezone,
-        folder: folderKey
-      }),
-      dataType: "json",
-      contentType: "application/json"
-    });
+    if($("#seq-state").val() == '1'){
+      //Submit form for sequential processing
+      
+      // Include scriptName and folderKey in each row
+      var theData = [];
+      selected.forEach(function(row){
+        var scriptName = row.scriptName;
+        var folderKey = row.folderKey;
+        row.forEach(function(item){
+          item.scriptName = scriptName;
+          item.folderKey = folderKey;
+          theData.push(item);
+        })
+      });
+      continueOnErrors = ($("#ignoreError").val() == '1')?true:false;
+
+      return $.ajax({
+        url: "/api/automation/seqActions",
+        method: "POST",
+        data: JSON.stringify({
+          rows: theData,
+          emailAddress: sendMail ? emailAddress : "",
+          isImmediate,
+          scheduleAt,
+          timezone,
+          continueOnErrors
+        }),
+        dataType: "json",
+        contentType: "application/json"
+      }).then(res => {
+        if(res.status == 'success'){
+          showReturnCodeModal(true);
+        }
+        else{
+          showReturnCodeModal(false);
+        }
+      })
+      .fail(err => {
+        console.log('Failed miserably');
+        showReturnCodeModal(false);
+      });;
+    }
+    else{
+      return $.ajax({
+        url: "/api/automation/actions",
+        method: "POST",
+        data: JSON.stringify({
+          emailAddress: sendMail ? emailAddress : "",
+          scriptName,
+          machineIds,
+          isImmediate,
+          scheduleAt,
+          timezone,
+          folder: folderKey
+        }),
+        dataType: "json",
+        contentType: "application/json"
+      });
+    }
+  
   });
 
   /**
@@ -668,9 +713,11 @@ function tableInitCallback() {
 
   $("#add-row-container").append($("#create-auto-row"));
   $("#actions-container")
-    .append($("#action-buttons"))
-    .css("text-align", "center");
+    .append($("#action-buttons"));
+  $("#actions-container").append($("#advanced-btn"));
+  $("#advanced-btn").show();
   $("#upload-container").css("display", "flex");
+  $("#actions-container").css("display", "flex");
   $("#upload-container").append($("#upload-btn"));
   $("#upload-btn").show();
   $("#upload-container").append($("#logs-btn"));
@@ -710,6 +757,9 @@ function setModalTitle($modal, title) {
 }
 
 $(document).ready(() => {
+
+  $('[data-toggle="tooltip"]').tooltip();
+
   // $("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
   if ($("#schedule").length && $("#schedule").val() != "immediate") {
     $(".hidden_fields").show();
@@ -843,4 +893,243 @@ $(".log-container").on("click", ".show-log", function(e) {
 
   $modal.data("selected", $row).modal("show");
   // $modal.modal('show');
+});
+
+// Confirm Modal for sequential processing
+const seqModal = $.confirm({
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-6',
+  theme: 'my-theme',
+  title: "Begin HA/Sequential Processing",
+  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  else, press Cancel to Exit</p>",
+  buttons: {
+    cancel:{
+      text:'Cancel',
+      action:function(){
+        $("#seq-state").val("0");
+      }
+    },
+    proceed: {
+      text: 'Proceed',
+      btnClass: 'btn-green',
+      action: function(){
+        $("#seq-state").val("1");
+        handleErrorModal.open();
+      }
+    }
+  }
+});
+// Sequential processing steps after advanced has been clicked
+$('#advanced-btn').on('click',function(){
+
+  const seqState = $("#seq-state").val();
+
+  if(seqState == 0){
+    $.confirm({
+      backgroundDismiss:true,
+      alignMiddle:true,
+      columnClass: 'col-md-6',
+      theme: 'my-theme',
+      title: "Begin HA/Sequential Processing",
+      content: "<p style='line-height:20px'>Please ensure that all required rows have been set up in place already in the main Automation table.  If multiple actions need to be done in sequence on the same server entry then they need to exist already with Order # = 1, 2, 3, etc. !</p>",
+      buttons: {
+        proceed: {
+          text: 'I understand.  Please proceed',
+          btnClass: 'btn-green',
+          action: function(){
+            $("#seq-state").val("1");
+            seqModal.open();
+          }
+        }
+      }
+    });
+  } 
+  else{
+    //$("#seq-state").val("0");
+  }
+});
+
+// Confirmation modal 2 for sequential processing
+const seqModal2 = $.confirm({
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-6',
+  theme: 'my-theme',
+  title: "Begin HA/Sequential Processing",
+  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  else, press Cancel to Exit</p>",
+  buttons: {
+    complete:{
+      text:'Completed',
+      btnclass: 'btn-yellow',
+      action:function(){
+        // Remove selected rows from table
+        updateTable();
+        selRowsModal.open();
+      }
+    },
+    proceed: {
+      text: 'Proceed',
+      btnClass: 'btn-green',
+      action: function(){
+        $("#seq-state").val("1");
+        // Remove selected rows from table
+        updateTable();
+      }
+    }
+  }
+});
+
+function showReturnCodeModal(status){
+  
+  $.alert({
+    backgroundDismiss:true,
+    alignMiddle:true,
+    columnClass: 'col-md-6',
+    theme: 'my-theme',
+    title: "Sequential Processing Completed",
+    content: function(){
+      if(status){
+        return "Tasks completed. Please check the Job logs.";
+      }
+      else{
+        return "Errors found. Please check the Job logs.";
+      }
+    }
+  });
+}
+
+
+// Error handling modal
+const handleErrorModal = $.confirm({
+  backgroundDismiss:true,
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-6',
+  theme: 'my-theme',
+  title: "Begin HA/Sequential Processing",
+  content: "<p style='line-height:20px'>Should we Cancel on Warning/Error or Ignore Warnings/Errors and Proceed?</p>",
+  buttons: {
+    cancel: {
+      text: 'Cancel on Warning/Error',
+      action: function(){
+        $("#ignoreError").val('0');
+      }
+    },
+    proceed: {
+      text: 'Ignore Warnings/Errors and Proceed',
+      action: function(){
+        $("#ignoreError").val('1');
+      }
+    }
+  }
+});
+
+// Selected Rows Modal
+const selRowsModal = $.confirm({
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-12',
+  theme: 'my-theme',
+  title: "Confirm your selection",
+  content: function(){
+    output = '<hr>';
+    output += "<div class='padded-content'>";
+    selected.forEach(function(row){
+      var scriptName = row.scriptName;
+      var folderKey = row.folderKey;
+      output += '<p class="action_title">Associated action: ' + scriptName + '</p>';
+      output += '<table class="table-custom"><thead>';
+      output += '<th>LoginID</th>';
+      output += '<th>IFN</th>';
+      output += '<th>CFN</th>';
+      output += '<th>OSType</th>';
+      output += '<th>SID</th>';
+      output += '<th>DBTYPE</th>';
+      output += '<th>AppType</th>';
+      output += '<th>Order</th>';
+      output += '<th>HOST_TYPE</th>';
+      output += '</thead>';
+      output += '<tbody>';
+      row.forEach(function(item){
+        output += '<tr>';
+        output += '<td>'+item['LoginID']+'</td>';
+        output += '<td>'+item['IFN']+'</td>';
+        output += '<td>'+item['CFN']+'</td>';
+        output += '<td>'+item['OSType']+'</td>';
+        output += '<td>'+item['SID']+'</td>';
+        output += '<td>'+item['DBTYPE']+'</td>';
+        output += '<td>'+item['AppType']+'</td>';
+        output += '<td>'+item['Order_Exec']+'</td>';
+        output += '<td>'+item['HOST_TYPE']+'</td>';
+        output += '</tr>';
+      })
+      output += '</tbody></table>';
+      output += '<hr>';
+    })
+    output += '</div>';
+    return output;
+  },
+  buttons: {
+    proceed: {
+      text: 'Proceed',
+      btnClass: 'btn-green',
+      action: function(){
+        $("#scheduler_modal").modal('show');
+      }
+    },
+    cancel:{
+      text:'Cancel',
+      btnclass: 'btn-warning',
+      action:function(){
+        $("#seq-state").val("0");
+        selected[0].forEach(function(row){
+          console.log(row)
+        })
+        refreshTable();
+      }
+    },
+    edit:{
+      text:'Edit',
+      btnclass: 'btn-primary',
+      action:function(){
+        // Add code for edit
+      }
+    }
+  }
+});
+
+function updateTable(){
+  table
+    .rows( '.selected' )
+    .remove()
+    .draw();
+}
+
+function refreshTable(){
+  selected.forEach(function(rowGroup){
+    rowGroup.forEach(function(row){
+    table.row.add(row);
+    });
+  })
+  table.draw();
+}
+const selected = [];
+
+// Sequential processing steps after action has been clicked
+$('#appActionsDropdown').on('click','.sub-actions',function(e){
+
+  if($("#seq-state").val() == 0){
+    return;
+  }
+
+  // Add selected rows to an object
+  var selected_rows = table.rows( { selected: true } ).data().toArray();
+  var selected_actions =  $("#scheduler_modal").data();
+  Object.assign(selected_rows,selected_actions);
+  selected.push(selected_rows);
+
+  console.log(selected);
+
+  seqModal2.open();
 });
