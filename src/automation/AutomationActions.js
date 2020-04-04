@@ -122,8 +122,8 @@ class AutomationActions {
         : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`
     };
 
-    /* let logContent = "";
-    let errorCode;
+    let logContent = "";
+    /*let errorCode;
     console.log('Destination'+logId);
     logContent = await (await exec('dir')).stdout;
     console.log('creating log'); */
