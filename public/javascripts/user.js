@@ -567,7 +567,7 @@ $(() => {
 
     if($("#seq-state").val() == '1'){
       //Submit form for sequential processing
-      
+      $("#seq-state").val("0");
       // Include scriptName and folderKey in each row
       var theData = [];
       selected.forEach(function(row){
@@ -1076,7 +1076,6 @@ const selRowsModal = $.confirm({
       btnClass: 'btn-green',
       action: function(){
         $("#scheduler_modal").modal('show');
-        $("#seq-state").val("0");
         refreshTable();
       }
     },
