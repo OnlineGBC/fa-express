@@ -1040,6 +1040,7 @@ const selRowsModal = $.confirm({
       var folderKey = row.folderKey;
       output += '<p class="action_title">Associated action: ' + scriptName + '</p>';
       output += '<table class="table-custom"><thead>';
+      output += '<th>HostName</th>';
       output += '<th>LoginID</th>';
       output += '<th>IFN</th>';
       output += '<th>CFN</th>';
@@ -1053,6 +1054,7 @@ const selRowsModal = $.confirm({
       output += '<tbody>';
       row.forEach(function(item){
         output += '<tr>';
+        output += '<td>'+item['HostName']+'</td>';
         output += '<td>'+item['LoginID']+'</td>';
         output += '<td>'+item['IFN']+'</td>';
         output += '<td>'+item['CFN']+'</td>';
