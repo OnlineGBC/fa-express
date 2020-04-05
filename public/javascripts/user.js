@@ -1076,6 +1076,8 @@ const selRowsModal = $.confirm({
       btnClass: 'btn-green',
       action: function(){
         $("#scheduler_modal").modal('show');
+        $("#seq-state").val("0");
+        refreshTable();
       }
     },
     cancel:{
