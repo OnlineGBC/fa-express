@@ -313,7 +313,6 @@ $(() => {
       { data: "SID" },
       { data: "DBTYPE" },
       { data: "AppType" },
-      { data: "Order_Exec" },
       { data: "CUSTNAME" },
       { data: "LOCATION" },
       { data: "HOST_TYPE" }
@@ -331,13 +330,8 @@ $(() => {
           return data;
         }
       },
-
       {
-        targets: 10,
-        name: "Order"
-      },
-      {
-        targets: 14,
+        targets: 13,
         render: () => `<a href="#" class="edit"><i class="fa fa-pencil"></i></a>
 <a href="#" class="delete"><i class="fa fa-trash"></i></a>`
       }
@@ -932,7 +926,7 @@ $('#advanced-btn').on('click',function(){
       columnClass: 'col-md-6',
       theme: 'my-theme',
       title: "Begin HA/Sequential Processing",
-      content: "<p style='line-height:20px'>Please ensure that all required rows have been set up in place already in the main Automation table.  If multiple actions need to be done in sequence on the same server entry then they need to exist already with Order # = 1, 2, 3, etc. !</p>",
+      content: "<p style='line-height:20px'>Please ensure that all required rows have been set up in place already in the main list of servers.</p>",
       buttons: {
         proceed: {
           text: 'I understand.  Please proceed',
@@ -1048,7 +1042,6 @@ const selRowsModal = $.confirm({
       output += '<th>SID</th>';
       output += '<th>DBTYPE</th>';
       output += '<th>AppType</th>';
-      output += '<th>Order</th>';
       output += '<th>HOST_TYPE</th>';
       output += '</thead>';
       output += '<tbody>';
@@ -1062,7 +1055,6 @@ const selRowsModal = $.confirm({
         output += '<td>'+item['SID']+'</td>';
         output += '<td>'+item['DBTYPE']+'</td>';
         output += '<td>'+item['AppType']+'</td>';
-        output += '<td>'+item['Order_Exec']+'</td>';
         output += '<td>'+item['HOST_TYPE']+'</td>';
         output += '</tr>';
       })
@@ -1078,7 +1070,7 @@ const selRowsModal = $.confirm({
       btnClass: 'btn-green',
       action: function(){
         $("#scheduler_modal").modal('show');
-        refreshTable();
+        //refreshTable();
       }
     },
     cancel:{
@@ -1089,7 +1081,7 @@ const selRowsModal = $.confirm({
         selected[0].forEach(function(row){
           console.log(row)
         })
-        refreshTable();
+        //refreshTable();
       }
     },
     edit:{
@@ -1107,6 +1099,10 @@ function updateTable(){
     .rows( '.selected' )
     .remove()
     .draw();
+    var selects = table.rows( { selected: true } ).nodes();
+    $(selects).find("input[type=checkbox]").prop('checked',false);
+    table
+    .rows( '.selected' ).deselect();
 }
 
 function refreshTable(){
