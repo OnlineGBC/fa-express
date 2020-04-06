@@ -1095,10 +1095,6 @@ const selRowsModal = $.confirm({
 });
 
 function updateTable(){
-  table
-    .rows( '.selected' )
-    .remove()
-    .draw();
     var selects = table.rows( { selected: true } ).nodes();
     $(selects).find("input[type=checkbox]").prop('checked',false);
     table
