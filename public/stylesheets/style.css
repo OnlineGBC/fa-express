@@ -212,3 +212,8 @@ table.table-custom {
 }
 .jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-buttons button{
 }
+.jconfirm-buttons .btn-custom {
+  white-space: normal !important;
+  max-width: 160px;
+  height: 60px;
+}

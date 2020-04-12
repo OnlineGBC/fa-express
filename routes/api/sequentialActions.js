@@ -169,8 +169,10 @@ router.post("/", async (req, res) => {
           folder,
           true
         );
-        if(errorCode)
+        if(errorCode){
+          console.log('errorsss');
           return;
+        }
         console.log('Successfull results for '+row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
@@ -185,10 +187,7 @@ router.post("/", async (req, res) => {
           }
           if(('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')){
             console.log('Error Code status for '+tempRow.id);
-            console.log('Error code exists = '+ ('errorCode' in tempRow));
             console.log('ErrorCode = '+tempRow.errorCode);
-            console.log(typeof tempRow.errorCode != 'undefined');
-            console.log(tempRow.errorCode != 0);
             errorCode = true;
             filteredRow = rows.filter(obj => {
               return obj.id === tempRow.id
@@ -199,9 +198,19 @@ router.post("/", async (req, res) => {
           return errorCode;
         })
 
-        //Stop execution if error is returned
-        if(errorCode && !continueOnErrors){
+         //Stop execution if error is returned
+         if (errorCode && !continueOnErrors) {
           console.log('Found an error. Stopping script execution');
+          for (index; index < orderArray.length; index++) {
+            let leftRows = orderArray[index];
+            leftRows.forEach(async function (row) {
+              createLog(row.id, isImmediate, {
+                scheduleAt,
+                emailAddress,
+                timezone
+              });
+            })
+          };
           res.json({
             status: "failed"
           });
@@ -219,6 +228,12 @@ router.post("/", async (req, res) => {
             return;
           }
         }
+        // else{
+        //   if(continueOnErrors){
+        //     console.log('Found Errors. Skipping to next set of rows');
+        //     beginExecution(index);
+        //   }
+        // }
 
       } catch (error) {
         if(continueOnErrors){
@@ -234,5 +249,38 @@ router.post("/", async (req, res) => {
     })
   }
 });
+
+
+async function createLog(id, isImmediate, options) {
+
+  const now = Date.now();
+  let runAt;
+  if (!isImmediate) {
+    const { scheduleAt } = options;
+    if (
+      typeof scheduleAt !== "number" ||
+      !new Date(scheduleAt).getTime() ||
+      scheduleAt < Date.now()
+    ) {
+      throw new Error("Invalid scheduleAt parameter");
+    }
+    runAt = scheduleAt;
+  }
+  if (!runAt) {
+    runAt = now;
+  }
+  const immediate = runAt === now;
+  const scheduledAt = immediate ? null : runAt;
+  const log = await automationActions.database.saveLog(
+    id,
+    null,
+    now,
+    scheduledAt,
+    options.timezone
+  );
+  log.dataValues.status = 'error';
+  log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
+  automationActions.logger.notifyListeners(log);
+}
 
 module.exports = router;

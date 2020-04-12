@@ -55,7 +55,12 @@ const logsTable = $("#status-box").DataTable({
       width: 100,
       render(data, type, row) {
         if (type === "display") {
-          data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+          if (row.hasOwnProperty('status') && row.status == 'error') {
+            data = `<span style="color:red">Not Executed</span>`;
+          }
+          else {
+            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+          }
         }
         return data;
       }
@@ -394,7 +399,13 @@ $(() => {
   });
 
   $("#action-buttons").on("checkbox-change", function() {
-    $(this).toggle($(".dt-checkboxes:checked").length > 0);
+    isChecked = $(".dt-checkboxes:checked").length > 0;
+    if(isChecked){
+      $(this).css('visibility','visible');
+    }
+    else{
+      $(this).css('visibility','hidden');
+    }
   });
 
   $table.on("change", "tbody .dt-checkboxes", function(e) {
@@ -564,13 +575,16 @@ $(() => {
       $("#seq-state").val("0");
       // Include scriptName and folderKey in each row
       var theData = [];
-      selected.forEach(function(row){
+      selected.forEach(function(row,i){
         var scriptName = row.scriptName;
         var folderKey = row.folderKey;
         row.forEach(function(item){
-          item.scriptName = scriptName;
-          item.folderKey = folderKey;
-          theData.push(item);
+          // Creating copy of object to prevent overriding
+          var tempObj = Object.assign({}, item);
+          tempObj.scriptName = scriptName;
+          tempObj.folderKey = folderKey;
+          tempObj.Order_Exec = i + 1;
+          theData.push(tempObj);
         })
       });
       continueOnErrors = ($("#ignoreError").val() == '1')?true:false;
@@ -665,7 +679,22 @@ $(() => {
   });
 
   socket.on("log", log => {
-    logsTable.row.add(log).draw(false);
+    updateLog = false;
+    var indexes = logsTable
+      .rows()
+      .indexes()
+      .filter( function ( value, index ) {
+        return log.id === logsTable.row(value).data().id;
+    });
+    console.log('Hostnme = '+log.HostName+' uid = '+log.uId);
+    if(indexes.length > 0){
+      var rowIndex = indexes[0];
+      updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
+      logsTable.cell({ row: rowIndex, column: 8 }).node().innerHTML = updatedText;
+    }
+    else {
+      logsTable.row.add(log).draw(false);
+    }
   });
 });
 
@@ -914,35 +943,59 @@ const seqModal = $.confirm({
     }
   }
 });
+
+
 // Sequential processing steps after advanced has been clicked
-$('#advanced-btn').on('click',function(){
+$('#advanced-btn').on('click', function () {
 
   const seqState = $("#seq-state").val();
 
-  if(seqState == 0){
+  if (seqState == 0) {
     $.confirm({
-      backgroundDismiss:true,
-      alignMiddle:true,
+      backgroundDismiss: true,
+      alignMiddle: true,
       columnClass: 'col-md-6',
       theme: 'my-theme',
       title: "Begin HA/Sequential Processing",
-      content: "<p style='line-height:20px'>Please ensure that all required rows have been set up in place already in the main list of servers.</p>",
+      content: "<div style='line-height:20px'><p>1. Please ensure that required rows have been set up in the main list of servers</p><p>2. Please select all servers that should be processed next and choose the Action</p></div>",
       buttons: {
-        proceed: {
-          text: 'I understand.  Please proceed',
-          btnClass: 'btn-green',
-          action: function(){
+        cancel: {
+          text: 'Cancel',
+          btnClass: 'btn-danger btn-custom',
+          action: function () {
+            // Clear the selected rows
+            selected = [];
+            $("#seq-state").val('0');  
+          }
+        },
+        proceedWithCancel: {
+          text: 'Proceed but Cancel on Warning/Errors',
+          btnClass: 'btn-warning btn-custom',
+          action: function () {
             $("#seq-state").val("1");
-            seqModal.open();
+            $("#ignoreError").val('0');
+            // Clear the selected rows
+            selected = [];
+          }
+        },
+        proceedWithIgnore: {
+          text: 'Proceed and Ignore Warnings/Errors',
+          btnClass: 'btn-green btn-custom',
+          action: function () {
+            $("#seq-state").val("1");
+            $("#ignoreError").val('1');
+            // Clear the selected rows
+            selected = [];
           }
         }
       }
     });
-  } 
-  else{
+  }
+  else {
     //$("#seq-state").val("0");
   }
 });
+
 
 // Confirmation modal 2 for sequential processing
 const seqModal2 = $.confirm({
@@ -1109,7 +1162,7 @@ function refreshTable(){
   })
   table.draw();
 }
-const selected = [];
+let selected = [];
 
 // Sequential processing steps after action has been clicked
 $('#appActionsDropdown').on('click','.sub-actions',function(e){

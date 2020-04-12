@@ -74,6 +74,7 @@ class AutomationActions {
           scheduledAt,
           options.timezone
         );
+        log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
         this.logger.notifyListeners(log);
         await utils.delay(timeout);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
@@ -144,10 +145,11 @@ class AutomationActions {
       );
       // Dispatch mail
       if (emailAddress) {
-        this.mailer.sendMail(stdout, emailAddress).catch(console.error);
+        this.mailer.sendMail(stdout.output, emailAddress).catch(console.error);
       }
 
-      logContent = stdout;
+      logContent = stdout.output;
+      errorCode = stdout.returnCode;
       console.log("The Log file saved");
       await exec(commands.remove);
       console.log("Script removed from the remote server");
@@ -170,10 +172,15 @@ class AutomationActions {
       logContent,
       errorCode
     );
+    console.log('The error code for id = '+machineId+' is = '+ errorCode);
     console.log('logs done');
     this.logger.writeLogFile(logFileName, log);
     //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
     if(isSequential){
+      if(errorCode != 0){
+        log.dataValues.status = 'failed';
+        this.logger.notifyListeners(log);
+      }
       return errorCode;
     }
   }
@@ -187,11 +194,17 @@ class AutomationActions {
       scriptPath
     ]);
     let fullOutput = "";
+    let returnCode = "";
     ls.stdout.on("data", data => {
       fullOutput += data.toString();
     });
+
     return new Promise(resolve => {
-      ls.on("exit", () => resolve(fullOutput));
+      ls.on("exit", (returnCode) => {
+        console.log("return code is "+returnCode);
+        resolve({output:fullOutput,returnCode})
+        }
+      );
     });
   }
 }
