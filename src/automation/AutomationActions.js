@@ -2,6 +2,7 @@ const path = require("path");
 const { promisify } = require("util");
 const childProcess = require("child_process");
 const utils = require("../utils");
+const fs = require('fs');
 
 const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
@@ -35,13 +36,14 @@ class AutomationActions {
     }
     let runAt;
     if (!isImmediate) {
+      console.log("received scheduleat = "+options.scheduleAt);
       const { scheduleAt } = options;
       if (
         typeof scheduleAt !== "number" ||
         !new Date(scheduleAt).getTime() ||
         scheduleAt < Date.now()
       ) {
-        throw new Error("Invalid scheduleAt parameter");
+        throw new Error("Invalid scheduleAts parameter");
       }
       runAt = scheduleAt;
     }
@@ -66,7 +68,7 @@ class AutomationActions {
     const thePromise = Promise.all(
       machines.map(async (machineDetails, index) => {
         const machineId = machinesIds[index];
-        const scheduledAt = immediate ? null : runAt;
+        const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
         const log = await this.database.saveLog(
           machineId,
           null,
@@ -100,10 +102,51 @@ class AutomationActions {
     const { loginId, internalFacingNetworkIp, osType } = machineDetails;
     const hostWithLogin = `${loginId}@${internalFacingNetworkIp}`;
     const logFileName = utils.randomLogFileName();
+    const isWindows = osType.toLowerCase().includes("windows");
+
+    console.log("Before Content");
+    let fileContents = '';
+    let rcFile = '';
+    let fileExt = path.extname(scriptPath).substr(1);
+    let tempFile = scriptPath;
+    let scriptName = path.basename(scriptPath);
+    let initialLogContent = `Running script ${scriptName}\n`;
+    if(fileExt == 'cmd'){
+      if(!isWindows){
+        const log = await this.database.updateLogContentById(
+          logId,
+          `${initialLogContent}The script ${scriptName} will not run on the *nix platform`,
+          1
+        );
+        log.dataValues.status = 'fileError';
+        log.dataValues.errorMsg = `Wrong OS`;
+        this.logger.notifyListeners(log);
+        return 1;
+      }
+      rcFile = path.join(__dirname, "/../../scripts/", "rclevel.cmd");
+    }
+    else if(fileExt == 'sh'){
+      if(isWindows){
+        const log = await this.database.updateLogContentById(
+          logId,
+          `${initialLogContent}The script ${scriptName} will not run on the Windows platform`,
+          1
+        );
+        log.dataValues.status = 'fileError';
+        log.dataValues.errorMsg = `Wrong OS`;
+        this.logger.notifyListeners(log);
+        return 1;
+      }
+      rcFile = path.join(__dirname, "/../../scripts/", "rclevel.sh");
+    }
+
+    scriptPath = path.join(__dirname, "/../../scripts/", this.makeid(10)+'.'+fileExt);
+    
+    await exec(`cat ${tempFile} ${rcFile} > ${scriptPath}`);
+
+
 
     const scriptBaseName = path.basename(scriptPath);
-
-    const isWindows = osType.toLowerCase().includes("windows");
 
     const tempFilePath = isWindows
       ? `C:\\temp\\${scriptBaseName}`
@@ -122,6 +165,7 @@ class AutomationActions {
         ? null
         : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`
     };
+
 
     let logContent = "";
     let errorCode;
@@ -167,6 +211,14 @@ class AutomationActions {
           .catch(console.error);
       }
     }
+
+    fs.unlink(scriptPath,(err)=>{
+      console.log(err);
+    });
+    
+    // New message string added
+    logContent = initialLogContent+logContent;
+
     const log = await this.database.updateLogContentById(
       logId,
       logContent,
@@ -207,6 +259,15 @@ class AutomationActions {
       );
     });
   }
+  makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+ }
 }
 
 module.exports = AutomationActions;

@@ -680,6 +680,7 @@ $(() => {
 
   socket.on("log", log => {
     updateLog = false;
+    console.log(log);
     var indexes = logsTable
       .rows()
       .indexes()
@@ -689,7 +690,12 @@ $(() => {
     console.log('Hostnme = '+log.HostName+' uid = '+log.uId);
     if(indexes.length > 0){
       var rowIndex = indexes[0];
+      if(log.status == "fileError"){
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">${log.errorMsg}</a>`;
+      }
+      else{
       updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
+      }
       logsTable.cell({ row: rowIndex, column: 8 }).node().innerHTML = updatedText;
     }
     else {
@@ -925,7 +931,7 @@ const seqModal = $.confirm({
   columnClass: 'col-md-6',
   theme: 'my-theme',
   title: "Begin HA/Sequential Processing",
-  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  else, press Cancel to Exit</p>",
+  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  press Completed when done or Cancel to Exit</p>",
   buttons: {
     cancel:{
       text:'Cancel',
@@ -976,6 +982,8 @@ $('#advanced-btn').on('click', function () {
             $("#ignoreError").val('0');
             // Clear the selected rows
             selected = [];
+            seqModalShow();
+
           }
         },
         proceedWithIgnore: {
@@ -986,6 +994,7 @@ $('#advanced-btn').on('click', function () {
             $("#ignoreError").val('1');
             // Clear the selected rows
             selected = [];
+            seqModalShow();
           }
         }
       }
@@ -1004,7 +1013,7 @@ const seqModal2 = $.confirm({
   columnClass: 'col-md-6',
   theme: 'my-theme',
   title: "Begin HA/Sequential Processing",
-  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  else, press Cancel to Exit</p>",
+  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  press Completed when done or Cancel to Exit</p>",
   buttons: {
     complete:{
       text:'Completed',
@@ -1079,44 +1088,6 @@ const selRowsModal = $.confirm({
   columnClass: 'col-md-12',
   theme: 'my-theme',
   title: "Confirm your selection",
-  content: function(){
-    output = '<hr>';
-    output += "<div class='padded-content'>";
-    selected.forEach(function(row){
-      var scriptName = row.scriptName;
-      var folderKey = row.folderKey;
-      output += '<p class="action_title">Associated action: ' + scriptName + '</p>';
-      output += '<table class="table-custom"><thead>';
-      output += '<th>HostName</th>';
-      output += '<th>LoginID</th>';
-      output += '<th>IFN</th>';
-      output += '<th>CFN</th>';
-      output += '<th>OSType</th>';
-      output += '<th>SID</th>';
-      output += '<th>DBTYPE</th>';
-      output += '<th>AppType</th>';
-      output += '<th>HOST_TYPE</th>';
-      output += '</thead>';
-      output += '<tbody>';
-      row.forEach(function(item){
-        output += '<tr>';
-        output += '<td>'+item['HostName']+'</td>';
-        output += '<td>'+item['LoginID']+'</td>';
-        output += '<td>'+item['IFN']+'</td>';
-        output += '<td>'+item['CFN']+'</td>';
-        output += '<td>'+item['OSType']+'</td>';
-        output += '<td>'+item['SID']+'</td>';
-        output += '<td>'+item['DBTYPE']+'</td>';
-        output += '<td>'+item['AppType']+'</td>';
-        output += '<td>'+item['HOST_TYPE']+'</td>';
-        output += '</tr>';
-      })
-      output += '</tbody></table>';
-      output += '<hr>';
-    })
-    output += '</div>';
-    return output;
-  },
   buttons: {
     proceed: {
       text: 'Proceed',
@@ -1141,6 +1112,7 @@ const selRowsModal = $.confirm({
       text:'Edit',
       btnclass: 'btn-primary',
       action:function(){
+        return false;
         // Add code for edit
       }
     }
@@ -1176,8 +1148,62 @@ $('#appActionsDropdown').on('click','.sub-actions',function(e){
   var selected_actions =  $("#scheduler_modal").data();
   Object.assign(selected_rows,selected_actions);
   selected.push(selected_rows);
+  updateTable();
 
   console.log(selected);
 
-  seqModal2.open();
+  //seqModal2.open();
 });
+
+function seqModalCancel() {
+  $("#seqModal").hide();
+}
+function seqModalComplete() {
+  updateTable();
+  tableContent = '<hr>';
+  tableContent += "<div class='padded-content'>";
+  selected.forEach(function (row) {
+    var scriptName = row.scriptName;
+    var folderKey = row.folderKey;
+    tableContent += '<p class="action_title">Associated action: ' + scriptName + '</p>';
+    tableContent += '<table class="table-custom"><thead>';
+    tableContent += '<th>HostName</th>';
+    tableContent += '<th>LoginID</th>';
+    tableContent += '<th>IFN</th>';
+    tableContent += '<th>CFN</th>';
+    tableContent += '<th>OSType</th>';
+    tableContent += '<th>SID</th>';
+    tableContent += '<th>DBTYPE</th>';
+    tableContent += '<th>AppType</th>';
+    tableContent += '<th>HOST_TYPE</th>';
+    tableContent += '</thead>';
+    tableContent += '<tbody>';
+    row.forEach(function (item) {
+      tableContent += '<tr>';
+      tableContent += '<td>' + item['HostName'] + '</td>';
+      tableContent += '<td>' + item['LoginID'] + '</td>';
+      tableContent += '<td>' + item['IFN'] + '</td>';
+      tableContent += '<td>' + item['CFN'] + '</td>';
+      tableContent += '<td>' + item['OSType'] + '</td>';
+      tableContent += '<td>' + item['SID'] + '</td>';
+      tableContent += '<td>' + item['DBTYPE'] + '</td>';
+      tableContent += '<td>' + item['AppType'] + '</td>';
+      tableContent += '<td>' + item['HOST_TYPE'] + '</td>';
+      tableContent += '</tr>';
+    })
+    tableContent += '</tbody></table>';
+    tableContent += '<hr>';
+  })
+  tableContent += '</div>';
+  selRowsModal.content = tableContent;
+  selRowsModal.open();
+  $("#seqModal").hide();
+}
+function seqModalProceed() {
+  $("#seq-state").val("1");
+  // Remove selected rows from table
+  updateTable();
+}
+function seqModalShow(){
+  $("#seqModal").show();
+}

@@ -217,3 +217,27 @@ table.table-custom {
   max-width: 160px;
   height: 60px;
 }
+div#seqModal {
+  position: absolute;
+  top: 0px;
+  width: 90%;
+  margin: auto;
+  text-align: center;
+  display: flex;
+}
+
+.modal-container {
+  background: antiquewhite;
+  border: 1px solid #d4cdcd;
+  border-radius: 5px;
+  box-shadow: 1px 1px 6px #d2c9c9;
+  padding: 10px;
+}
+
+.footer-actions button {
+  height: 30px;
+}
+
+.content {
+  font-size: 15px;
+}

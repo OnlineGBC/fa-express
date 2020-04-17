@@ -26,95 +26,6 @@ router.post("/", async (req, res) => {
   }
   
   
-  /* rows = [ { id: 9,
-    HostName: 'mgbacfgr',
-    LoginID: 'rpaauto',
-    CMD_PREFIX: 'sudo su -',
-    IFN: '10.177.68.48',
-    CFN: '10.140.4.48',
-    OSType: 'AIX',
-    SID: 'DFG',
-    DBTYPE: 'db6',
-    AppType: 'StandardABAPJava',
-    num1: 0,
-    num2: 0,
-    num3: 0,
-    num4: 0,
-    num5: 0,
-    Order_Exec: 1,
-    CDIR: 'MGB',
-    CUSTNAME: 'MegaBrands',
-    LOCATION: 'NYC',
-    HOST_TYPE: 'PRIMARY',
-    scriptName: 'WinCommands.bat',
-    folderKey: '' },
-  { id: 19,
-    HostName: 'mgbadslr',
-    LoginID: 'rpaauto',
-    CMD_PREFIX: 'sudo su -',
-    IFN: '10.177.68.14',
-    CFN: '10.140.4.14',
-    OSType: 'AIX',
-    SID: 'DSL',
-    DBTYPE: 'db6',
-    AppType: 'StandardABAPJava',
-    num1: 0,
-    num2: 0,
-    num3: 0,
-    num4: 0,
-    num5: 0,
-    Order_Exec: 1,
-    CDIR: 'MGB',
-    CUSTNAME: 'MegaBrands',
-    LOCATION: 'NYC',
-    HOST_TYPE: 'PRIMARY',
-    scriptName: 'LinuxPatchCheck.sh',
-    folderKey: 'HPUX' },
-   { id: 12,
-    HostName: 'mgbrxxir',
-    LoginID: 'rpaauto',
-    CMD_PREFIX: 'sudo su -',
-    IFN: '10.177.68.55',
-    CFN: '10.140.4.55',
-    OSType: 'AIX',
-    SID: 'XXI',
-    DBTYPE: 'db6',
-    AppType: 'StandardABAPJava',
-    num1: 0,
-    num2: 0,
-    num3: 0,
-    num4: 0,
-    num5: 0,
-    Order_Exec: 2,
-    CDIR: 'MGB',
-    CUSTNAME: 'MegaBrands',
-    LOCATION: 'NYC',
-    HOST_TYPE: 'PRIMARY',
-    scriptName: 'LinuxPatchCheck.sh',
-    folderKey: 'HPUX' },
-  { id: 63,
-    HostName: 'LinAlert1P',
-    LoginID: 'funauto',
-    CMD_PREFIX: 'sudo su -',
-    IFN: '10.0.0.109',
-    CFN: '192.168.86.38',
-    OSType: 'Ubuntu_Linux',
-    SID: 'CIQ',
-    DBTYPE: 'non',
-    AppType: 'StandardABAPJava',
-    num1: 0,
-    num2: 0,
-    num3: 0,
-    num4: 0,
-    num5: 0,
-    Order_Exec: 3,
-    CDIR: 'GBC',
-    CUSTNAME: 'GBC',
-    LOCATION: 'Tucson',
-    HOST_TYPE: 'PRIMARY',
-    scriptName: 'LinuxPatchCheck.sh',
-    folderKey: 'HPUX' } 
-]; */
 
   // Rows sorted according to order
   sortedRows = rows.sort(compare);
@@ -157,6 +68,7 @@ router.post("/", async (req, res) => {
       folder = row.folderKey;
       try {
         console.log('starting with:'+row.id);
+        console.log('sending schedule at = '+scheduleAt);
         let returnCode = await automationActions.runScript(
           scriptName,
           machineIds,
@@ -197,7 +109,7 @@ router.post("/", async (req, res) => {
           }
           return errorCode;
         })
-
+console.log("Schedule AT = "+scheduleAt);
          //Stop execution if error is returned
          if (errorCode && !continueOnErrors) {
           console.log('Found an error. Stopping script execution');
@@ -217,6 +129,7 @@ router.post("/", async (req, res) => {
           return;
         }
         else if(allStatus){
+          isImmediate = true;
           if(index < orderArray.length){
           beginExecution(index);
         }
@@ -257,20 +170,20 @@ async function createLog(id, isImmediate, options) {
   let runAt;
   if (!isImmediate) {
     const { scheduleAt } = options;
-    if (
-      typeof scheduleAt !== "number" ||
-      !new Date(scheduleAt).getTime() ||
-      scheduleAt < Date.now()
-    ) {
-      throw new Error("Invalid scheduleAt parameter");
-    }
+    // if (
+    //   typeof scheduleAt !== "number" ||
+    //   !new Date(scheduleAt).getTime() ||
+    //   scheduleAt < Date.now()
+    // ) {
+    //   throw new Error("Invalid scheduleAt parameter");
+    // }
     runAt = scheduleAt;
   }
   if (!runAt) {
     runAt = now;
   }
   const immediate = runAt === now;
-  const scheduledAt = immediate ? null : runAt;
+  const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
   const log = await automationActions.database.saveLog(
     id,
     null,
