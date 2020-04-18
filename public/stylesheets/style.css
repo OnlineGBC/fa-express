@@ -241,3 +241,8 @@ div#seqModal {
 .content {
   font-size: 15px;
 }
+.cell-scroll {
+  overflow: auto;
+  max-height: 80px;
+  max-width:286px;
+}

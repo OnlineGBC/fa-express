@@ -821,13 +821,13 @@ $(document).ready(() => {
     columnDefs: [
       {
         targets: 6,
-        width: 400,
+        //width: 400,
         render(data) {
           if (data === null) {
             return "";
           }
           const bytesView = new Uint8Array(data.data);
-          return unescape(new TextDecoder().decode(bytesView));
+          return '<div class="cell-scroll">'+unescape(new TextDecoder().decode(bytesView))+'</div>';
         }
       },
       {
@@ -859,7 +859,7 @@ $(document).ready(() => {
         width: 120,
         render(data, type, row) {
           if (type === "display") {
-            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[Detailed Log]</a>`;
           }
           return data;
         }
