@@ -35,8 +35,9 @@ coverage
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
-# Scripts directory o people can run their own
-scripts/*
+# Scripts directory so  people can run their own without disrupting others' scripts
+#  Will be enabled later
+# scripts/*
 
 # Dependency directory
 # https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
