@@ -67,7 +67,8 @@ class AutomationActions {
 
     const thePromise = Promise.all(
       machines.map(async (machineDetails, index) => {
-        const machineId = machinesIds[index];
+        //const machineId = machinesIds[index];
+        const machineId = machineDetails.dataValues.id;
         const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
         const log = await this.database.saveLog(
           machineId,
@@ -121,6 +122,10 @@ class AutomationActions {
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
         this.logger.notifyListeners(log);
+          // Dispatch mail
+        if (emailAddress) {
+          this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the *nix platform`, emailAddress).catch(console.error);
+        }
         return 1;
       }
       rcFile = path.join(__dirname, "/../../scripts/", "rclevel.cmd");
@@ -135,6 +140,10 @@ class AutomationActions {
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
         this.logger.notifyListeners(log);
+            // Dispatch mail
+        if (emailAddress) {
+          this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the Windows platform`, emailAddress).catch(console.error);
+        }
         return 1;
       }
       rcFile = path.join(__dirname, "/../../scripts/", "rclevel.sh");
@@ -189,7 +198,7 @@ class AutomationActions {
       );
       // Dispatch mail
       if (emailAddress) {
-        this.mailer.sendMail(stdout.output, emailAddress).catch(console.error);
+        this.mailer.sendMail(initialLogContent + stdout.output, emailAddress).catch(console.error);
       }
 
       logContent = stdout.output;
@@ -205,7 +214,7 @@ class AutomationActions {
       if (emailAddress) {
         this.mailer
           .sendMail(
-            "Error occurred. Please contact developer or your internal technical support.",
+            initialLogContent + "Error occurred. Please contact developer or your internal technical support.",
             emailAddress
           )
           .catch(console.error);
