@@ -96,7 +96,7 @@ async function updateActions() {
     const newAction = $(
       "<a data-toggle='tooltip' data-placement='right' title='" +
         item.filePath +
-        "'></a>"
+        "' class='sub-actions'></a>"
     );
     newAction.attr("href", "#");
     newAction
@@ -115,7 +115,9 @@ async function updateActions() {
           scriptName: item.scriptName,
           folderKey: ""
         });
-        $schedulerModal.modal("show");
+        if($("#seq-state").val() == "0"){
+          $schedulerModal.modal("show");
+        }
       })
       .on("contextmenu", function(e) {
         $('#context-menu input[name="context-action"]').val(item.filePath);
@@ -193,7 +195,7 @@ async function updateActions() {
       const newAction1 = $(
         "<a data-toggle='tooltip' data-placement='right' title='" +
           item.filePath +
-          "'></a>"
+          "' class='sub-actions'></a>"
       );
       newAction1.attr("href", "#");
       newAction1.click(() => {
@@ -202,7 +204,9 @@ async function updateActions() {
           scriptName: item.scriptName,
           folderKey: key
         });
-        $schedulerModal.modal("show");
+        if($("#seq-state").val() == 0){
+          $schedulerModal.modal("show");
+        }
       });
       newAction1
         .on("contextmenu", function(e) {

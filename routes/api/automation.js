@@ -5,6 +5,7 @@ const { dbConnection: databaseConnection } = require('../../container');
 const router = express.Router();
 const { database } = require('../../container');
 const AutomationActionsRoute = require('./automationActions');
+const SequentialActionsRoute = require('./sequentialActions');
 
 
 function ipMatch(value) {
@@ -65,6 +66,7 @@ const schema = {
 };
 
 router.use('/actions', AutomationActionsRoute);
+router.use('/seqActions', SequentialActionsRoute);
 
 /**
  * GET all from Automation table to send to browser to create UI table

@@ -160,3 +160,89 @@ input.file {
     float: right;
     margin-top: 4px;
 }
+
+p.action_title {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #757575;
+  text-decoration: underline;
+}
+table.table-custom {
+  width: 100%;
+}
+
+.table-custom th {
+  height: 50px;
+}
+
+.table-custom td {
+  padding: 7px 0px;
+}
+.jconfirm.jconfirm-my-theme .jconfirm-bg{
+    background-color: #444;
+    opacity: .2;
+}
+
+.padded-content {
+  padding: 0px 20px;
+}
+
+/* 
+.jconfirm.jconfirm-my-theme .jc-bs3-row{
+  justify-content: unset !important;
+} */
+.jconfirm.jconfirm-my-theme .jconfirm-box{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box.loading{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box.loading:before{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box.loading:after{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-closeIcon{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-title-c{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-content-pane{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-content{
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-buttons{
+  text-align: center;
+}
+.jconfirm.jconfirm-my-theme .jconfirm-box .jconfirm-buttons button{
+}
+.jconfirm-buttons .btn-custom {
+  white-space: normal !important;
+  max-width: 160px;
+  height: 60px;
+}
+div#seqModal {
+  position: absolute;
+  top: 0px;
+  width: 90%;
+  margin: auto;
+  text-align: center;
+  display: flex;
+}
+
+.modal-container {
+  background: antiquewhite;
+  border: 1px solid #d4cdcd;
+  border-radius: 5px;
+  box-shadow: 1px 1px 6px #d2c9c9;
+  padding: 10px;
+}
+
+.footer-actions button {
+  height: 30px;
+}
+
+.content {
+  font-size: 15px;
+}
+.cell-scroll {
+  overflow: auto;
+  max-height: 80px;
+  max-width:286px;
+}

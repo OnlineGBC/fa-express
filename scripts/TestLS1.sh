@@ -1,2 +1,0 @@
-uname -a
-ls -lart

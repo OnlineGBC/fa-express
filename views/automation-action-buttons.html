@@ -1,4 +1,4 @@
-<div class="row" id="action-buttons" style="display: none">
+<div id="action-buttons" style="visibility: hidden">
   <div class="col">
     <div id="appActionsDropdown" class="dropdown" style="display: inline-block">
       <button class="btn btn-warning dropdown-toggle" type="button" id="appActionButton" data-toggle="dropdown"
@@ -8,7 +8,7 @@
       <ul class="dropdown-menu drag-menu" aria-labelledby="appActionButton">
         <li class="app-custom-files"><a tabindex="-1" href="#" data-action="app_stop" id="action-modal-show" class="dropdown-item">Custom Action</a></li>
         <li class="dropdown-submenu">
-          <a class="test" tabindex="-1" href="#" data-menu="sub-menu">New Sub-Menu<span class="fa fa-caret-right"></span></a>
+          <a class="test" tabindex="-1" href="#" data-menu="sub-menu">Folder Actions<span class="fa fa-caret-right"></span></a>
           <ul class="dropdown-menu"  aria-labelledby="appActionButton1">
             <li class="app-custom-folders"><a tabindex="-1" href="#" data-target="#customFolderModal" class="dropdown-item">Create Folder</a></li>
           </ul>
@@ -21,7 +21,7 @@
         <div class="dropdown-submenu" style="position: relative;">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
             aria-expanded="false">
-            <span class="nav-label">New Sub-Menu</span></a>
+            <span class="nav-label">Folder Actions</span></a>
           </button>
           <div class="dropdown-menu" aria-labelledby="appActionButton1">
             <a href="#">3rd level dropdown</a>
@@ -40,7 +40,10 @@
   href="/logs" target="_blank" id="logs-btn">
   Logs
 </a>
-
+<button style="display: none;" class="btn btn-warning" id="advanced-btn" data-toggle="tooltip" title="Begin HA/Sequential Processing">Advanced</button>
+<!-- Reference for sequential processing-->
+<input type="hidden" id="seq-state" value="0" autocomplete="off"/>
+<input type="hidden" id="ignoreError" value="" autocomplete="off"/>
 
 
 

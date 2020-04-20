@@ -55,7 +55,12 @@ const logsTable = $("#status-box").DataTable({
       width: 100,
       render(data, type, row) {
         if (type === "display") {
-          data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+          if (row.hasOwnProperty('status') && row.status == 'error') {
+            data = `<span style="color:red">Not Executed</span>`;
+          }
+          else {
+            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+          }
         }
         return data;
       }
@@ -284,7 +289,7 @@ $(() => {
     // 'scrollY': 600,
     initComplete: tableInitCallback,
     dom:
-      "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-1'B><'col-sm-6 col-md-1'<'#upload-container'>><'col-sm-6 col-md-4'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
+      "<'row'<'col-sm-6 col-md-2'l><'col-sm-6 col-md-1'B><'col-sm-6 col-md-2'<'#upload-container'>><'col-sm-6 col-md-3'<'#actions-container'>><'col-sm-6 col-md-2'<'#add-row-container'>><'col-sm-6 col-md-2'f>><'row'<'col-sm-6 col-md-12't>><'row'<'col-md-5 col-sm-6 col-md-2'i><'col-md-7 col-sm-6 col-md-2'p>>",
     rowId: "id",
     buttons: [
       {
@@ -313,7 +318,6 @@ $(() => {
       { data: "SID" },
       { data: "DBTYPE" },
       { data: "AppType" },
-      { data: "Order_Exec" },
       { data: "CUSTNAME" },
       { data: "LOCATION" },
       { data: "HOST_TYPE" }
@@ -331,13 +335,8 @@ $(() => {
           return data;
         }
       },
-
       {
-        targets: 10,
-        name: "Order"
-      },
-      {
-        targets: 14,
+        targets: 13,
         render: () => `<a href="#" class="edit"><i class="fa fa-pencil"></i></a>
 <a href="#" class="delete"><i class="fa fa-trash"></i></a>`
       }
@@ -400,7 +399,13 @@ $(() => {
   });
 
   $("#action-buttons").on("checkbox-change", function() {
-    $(this).toggle($(".dt-checkboxes:checked").length > 0);
+    isChecked = $(".dt-checkboxes:checked").length > 0;
+    if(isChecked){
+      $(this).css('visibility','visible');
+    }
+    else{
+      $(this).css('visibility','hidden');
+    }
   });
 
   $table.on("change", "tbody .dt-checkboxes", function(e) {
@@ -565,21 +570,69 @@ $(() => {
       content: "Please, wait while the job is processing!"
     });
 
-    return $.ajax({
-      url: "/api/automation/actions",
-      method: "POST",
-      data: JSON.stringify({
-        emailAddress: sendMail ? emailAddress : "",
-        scriptName,
-        machineIds,
-        isImmediate,
-        scheduleAt,
-        timezone,
-        folder: folderKey
-      }),
-      dataType: "json",
-      contentType: "application/json"
-    });
+    if($("#seq-state").val() == '1'){
+      //Submit form for sequential processing
+      $("#seq-state").val("0");
+      // Include scriptName and folderKey in each row
+      var theData = [];
+      selected.forEach(function(row,i){
+        var scriptName = row.scriptName;
+        var folderKey = row.folderKey;
+        row.forEach(function(item){
+          // Creating copy of object to prevent overriding
+          var tempObj = Object.assign({}, item);
+          tempObj.scriptName = scriptName;
+          tempObj.folderKey = folderKey;
+          tempObj.Order_Exec = i + 1;
+          theData.push(tempObj);
+        })
+      });
+      continueOnErrors = ($("#ignoreError").val() == '1')?true:false;
+
+      return $.ajax({
+        url: "/api/automation/seqActions",
+        method: "POST",
+        data: JSON.stringify({
+          rows: theData,
+          emailAddress: sendMail ? emailAddress : "",
+          isImmediate,
+          scheduleAt,
+          timezone,
+          continueOnErrors
+        }),
+        dataType: "json",
+        contentType: "application/json"
+      }).then(res => {
+        if(res.status == 'success'){
+          showReturnCodeModal(true);
+        }
+        else{
+          showReturnCodeModal(false);
+        }
+      })
+      .fail(err => {
+        console.log('Failed miserably');
+        showReturnCodeModal(false);
+      });;
+    }
+    else{
+      return $.ajax({
+        url: "/api/automation/actions",
+        method: "POST",
+        data: JSON.stringify({
+          emailAddress: sendMail ? emailAddress : "",
+          scriptName,
+          machineIds,
+          isImmediate,
+          scheduleAt,
+          timezone,
+          folder: folderKey
+        }),
+        dataType: "json",
+        contentType: "application/json"
+      });
+    }
+  
   });
 
   /**
@@ -626,7 +679,28 @@ $(() => {
   });
 
   socket.on("log", log => {
-    logsTable.row.add(log).draw(false);
+    updateLog = false;
+    console.log(log);
+    var indexes = logsTable
+      .rows()
+      .indexes()
+      .filter( function ( value, index ) {
+        return log.id === logsTable.row(value).data().id;
+    });
+    console.log('Hostnme = '+log.HostName+' uid = '+log.uId);
+    if(indexes.length > 0){
+      var rowIndex = indexes[0];
+      if(log.status == "fileError"){
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">${log.errorMsg}</a>`;
+      }
+      else{
+      updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
+      }
+      logsTable.cell({ row: rowIndex, column: 8 }).node().innerHTML = updatedText;
+    }
+    else {
+      logsTable.row.add(log).draw(false);
+    }
   });
 });
 
@@ -668,9 +742,11 @@ function tableInitCallback() {
 
   $("#add-row-container").append($("#create-auto-row"));
   $("#actions-container")
-    .append($("#action-buttons"))
-    .css("text-align", "center");
+    .append($("#action-buttons"));
+  $("#actions-container").append($("#advanced-btn"));
+  $("#advanced-btn").show();
   $("#upload-container").css("display", "flex");
+  $("#actions-container").css("display", "flex");
   $("#upload-container").append($("#upload-btn"));
   $("#upload-btn").show();
   $("#upload-container").append($("#logs-btn"));
@@ -710,6 +786,9 @@ function setModalTitle($modal, title) {
 }
 
 $(document).ready(() => {
+
+  $('[data-toggle="tooltip"]').tooltip();
+
   // $("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
   if ($("#schedule").length && $("#schedule").val() != "immediate") {
     $(".hidden_fields").show();
@@ -742,13 +821,13 @@ $(document).ready(() => {
     columnDefs: [
       {
         targets: 6,
-        width: 400,
+        //width: 400,
         render(data) {
           if (data === null) {
             return "";
           }
           const bytesView = new Uint8Array(data.data);
-          return unescape(new TextDecoder().decode(bytesView));
+          return '<div class="cell-scroll">'+unescape(new TextDecoder().decode(bytesView))+'</div>';
         }
       },
       {
@@ -780,7 +859,7 @@ $(document).ready(() => {
         width: 120,
         render(data, type, row) {
           if (type === "display") {
-            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[Detailed Log]</a>`;
           }
           return data;
         }
@@ -844,3 +923,287 @@ $(".log-container").on("click", ".show-log", function(e) {
   $modal.data("selected", $row).modal("show");
   // $modal.modal('show');
 });
+
+// Confirm Modal for sequential processing
+const seqModal = $.confirm({
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-6',
+  theme: 'my-theme',
+  title: "Begin HA/Sequential Processing",
+  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  press Completed when done or Cancel to Exit</p>",
+  buttons: {
+    cancel:{
+      text:'Cancel',
+      action:function(){
+        $("#seq-state").val("0");
+      }
+    },
+    proceed: {
+      text: 'Proceed',
+      btnClass: 'btn-green',
+      action: function(){
+        $("#seq-state").val("1");
+        handleErrorModal.open();
+      }
+    }
+  }
+});
+
+
+// Sequential processing steps after advanced has been clicked
+$('#advanced-btn').on('click', function () {
+
+  const seqState = $("#seq-state").val();
+
+  if (seqState == 0) {
+    $.confirm({
+      backgroundDismiss: true,
+      alignMiddle: true,
+      columnClass: 'col-md-6',
+      theme: 'my-theme',
+      title: "Begin HA/Sequential Processing",
+      content: "<div style='line-height:20px'><p>1. Please ensure that required rows have been set up in the main list of servers</p><p>2. Please select all servers that should be processed next and choose the Action</p></div>",
+      buttons: {
+        cancel: {
+          text: 'Cancel',
+          btnClass: 'btn-danger btn-custom',
+          action: function () {
+            // Clear the selected rows
+            selected = [];
+            $("#seq-state").val('0');  
+          }
+        },
+        proceedWithCancel: {
+          text: 'Proceed but Cancel on Warning/Errors',
+          btnClass: 'btn-warning btn-custom',
+          action: function () {
+            $("#seq-state").val("1");
+            $("#ignoreError").val('0');
+            // Clear the selected rows
+            selected = [];
+            seqModalShow();
+
+          }
+        },
+        proceedWithIgnore: {
+          text: 'Proceed and Ignore Warnings/Errors',
+          btnClass: 'btn-green btn-custom',
+          action: function () {
+            $("#seq-state").val("1");
+            $("#ignoreError").val('1');
+            // Clear the selected rows
+            selected = [];
+            seqModalShow();
+          }
+        }
+      }
+    });
+  }
+  else {
+    //$("#seq-state").val("0");
+  }
+});
+
+
+// Confirmation modal 2 for sequential processing
+const seqModal2 = $.confirm({
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-6',
+  theme: 'my-theme',
+  title: "Begin HA/Sequential Processing",
+  content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  press Completed when done or Cancel to Exit</p>",
+  buttons: {
+    complete:{
+      text:'Completed',
+      btnclass: 'btn-yellow',
+      action:function(){
+        // Remove selected rows from table
+        updateTable();
+        selRowsModal.open();
+      }
+    },
+    proceed: {
+      text: 'Proceed',
+      btnClass: 'btn-green',
+      action: function(){
+        $("#seq-state").val("1");
+        // Remove selected rows from table
+        updateTable();
+      }
+    }
+  }
+});
+
+function showReturnCodeModal(status){
+  
+  $.alert({
+    backgroundDismiss:true,
+    alignMiddle:true,
+    columnClass: 'col-md-6',
+    theme: 'my-theme',
+    title: "Sequential Processing Completed",
+    content: function(){
+      if(status){
+        return "Tasks completed. Please check the Job logs.";
+      }
+      else{
+        return "Errors found. Please check the Job logs.";
+      }
+    }
+  });
+}
+
+
+// Error handling modal
+const handleErrorModal = $.confirm({
+  backgroundDismiss:true,
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-6',
+  theme: 'my-theme',
+  title: "Begin HA/Sequential Processing",
+  content: "<p style='line-height:20px'>Should we Cancel on Warning/Error or Ignore Warnings/Errors and Proceed?</p>",
+  buttons: {
+    cancel: {
+      text: 'Cancel on Warning/Error',
+      action: function(){
+        $("#ignoreError").val('0');
+      }
+    },
+    proceed: {
+      text: 'Ignore Warnings/Errors and Proceed',
+      action: function(){
+        $("#ignoreError").val('1');
+      }
+    }
+  }
+});
+
+// Selected Rows Modal
+const selRowsModal = $.confirm({
+  alignMiddle:true,
+  lazyOpen: true,
+  columnClass: 'col-md-12',
+  theme: 'my-theme',
+  title: "Confirm your selection",
+  buttons: {
+    proceed: {
+      text: 'Proceed',
+      btnClass: 'btn-green',
+      action: function(){
+        $("#scheduler_modal").modal('show');
+        //refreshTable();
+      }
+    },
+    cancel:{
+      text:'Cancel',
+      btnclass: 'btn-warning',
+      action:function(){
+        $("#seq-state").val("0");
+        selected[0].forEach(function(row){
+          console.log(row)
+        })
+        //refreshTable();
+      }
+    },
+    edit:{
+      text:'Edit',
+      btnclass: 'btn-primary',
+      action:function(){
+        return false;
+        // Add code for edit
+      }
+    }
+  }
+});
+
+function updateTable(){
+    var selects = table.rows( { selected: true } ).nodes();
+    $(selects).find("input[type=checkbox]").prop('checked',false);
+    table
+    .rows( '.selected' ).deselect();
+}
+
+function refreshTable(){
+  selected.forEach(function(rowGroup){
+    rowGroup.forEach(function(row){
+    table.row.add(row);
+    });
+  })
+  table.draw();
+}
+let selected = [];
+
+// Sequential processing steps after action has been clicked
+$('#appActionsDropdown').on('click','.sub-actions',function(e){
+
+  if($("#seq-state").val() == 0){
+    return;
+  }
+
+  // Add selected rows to an object
+  var selected_rows = table.rows( { selected: true } ).data().toArray();
+  var selected_actions =  $("#scheduler_modal").data();
+  Object.assign(selected_rows,selected_actions);
+  selected.push(selected_rows);
+  updateTable();
+
+  console.log(selected);
+
+  //seqModal2.open();
+});
+
+function seqModalCancel() {
+  $("#seqModal").hide();
+}
+function seqModalComplete() {
+  updateTable();
+  tableContent = '<hr>';
+  tableContent += "<div class='padded-content'>";
+  selected.forEach(function (row) {
+    var scriptName = row.scriptName;
+    var folderKey = row.folderKey;
+    tableContent += '<p class="action_title">Associated action: ' + scriptName + '</p>';
+    tableContent += '<table class="table-custom"><thead>';
+    tableContent += '<th>HostName</th>';
+    tableContent += '<th>LoginID</th>';
+    tableContent += '<th>IFN</th>';
+    tableContent += '<th>CFN</th>';
+    tableContent += '<th>OSType</th>';
+    tableContent += '<th>SID</th>';
+    tableContent += '<th>DBTYPE</th>';
+    tableContent += '<th>AppType</th>';
+    tableContent += '<th>HOST_TYPE</th>';
+    tableContent += '</thead>';
+    tableContent += '<tbody>';
+    row.forEach(function (item) {
+      tableContent += '<tr>';
+      tableContent += '<td>' + item['HostName'] + '</td>';
+      tableContent += '<td>' + item['LoginID'] + '</td>';
+      tableContent += '<td>' + item['IFN'] + '</td>';
+      tableContent += '<td>' + item['CFN'] + '</td>';
+      tableContent += '<td>' + item['OSType'] + '</td>';
+      tableContent += '<td>' + item['SID'] + '</td>';
+      tableContent += '<td>' + item['DBTYPE'] + '</td>';
+      tableContent += '<td>' + item['AppType'] + '</td>';
+      tableContent += '<td>' + item['HOST_TYPE'] + '</td>';
+      tableContent += '</tr>';
+    })
+    tableContent += '</tbody></table>';
+    tableContent += '<hr>';
+  })
+  tableContent += '</div>';
+  selRowsModal.content = tableContent;
+  selRowsModal.open();
+  $("#seqModal").hide();
+}
+function seqModalProceed() {
+  $("#seq-state").val("1");
+  // Remove selected rows from table
+  updateTable();
+}
+function seqModalShow(){
+  $("#seqModal").show();
+}
