@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
 
   
   // Inititate logs
-  const logIds = await createLogs();
+  const logIds = await createLogs(req.body);
 
   for(let i=0 ; i < sortedRows.length; i++){
     if(sortedRows[i].Order_Exec > start){
@@ -169,13 +169,17 @@ console.log("Schedule AT = "+scheduleAt);
 });
 
 
-async function createLogs() {
+async function createLogs(data) {
+  let {
+    scheduleAt,
+    timezone = '',
+  } = data;
   const logIdsArray = [];
   const now = Date.now();
   const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
-  for (var i = 0; i < machineIds.length; i++) {
-    machineId = machineIds[i];
+  for (var i = 0; i < sortedRows.length; i++) {
+    machineId = sortedRows[i].id;
     let log = await automationActions.database.saveLog(
       machineId,
       null,
