@@ -35,6 +35,10 @@ router.post("/", async (req, res) => {
   let orderSet = Array();
   let start = 0;
 
+  
+  // Inititate logs
+  const logIds = await createLogs();
+
   for(let i=0 ; i < sortedRows.length; i++){
     if(sortedRows[i].Order_Exec > start){
       if(start > 0){
@@ -79,7 +83,8 @@ router.post("/", async (req, res) => {
             timezone
           },
           folder,
-          true
+          true,
+          logIds
         );
         if(errorCode){
           console.log('errorsss');
@@ -163,6 +168,29 @@ console.log("Schedule AT = "+scheduleAt);
   }
 });
 
+
+async function createLogs() {
+  const logIdsArray = [];
+  const now = Date.now();
+  const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
+
+  for (var i = 0; i < machineIds.length; i++) {
+    machineId = machineIds[i];
+    let log = await automationActions.database.saveLog(
+      machineId,
+      null,
+      now,
+      scheduledAt,
+      timezone
+    );
+    logIdsArray.push({
+      machine: machineId,
+      log
+    });
+    automationActions.logger.notifyListeners(log);
+  }
+  return logIdsArray;
+}
 
 async function createLog(id, isImmediate, options) {
 
