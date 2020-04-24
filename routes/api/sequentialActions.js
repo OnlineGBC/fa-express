@@ -9,23 +9,23 @@ router.post("/", async (req, res) => {
     rows,
     isImmediate = true,
     scheduleAt,
-    emailAddress= '',
+    emailAddress = '',
     timezone = '',
     continueOnErrors
   } = req.body;
 
 
-  function compare( a, b ) {
-    if ( a.Order_Exec < b.Order_Exec ){
+  function compare(a, b) {
+    if (a.Order_Exec < b.Order_Exec) {
       return -1;
     }
-    if ( a.Order_Exec > b.Order_Exec ){
+    if (a.Order_Exec > b.Order_Exec) {
       return 1;
     }
     return 0;
   }
-  
-  
+
+
 
   // Rows sorted according to order
   sortedRows = rows.sort(compare);
@@ -35,13 +35,13 @@ router.post("/", async (req, res) => {
   let orderSet = Array();
   let start = 0;
 
-  
+
   // Inititate logs
   const logIds = await createLogs(req.body);
 
-  for(let i=0 ; i < sortedRows.length; i++){
-    if(sortedRows[i].Order_Exec > start){
-      if(start > 0){
+  for (let i = 0; i < sortedRows.length; i++) {
+    if (sortedRows[i].Order_Exec > start) {
+      if (start > 0) {
         orderArray.push(orderSet);
       }
       // Reset the array when order number changes
@@ -49,7 +49,7 @@ router.post("/", async (req, res) => {
       start = sortedRows[i].Order_Exec;
     }
     orderSet.push(sortedRows[i]);
-    if(i == sortedRows.length-1){
+    if (i == sortedRows.length - 1) {
       orderArray.push(orderSet);
     }
   }
@@ -59,20 +59,20 @@ router.post("/", async (req, res) => {
   //Remove below after test and uncomment up
   beginExecution(0);
 
-  async function beginExecution(index){
+  async function beginExecution(index) {
     let rows = orderArray[index];
     let rowsPlaceholder = rows;
     errorCode = false;
 
     index++;
-    rows.forEach(async function(row,row_i){
-      console.log('Is immediate'+isImmediate);
+    rows.forEach(async function (row, row_i) {
+      console.log('Is immediate' + isImmediate);
       scriptName = row.scriptName;
       machineIds = [row.id];
       folder = row.folderKey;
       try {
-        console.log('starting with:'+row.id);
-        console.log('sending schedule at = '+scheduleAt);
+        console.log('starting with:' + row.id);
+        console.log('sending schedule at = ' + scheduleAt);
         let returnCode = await automationActions.runScript(
           scriptName,
           machineIds,
@@ -86,47 +86,47 @@ router.post("/", async (req, res) => {
           true,
           logIds
         );
-        if(errorCode){
+        if (errorCode) {
           console.log('errorsss');
           return;
         }
-        console.log('Successfull results for '+row.id);
+        console.log('Successfull results for ' + row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
-        
+
         //Check if all rows are completed before proceeding with next group of order
         allStatus = true;
-        console.log("Global Error Status = " +errorCode);
-        
-        rowsPlaceholder.some(function(tempRow,theIndex){
-          if(!('status' in tempRow)){
+        console.log("Global Error Status = " + errorCode);
+
+        rowsPlaceholder.some(function (tempRow, theIndex) {
+          if (!('status' in tempRow)) {
             allStatus = false;
           }
-          if(('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')){
-            console.log('Error Code status for '+tempRow.id);
-            console.log('ErrorCode = '+tempRow.errorCode);
+          if (('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')) {
+            console.log('Error Code status for ' + tempRow.id);
+            console.log('ErrorCode = ' + tempRow.errorCode);
             errorCode = true;
             filteredRow = rows.filter(obj => {
               return obj.id === tempRow.id
             })
             filteredRow[0].errorCode = undefined;
-            console.log('RRunniign the loop for index '+theIndex);
+            console.log('RRunniign the loop for index ' + theIndex);
           }
           return errorCode;
         })
-console.log("Schedule AT = "+scheduleAt);
-         //Stop execution if error is returned
-         if (errorCode && !continueOnErrors) {
+        console.log("Schedule AT = " + scheduleAt);
+        //Stop execution if error is returned
+        if (errorCode && !continueOnErrors) {
           console.log('Found an error. Stopping script execution');
           for (index; index < orderArray.length; index++) {
             let leftRows = orderArray[index];
             leftRows.forEach(async function (row) {
-              createLog(row.id, isImmediate, {
+              createLog(row, isImmediate, {
                 scheduleAt,
                 emailAddress,
                 timezone
               },
-              logIds);
+                logIds);
             })
           };
           res.json({
@@ -134,12 +134,12 @@ console.log("Schedule AT = "+scheduleAt);
           });
           return;
         }
-        else if(allStatus){
+        else if (allStatus) {
           isImmediate = true;
-          if(index < orderArray.length){
-          beginExecution(index);
-        }
-          else{
+          if (index < orderArray.length) {
+            beginExecution(index);
+          }
+          else {
             console.log("Returning after successful execution");
             res.json({
               status: "success"
@@ -155,7 +155,7 @@ console.log("Schedule AT = "+scheduleAt);
         // }
 
       } catch (error) {
-        if(continueOnErrors){
+        if (continueOnErrors) {
           console.log('Found Errors. Skipping to next set of rows');
           beginExecution(index);
         }
@@ -192,15 +192,16 @@ async function createLogs(data) {
       machine: machineId,
       log
     });
+    sortedRows[i].logId = log.id;
     automationActions.logger.notifyListeners(log);
   }
   return logIdsArray;
 }
 
-async function createLog(id, isImmediate, options,logIds) {
+async function createLog(theRow, isImmediate, options, logIds) {
 
-  let log = logIds.filter(logs => id == logs.machine)[0].log;
-  console.log(log);
+  let id = theRow.id;
+  let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
   const now = Date.now();
   let runAt;
   if (!isImmediate) {
