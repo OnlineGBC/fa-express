@@ -14,6 +14,8 @@ router.post("/", async (req, res) => {
     folder
   } = req.body;
 
+  // Inititate logs
+  const logIds = await createLogs();
   try {
     await automationActions.runScript(
       scriptName,
@@ -24,7 +26,9 @@ router.post("/", async (req, res) => {
         emailAddress,
         timezone
       },
-      folder
+      folder,
+      true,
+      logIds
     );
     console.log('done');
     res.json({
@@ -35,6 +39,29 @@ router.post("/", async (req, res) => {
       status: "error",
       error: error.message
     });
+  }
+
+  async function createLogs() {
+    const logIdsArray = [];
+    const now = Date.now();
+    const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
+
+    for (var i = 0; i < machineIds.length; i++) {
+      machineId = machineIds[i];
+      let log = await automationActions.database.saveLog(
+        machineId,
+        null,
+        now,
+        scheduledAt,
+        timezone
+      );
+      logIdsArray.push({
+        machine: machineId,
+        log
+      });
+      automationActions.logger.notifyListeners(log);
+    }
+    return logIdsArray;
   }
 });
 

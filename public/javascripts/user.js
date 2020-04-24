@@ -59,7 +59,7 @@ const logsTable = $("#status-box").DataTable({
             data = `<span style="color:red">Not Executed</span>`;
           }
           else {
-            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">[View Log]</a>`;
+            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
           }
         }
         return data;
@@ -687,11 +687,17 @@ $(() => {
       .filter( function ( value, index ) {
         return log.id === logsTable.row(value).data().id;
     });
-    console.log('Hostnme = '+log.HostName+' uid = '+log.uId);
     if(indexes.length > 0){
+      console.log(log);
       var rowIndex = indexes[0];
-      if(log.status == "fileError"){
+      if(log.status == "processing"){
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
+      }
+      else if(log.status == "fileError"){
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">${log.errorMsg}</a>`;
+      }
+      else if(log.status == "completed"){
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-success" target="_blank">Completed</a>`;
       }
       else{
       updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
