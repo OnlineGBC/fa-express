@@ -680,7 +680,6 @@ $(() => {
 
   socket.on("log", log => {
     updateLog = false;
-    console.log(log);
     var indexes = logsTable
       .rows()
       .indexes()

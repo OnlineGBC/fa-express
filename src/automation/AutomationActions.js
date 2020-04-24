@@ -120,6 +120,7 @@ class AutomationActions {
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
+        console.log("wrong os");
         this.logger.notifyListeners(log);
         // Dispatch mail
         if (emailAddress) {
@@ -138,6 +139,7 @@ class AutomationActions {
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
+        console.log("wrong os");
         this.logger.notifyListeners(log);
         // Dispatch mail
         if (emailAddress) {
@@ -151,7 +153,7 @@ class AutomationActions {
     scriptPath = path.join(__dirname, "/../../scripts/", this.makeid(10) + '.' + fileExt);
 
     // Change below line to cat
-    await exec(`cat ${tempFile} ${rcFile} > ${scriptPath}`);
+    await exec(`type ${tempFile} ${rcFile} > ${scriptPath}`);
 
 
 
@@ -166,7 +168,7 @@ class AutomationActions {
     const scpDestination = isWindows ? "/C:/temp/." : "/tmp/.";
 
     const commands = {
-      copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
+      copy: `scp -o ConnectTimeOut=5 StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
       remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${
         isWindows ? "del" : "rm"
         } ${tempFilePath}`,
@@ -276,7 +278,7 @@ class AutomationActions {
   async updateLogMessage(message,machinesIds,logIds){
     machinesIds.forEach(async machineId => {
 
-      let filteredId = logIds.filter(elem => elem.machine = machineId);
+      let filteredId = logIds.filter(elem => elem.machine == machineId);
       filteredId = filteredId[0];
 
       let log = await this.database.updateLogContentById(
