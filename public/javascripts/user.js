@@ -55,12 +55,7 @@ const logsTable = $("#status-box").DataTable({
       width: 100,
       render(data, type, row) {
         if (type === "display") {
-          if (row.hasOwnProperty('status') && row.status == 'error') {
-            data = `<span style="color:red">Not Executed</span>`;
-          }
-          else {
-            data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
-          }
+          data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
         }
         return data;
       }
@@ -68,7 +63,7 @@ const logsTable = $("#status-box").DataTable({
   ]
 });
 
-$("#action-buttons .dropdown-item").click(function() {
+$("#action-buttons .dropdown-item").click(function () {
   const targetModalId = $(this).data("target");
   $(targetModalId).modal("show");
 });
@@ -92,7 +87,7 @@ $(() => {
   const $upload_modal = $("#upload-modal");
 
   // File Upload handler
-  $("#file").change(function() {
+  $("#file").change(function () {
     const fd = new FormData();
 
     fd.append("file", this.files[0]);
@@ -129,7 +124,7 @@ $(() => {
     });
   });
 
-  $("#upload-form").submit(function(e) {
+  $("#upload-form").submit(function (e) {
     e.preventDefault();
     const $form = $(this);
     // Create data with new keyMap
@@ -345,7 +340,7 @@ $(() => {
     order: [[1, "asc"]]
   });
 
-  $("#automation").on("click", ".delete", function(e) {
+  $("#automation").on("click", ".delete", function (e) {
     e.preventDefault();
 
     const $row = $(this).closest("tr");
@@ -381,12 +376,12 @@ $(() => {
               });
             });
         },
-        cancel() {}
+        cancel() { }
       }
     });
   });
 
-  $("#select-all").change(function() {
+  $("#select-all").change(function () {
     $table
       .find(".dt-checkboxes")
       .not(this)
@@ -398,17 +393,17 @@ $(() => {
     table.rows({ page: "current" }).select(this.checked);
   });
 
-  $("#action-buttons").on("checkbox-change", function() {
+  $("#action-buttons").on("checkbox-change", function () {
     isChecked = $(".dt-checkboxes:checked").length > 0;
-    if(isChecked){
-      $(this).css('visibility','visible');
+    if (isChecked) {
+      $(this).css('visibility', 'visible');
     }
-    else{
-      $(this).css('visibility','hidden');
+    else {
+      $(this).css('visibility', 'hidden');
     }
   });
 
-  $table.on("change", "tbody .dt-checkboxes", function(e) {
+  $table.on("change", "tbody .dt-checkboxes", function (e) {
     const $row = $(this).closest("tr");
     if (!this.checked) {
       // $('#select-all').prop('indeterminate', true);
@@ -426,7 +421,7 @@ $(() => {
     $("#action-buttons").trigger("checkbox-change");
   });
 
-  $table.on("click", "tbody tr", function(e) {
+  $table.on("click", "tbody tr", function (e) {
     const $tgt = $(e.target);
     if (!$tgt.closest(".dt-checkboxes").length && !$tgt.closest("a").length) {
       const $checkBox = $(this).find(".dt-checkboxes");
@@ -434,7 +429,7 @@ $(() => {
     }
   });
 
-  $("#automation").on("click", ".edit", function(e) {
+  $("#automation").on("click", ".edit", function (e) {
     e.preventDefault();
 
     deSelectRows();
@@ -570,15 +565,15 @@ $(() => {
       content: "Please, wait while the job is processing!"
     });
 
-    if($("#seq-state").val() == '1'){
+    if ($("#seq-state").val() == '1') {
       //Submit form for sequential processing
       $("#seq-state").val("0");
       // Include scriptName and folderKey in each row
       var theData = [];
-      selected.forEach(function(row,i){
+      selected.forEach(function (row, i) {
         var scriptName = row.scriptName;
         var folderKey = row.folderKey;
-        row.forEach(function(item){
+        row.forEach(function (item) {
           // Creating copy of object to prevent overriding
           var tempObj = Object.assign({}, item);
           tempObj.scriptName = scriptName;
@@ -587,7 +582,7 @@ $(() => {
           theData.push(tempObj);
         })
       });
-      continueOnErrors = ($("#ignoreError").val() == '1')?true:false;
+      continueOnErrors = ($("#ignoreError").val() == '1') ? true : false;
 
       return $.ajax({
         url: "/api/automation/seqActions",
@@ -603,19 +598,19 @@ $(() => {
         dataType: "json",
         contentType: "application/json"
       }).then(res => {
-        if(res.status == 'success'){
+        if (res.status == 'success') {
           showReturnCodeModal(true);
         }
-        else{
+        else {
           showReturnCodeModal(false);
         }
       })
-      .fail(err => {
-        console.log('Failed miserably');
-        showReturnCodeModal(false);
-      });;
+        .fail(err => {
+          console.log('Failed miserably');
+          showReturnCodeModal(false);
+        });;
     }
-    else{
+    else {
       return $.ajax({
         url: "/api/automation/actions",
         method: "POST",
@@ -632,13 +627,13 @@ $(() => {
         contentType: "application/json"
       });
     }
-  
+
   });
 
   /**
    * Form submit event handler
    */
-  $autoForm.submit(function(e) {
+  $autoForm.submit(function (e) {
     e.preventDefault();
 
     const mode = $autoForm.data("mode");
@@ -683,23 +678,26 @@ $(() => {
     var indexes = logsTable
       .rows()
       .indexes()
-      .filter( function ( value, index ) {
+      .filter(function (value, index) {
         return log.id === logsTable.row(value).data().id;
-    });
-    if(indexes.length > 0){
+      });
+    if (indexes.length > 0) {
       console.log(log);
       var rowIndex = indexes[0];
-      if(log.status == "processing"){
+      if (log.status == "processing") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
       }
-      else if(log.status == "fileError"){
+      else if (log.status == "fileError") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">${log.errorMsg}</a>`;
       }
-      else if(log.status == "completed"){
+      else if (log.status == "completed") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-success" target="_blank">Completed</a>`;
       }
-      else{
-      updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
+      else if (log.status == 'error') {
+        updatedText = `<span style="color:red">Not Executed</span>`;
+      }
+      else {
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
       }
       logsTable.cell({ row: rowIndex, column: 8 }).node().innerHTML = updatedText;
     }
@@ -775,7 +773,7 @@ function handleServerErrors($form, errors) {
  */
 jQuery.validator.addMethod(
   "ipAddress",
-  function(value, element) {
+  function (value, element) {
     return this.optional(element) || ipMatch(value);
   },
   "Invalid IP Format"
@@ -832,7 +830,7 @@ $(document).ready(() => {
             return "";
           }
           const bytesView = new Uint8Array(data.data);
-          return '<div class="cell-scroll">'+unescape(new TextDecoder().decode(bytesView))+'</div>';
+          return '<div class="cell-scroll">' + unescape(new TextDecoder().decode(bytesView)) + '</div>';
         }
       },
       {
@@ -873,7 +871,7 @@ $(document).ready(() => {
   });
 });
 
-$(".log-container").on("click", ".show-log", function(e) {
+$(".log-container").on("click", ".show-log", function (e) {
   e.preventDefault();
 
   const $row = $(this).closest("tr");
@@ -931,23 +929,23 @@ $(".log-container").on("click", ".show-log", function(e) {
 
 // Confirm Modal for sequential processing
 const seqModal = $.confirm({
-  alignMiddle:true,
+  alignMiddle: true,
   lazyOpen: true,
   columnClass: 'col-md-6',
   theme: 'my-theme',
   title: "Begin HA/Sequential Processing",
   content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  press Completed when done or Cancel to Exit</p>",
   buttons: {
-    cancel:{
-      text:'Cancel',
-      action:function(){
+    cancel: {
+      text: 'Cancel',
+      action: function () {
         $("#seq-state").val("0");
       }
     },
     proceed: {
       text: 'Proceed',
       btnClass: 'btn-green',
-      action: function(){
+      action: function () {
         $("#seq-state").val("1");
         handleErrorModal.open();
       }
@@ -976,7 +974,7 @@ $('#advanced-btn').on('click', function () {
           action: function () {
             // Clear the selected rows
             selected = [];
-            $("#seq-state").val('0');  
+            $("#seq-state").val('0');
           }
         },
         proceedWithCancel: {
@@ -1013,17 +1011,17 @@ $('#advanced-btn').on('click', function () {
 
 // Confirmation modal 2 for sequential processing
 const seqModal2 = $.confirm({
-  alignMiddle:true,
+  alignMiddle: true,
   lazyOpen: true,
   columnClass: 'col-md-6',
   theme: 'my-theme',
   title: "Begin HA/Sequential Processing",
   content: "<p style='line-height:20px'>Please select all servers that should be processed next and choose the Action;  press Completed when done or Cancel to Exit</p>",
   buttons: {
-    complete:{
-      text:'Completed',
+    complete: {
+      text: 'Completed',
       btnclass: 'btn-yellow',
-      action:function(){
+      action: function () {
         // Remove selected rows from table
         updateTable();
         selRowsModal.open();
@@ -1032,7 +1030,7 @@ const seqModal2 = $.confirm({
     proceed: {
       text: 'Proceed',
       btnClass: 'btn-green',
-      action: function(){
+      action: function () {
         $("#seq-state").val("1");
         // Remove selected rows from table
         updateTable();
@@ -1041,19 +1039,19 @@ const seqModal2 = $.confirm({
   }
 });
 
-function showReturnCodeModal(status){
-  
+function showReturnCodeModal(status) {
+
   $.alert({
-    backgroundDismiss:true,
-    alignMiddle:true,
+    backgroundDismiss: true,
+    alignMiddle: true,
     columnClass: 'col-md-6',
     theme: 'my-theme',
     title: "Sequential Processing Completed",
-    content: function(){
-      if(status){
+    content: function () {
+      if (status) {
         return "Tasks completed. Please check the Job logs.";
       }
-      else{
+      else {
         return "Errors found. Please check the Job logs.";
       }
     }
@@ -1063,8 +1061,8 @@ function showReturnCodeModal(status){
 
 // Error handling modal
 const handleErrorModal = $.confirm({
-  backgroundDismiss:true,
-  alignMiddle:true,
+  backgroundDismiss: true,
+  alignMiddle: true,
   lazyOpen: true,
   columnClass: 'col-md-6',
   theme: 'my-theme',
@@ -1073,13 +1071,13 @@ const handleErrorModal = $.confirm({
   buttons: {
     cancel: {
       text: 'Cancel on Warning/Error',
-      action: function(){
+      action: function () {
         $("#ignoreError").val('0');
       }
     },
     proceed: {
       text: 'Ignore Warnings/Errors and Proceed',
-      action: function(){
+      action: function () {
         $("#ignoreError").val('1');
       }
     }
@@ -1088,7 +1086,7 @@ const handleErrorModal = $.confirm({
 
 // Selected Rows Modal
 const selRowsModal = $.confirm({
-  alignMiddle:true,
+  alignMiddle: true,
   lazyOpen: true,
   columnClass: 'col-md-12',
   theme: 'my-theme',
@@ -1097,26 +1095,26 @@ const selRowsModal = $.confirm({
     proceed: {
       text: 'Proceed',
       btnClass: 'btn-green',
-      action: function(){
+      action: function () {
         $("#scheduler_modal").modal('show');
         //refreshTable();
       }
     },
-    cancel:{
-      text:'Cancel',
+    cancel: {
+      text: 'Cancel',
       btnclass: 'btn-warning',
-      action:function(){
+      action: function () {
         $("#seq-state").val("0");
-        selected[0].forEach(function(row){
+        selected[0].forEach(function (row) {
           console.log(row)
         })
         //refreshTable();
       }
     },
-    edit:{
-      text:'Edit',
+    edit: {
+      text: 'Edit',
       btnclass: 'btn-primary',
-      action:function(){
+      action: function () {
         return false;
         // Add code for edit
       }
@@ -1124,17 +1122,17 @@ const selRowsModal = $.confirm({
   }
 });
 
-function updateTable(){
-    var selects = table.rows( { selected: true } ).nodes();
-    $(selects).find("input[type=checkbox]").prop('checked',false);
-    table
-    .rows( '.selected' ).deselect();
+function updateTable() {
+  var selects = table.rows({ selected: true }).nodes();
+  $(selects).find("input[type=checkbox]").prop('checked', false);
+  table
+    .rows('.selected').deselect();
 }
 
-function refreshTable(){
-  selected.forEach(function(rowGroup){
-    rowGroup.forEach(function(row){
-    table.row.add(row);
+function refreshTable() {
+  selected.forEach(function (rowGroup) {
+    rowGroup.forEach(function (row) {
+      table.row.add(row);
     });
   })
   table.draw();
@@ -1142,16 +1140,16 @@ function refreshTable(){
 let selected = [];
 
 // Sequential processing steps after action has been clicked
-$('#appActionsDropdown').on('click','.sub-actions',function(e){
+$('#appActionsDropdown').on('click', '.sub-actions', function (e) {
 
-  if($("#seq-state").val() == 0){
+  if ($("#seq-state").val() == 0) {
     return;
   }
 
   // Add selected rows to an object
-  var selected_rows = table.rows( { selected: true } ).data().toArray();
-  var selected_actions =  $("#scheduler_modal").data();
-  Object.assign(selected_rows,selected_actions);
+  var selected_rows = table.rows({ selected: true }).data().toArray();
+  var selected_actions = $("#scheduler_modal").data();
+  Object.assign(selected_rows, selected_actions);
   selected.push(selected_rows);
   updateTable();
 
@@ -1209,6 +1207,6 @@ function seqModalProceed() {
   // Remove selected rows from table
   updateTable();
 }
-function seqModalShow(){
+function seqModalShow() {
   $("#seqModal").show();
 }

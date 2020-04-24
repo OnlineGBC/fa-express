@@ -125,7 +125,8 @@ console.log("Schedule AT = "+scheduleAt);
                 scheduleAt,
                 emailAddress,
                 timezone
-              });
+              },
+              logIds);
             })
           };
           res.json({
@@ -196,8 +197,10 @@ async function createLogs(data) {
   return logIdsArray;
 }
 
-async function createLog(id, isImmediate, options) {
+async function createLog(id, isImmediate, options,logIds) {
 
+  let log = logIds.filter(logs => id == logs.machine)[0].log;
+  console.log(log);
   const now = Date.now();
   let runAt;
   if (!isImmediate) {
@@ -216,13 +219,7 @@ async function createLog(id, isImmediate, options) {
   }
   const immediate = runAt === now;
   const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
-  const log = await automationActions.database.saveLog(
-    id,
-    null,
-    now,
-    scheduledAt,
-    options.timezone
-  );
+
   log.dataValues.status = 'error';
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
   automationActions.logger.notifyListeners(log);
