@@ -16,10 +16,10 @@ class AutomationActions {
 
   async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false) {
 
-    let logMessage = `Running script ${scriptName}\n`;
+    //let logMessage = `Running script ${scriptName}\n`;
 
-    await this.updateLogMessage(logMessage,machinesIds,logIds);
-    
+    //await this.updateLogMessage(logMessage,machinesIds,logIds);
+
     if (!scriptName) {
       throw new Error("Invalid scriptName parameter");
     }
@@ -63,7 +63,7 @@ class AutomationActions {
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential,logIds) {
+  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds) {
     const now = Date.now();
     if (!runAt) {
       runAt = now;
@@ -79,6 +79,9 @@ class AutomationActions {
         const log = logIds.filter(logs => machineId == logs.machine)[0].log;
 
         await utils.delay(timeout);
+        let scriptName = path.basename(scriptPath);
+        let logMessage = `Running script ${scriptName}\n`;
+        await this.updateLogMessage(logMessage, log);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
           logId: log.id,
           ...options
@@ -275,20 +278,15 @@ class AutomationActions {
     });
   }
 
-  async updateLogMessage(message,machinesIds,logIds){
-    machinesIds.forEach(async machineId => {
+  async updateLogMessage(message, logRef) {
 
-      let filteredId = logIds.filter(elem => elem.machine == machineId);
-      filteredId = filteredId[0];
-
-      let log = await this.database.updateLogContentById(
-        filteredId.log.id,
-        message,
-        1
-      );
-      log.dataValues.status = 'processing';
-      this.logger.notifyListeners(log);
-    });
+    let log = await this.database.updateLogContentById(
+      logRef.id,
+      message,
+      1
+    );
+    log.dataValues.status = 'processing';
+    this.logger.notifyListeners(log);
     console.log("-----------");
   }
   makeid(length) {
