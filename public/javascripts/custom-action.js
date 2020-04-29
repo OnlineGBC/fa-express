@@ -89,6 +89,7 @@ const draggable = {
 
 async function updateActions() {
   const actions = await getActions();
+  console.log(actions);
   $("#appActionsDropdown .dropdown-item.custom-action").remove();
   ////////////////////////////
   /// /script folder actions
@@ -115,7 +116,8 @@ async function updateActions() {
           scriptName: item.scriptName,
           folderKey: ""
         });
-        if($("#seq-state").val() == "0"){
+        console.log(item);
+        if($("#seq-state").val() == "0" && item.scriptName.indexOf('.json') < 0){
           $schedulerModal.modal("show");
         }
       })
@@ -204,8 +206,14 @@ async function updateActions() {
           scriptName: item.scriptName,
           folderKey: key
         });
-        if($("#seq-state").val() == 0){
+
+        if($("#seq-state").val() == 0 && item.scriptName.indexOf('.json') < 0){
           $schedulerModal.modal("show");
+        }
+        else if(item.scriptName.indexOf('.json') > 0){
+          // variable referenced in user.js
+          globalSaveFileMenu = item.menuTitle;
+          globalSaveFileName = item.scriptName.replace(".json", "");
         }
       });
       newAction1

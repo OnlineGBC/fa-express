@@ -65,6 +65,7 @@ const logsTable = $("#status-box").DataTable({
 
 $("#action-buttons .dropdown-item").click(function () {
   const targetModalId = $(this).data("target");
+  console.log(targetmodalId);
   $(targetModalId).modal("show");
 });
 
@@ -748,6 +749,7 @@ function tableInitCallback() {
     .append($("#action-buttons"));
   $("#actions-container").append($("#advanced-btn"));
   $("#advanced-btn").show();
+  $("#action-buttons").show();
   $("#upload-container").css("display", "flex");
   $("#actions-container").css("display", "flex");
   $("#upload-container").append($("#upload-btn"));
@@ -1118,6 +1120,47 @@ const selRowsModal = $.confirm({
         return false;
         // Add code for edit
       }
+    },
+    save: {
+      text: 'Save',
+      btnclass: 'btn-primary',
+      action: async function () {
+        if (saveFileOpen) {
+          fileName = globalSaveFileName;
+          menuTitle = globalSaveFileMenu;
+          const data = {};
+          var rowData = [];
+          selected.forEach(function (row, i) {
+            var scriptName = row.scriptName;
+            var folderKey = row.folderKey;
+            row.forEach(function (item) {
+              // Creating copy of object to prevent overriding
+              var tempObj = Object.assign({}, item);
+              tempObj.scriptName = scriptName;
+              tempObj.folderKey = folderKey;
+              tempObj.Order_Exec = i;
+              rowData.push(tempObj);
+            })
+          });
+
+          data.contents = JSON.stringify(rowData);
+          //$customActionModal.modal("hide");
+          await saveNewSequence(fileName, menuTitle, data);
+          updateActions();
+        }
+        else {
+          saveDialog();
+        }
+        // Add code for edit
+      }
+    },
+    saveas: {
+      text: 'SaveAs',
+      btnclass: 'btn-primary',
+      action: function () {
+        saveDialog();
+        // Add code for edit
+      }
     }
   }
 });
@@ -1138,13 +1181,60 @@ function refreshTable() {
   table.draw();
 }
 let selected = [];
+let globalSaveFileMenu = '';
+let globalSaveFileName = '';
+let saveFileOpen = false;
 
 // Sequential processing steps after action has been clicked
 $('#appActionsDropdown').on('click', '.sub-actions', function (e) {
 
+  // Check for sequential saved step selection
+  filePath = e.target.title
+  if (filePath.indexOf('.json') > 0) {
+    $.ajax({
+      url: "/api/action/getfilecontent",
+      type: "POST",
+      data: {
+        filePath
+      },
+      success: function (data) {
+        sortedRows = JSON.parse(data);
+        let orderArray = Array();
+        let orderSet = Array();
+        let start = 0;
+        let scriptName = "";
+        let folderKey = "";
+        for (let i = 0; i < sortedRows.length; i++) {
+          if (sortedRows[i].Order_Exec > start) {
+            if (start > 0) {
+              Object.assign(orderSet, { scriptName, folderKey });
+              orderArray.push(orderSet);
+            }
+            // Reset the array when order number changes
+            orderSet = Array();
+            start = sortedRows[i].Order_Exec;
+          }
+          orderSet.push(sortedRows[i]);
+          scriptName = sortedRows[i].scriptName;
+          folderKey = sortedRows[i].folderKey;
+          if (i == sortedRows.length - 1) {
+            Object.assign(orderSet, { scriptName, folderKey });
+            orderArray.push(orderSet);
+          }
+        }
+
+        selected = orderArray;
+        saveFileOpen = true;
+        seqModalComplete();
+      }
+    })
+    $("#seq-state").val(1);
+    return;
+  }
   if ($("#seq-state").val() == 0) {
     return;
   }
+
 
   // Add selected rows to an object
   var selected_rows = table.rows({ selected: true }).data().toArray();
@@ -1202,6 +1292,50 @@ function seqModalComplete() {
   selRowsModal.open();
   $("#seqModal").hide();
 }
+
+function saveDialog() {
+  $.confirm({
+    alignMiddle: true,
+    backgroundDismiss: true,
+    columnClass: 'col-md-6',
+    theme: 'my-theme',
+    title: "",
+    content: "<div class='form-group'><label for='seqFilename'>File Name</label><input id='seqFilename' class='form-control' value='' placeholder='Enter File Name'/></div><div class='form-group'><label for='seqMenuname'>Menu Title</label><input id='seqMenuname' class='form-control' value='' placeholder='Enter Menu Name'/></div>",
+    buttons: {
+      save: {
+        text: 'Save',
+        btnClass: 'btn-green',
+        action: async function () {
+          const fileName = $("#seqFilename").val();
+          const menuTitle = $("#seqMenuname").val();
+          if (!fileName) {
+            return false;
+          }
+          const data = {};
+          var rowData = [];
+          selected.forEach(function (row, i) {
+            var scriptName = row.scriptName;
+            var folderKey = row.folderKey;
+            row.forEach(function (item) {
+              // Creating copy of object to prevent overriding
+              var tempObj = Object.assign({}, item);
+              tempObj.scriptName = scriptName;
+              tempObj.folderKey = folderKey;
+              tempObj.Order_Exec = i;
+              rowData.push(tempObj);
+            })
+          });
+
+          data.contents = JSON.stringify(rowData);
+          //$customActionModal.modal("hide");
+          await saveNewSequence(fileName, menuTitle, data);
+          updateActions();
+        }
+      }
+    }
+  });
+}
+
 function seqModalProceed() {
   $("#seq-state").val("1");
   // Remove selected rows from table
@@ -1209,4 +1343,38 @@ function seqModalProceed() {
 }
 function seqModalShow() {
   $("#seqModal").show();
+}
+
+
+function saveNewSequence(
+  fileName,
+  menuTitle,
+  { contents }
+) {
+  const formData = new FormData();
+  formData.append("fileName", fileName);
+  formData.append("extension", "json");
+  formData.append("folder", "Saved-Sequence");
+  formData.append("menuTitle", menuTitle);
+  formData.append("fileContents", contents);
+
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "/api/action/sequence",
+      type: "POST",
+      data: formData,
+      success: res => {
+        alert("File saved successfully.");
+        resolve(res);
+      },
+      error: (xhr, ajaxOptions, thrownError) => {
+        alert("Error occured while saving file.");
+        reject(thrownError);
+      },
+      contentType: false,
+      processData: false,
+      cache: false
+    });
+  });
 }
