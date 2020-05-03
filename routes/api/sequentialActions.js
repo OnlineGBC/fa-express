@@ -4,6 +4,7 @@ const { automationActions } = require("../../container");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
+  req.connection.setTimeout( 1000 * 60 * 10 );
 
   let {
     rows,
