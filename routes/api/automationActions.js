@@ -54,7 +54,8 @@ router.post("/", async (req, res) => {
         null,
         now,
         scheduledAt,
-        timezone
+        timezone,
+        scriptName
       );
       logIdsArray.push({
         machine: machineId,

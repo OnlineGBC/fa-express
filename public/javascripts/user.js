@@ -400,7 +400,7 @@ $(() => {
       $(this).css('visibility', 'visible');
     }
     else {
-      $(this).css('visibility', 'hidden');
+      //$(this).css('visibility', 'hidden');
     }
   });
 
@@ -1104,7 +1104,7 @@ const selRowsModal = $.confirm({
     },
     cancel: {
       text: 'Cancel',
-      btnclass: 'btn-warning',
+      btnClass: 'btn-warning',
       action: function () {
         $("#seq-state").val("0");
         selected[0].forEach(function (row) {
@@ -1115,7 +1115,7 @@ const selRowsModal = $.confirm({
     },
     edit: {
       text: 'Edit',
-      btnclass: 'btn-primary',
+      btnClass: 'btn-primary seqButton',
       action: function () {
         return false;
         // Add code for edit
@@ -1123,7 +1123,7 @@ const selRowsModal = $.confirm({
     },
     save: {
       text: 'Save',
-      btnclass: 'btn-primary',
+      btnClass: 'btn-primary seqButton',
       action: async function () {
         if (saveFileOpen) {
           fileName = globalSaveFileName;
@@ -1156,7 +1156,7 @@ const selRowsModal = $.confirm({
     },
     saveas: {
       text: 'SaveAs',
-      btnclass: 'btn-primary',
+      btnClass: 'btn-primary seqButton',
       action: function () {
         saveDialog();
         // Add code for edit
@@ -1226,6 +1226,7 @@ $('#appActionsDropdown').on('click', '.sub-actions', function (e) {
         selected = orderArray;
         saveFileOpen = true;
         seqModalComplete();
+        $(".seqButton").hide();
       }
     })
     $("#seq-state").val(1);

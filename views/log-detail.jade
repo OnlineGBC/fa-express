@@ -45,6 +45,12 @@ block content
             input#DateGenerated.form-control(name='DateGenerated', type='text', required='required', value='#{data.DateGenerated} #{data.TimeGenerated}')
             .invalid-feedback
               // server errors
+        .form-group.col.pr-0
+          label.col-form-label(for='ScriptName') ScriptName
+          .col-12
+            input#DateGenerated.form-control(name='ScriptName', type='text', required='required', value='#{data.ScriptName}')
+            .invalid-feedback
+              // server errors      
         if data.DateScheduled != null
           .form-group.col
             label.col-form-label(for='DateScheduled') Scheduled

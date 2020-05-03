@@ -24,7 +24,7 @@ class Database {
     return this.automationModel.findAll();
   }
 
-  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess()) {
+  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(),ScriptName = false) {
     const machines = await this.findMachineDetailsByIds([machineId]);
     if (!machines[0]) {
       throw new Error('Machine not found');
@@ -67,6 +67,7 @@ class Database {
       DateScheduled: formattedDateScheduled,
       TimeScheduled: timeScheduled,
       TZ: timezoneAbbreviation,
+      ScriptName
     });
   }
 
