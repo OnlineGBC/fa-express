@@ -1113,14 +1113,14 @@ const selRowsModal = $.confirm({
         //refreshTable();
       }
     },
-    edit: {
+   /*  edit: {
       text: 'Edit',
       btnClass: 'btn-primary seqButton',
       action: function () {
         return false;
         // Add code for edit
       }
-    },
+    }, */
     save: {
       text: 'Save',
       btnClass: 'btn-primary seqButton',
@@ -1154,14 +1154,14 @@ const selRowsModal = $.confirm({
         }
       }
     },
-    saveas: {
+   /*  saveas: {
       text: 'SaveAs',
       btnClass: 'btn-primary seqButton',
       action: function () {
         saveDialog();
         // Add code for edit
       }
-    }
+    } */
   }
 });
 
@@ -1201,12 +1201,12 @@ $('#appActionsDropdown').on('click', '.sub-actions', function (e) {
         sortedRows = JSON.parse(data);
         let orderArray = Array();
         let orderSet = Array();
-        let start = 0;
+        let start = -1;
         let scriptName = "";
         let folderKey = "";
         for (let i = 0; i < sortedRows.length; i++) {
           if (sortedRows[i].Order_Exec > start) {
-            if (start > 0) {
+            if (start > -1) {
               Object.assign(orderSet, { scriptName, folderKey });
               orderArray.push(orderSet);
             }
