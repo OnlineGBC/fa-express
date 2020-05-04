@@ -4,7 +4,7 @@ const { automationActions } = require("../../container");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  req.connection.setTimeout( 1000 * 60 * 60 * 24);
+  req.connection.setTimeout(0);
 
   let {
     rows,
@@ -206,8 +206,9 @@ async function createLog(theRow, isImmediate, options, logIds) {
   let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
   const now = Date.now();
   let runAt;
+  let emailAddress = options.emailAddress;
   if (!isImmediate) {
-    const { scheduleAt,emailAddress } = options;
+    const { scheduleAt} = options;
     // if (
     //   typeof scheduleAt !== "number" ||
     //   !new Date(scheduleAt).getTime() ||
@@ -227,7 +228,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
   automationActions.logger.notifyListeners(log);
   if (emailAddress) {
-    automationActions.sendMail(`The script ${scriptName} could not be executed`, emailAddress).catch(console.error);
+    automationActions.mailer.sendMail(`The script ${scriptName} could not be executed`, emailAddress).catch(console.error);
   }
 }
 
