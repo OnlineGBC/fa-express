@@ -202,11 +202,12 @@ async function createLogs(data) {
 async function createLog(theRow, isImmediate, options, logIds) {
 
   let id = theRow.id;
+  let scriptName = theRow.scriptName;
   let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
   const now = Date.now();
   let runAt;
   if (!isImmediate) {
-    const { scheduleAt } = options;
+    const { scheduleAt,emailAddress } = options;
     // if (
     //   typeof scheduleAt !== "number" ||
     //   !new Date(scheduleAt).getTime() ||
@@ -225,6 +226,9 @@ async function createLog(theRow, isImmediate, options, logIds) {
   log.dataValues.status = 'error';
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
   automationActions.logger.notifyListeners(log);
+  if (emailAddress) {
+    automationActions.sendMail(`The script ${scriptName} could not be executed`, emailAddress).catch(console.error);
+  }
 }
 
 module.exports = router;
