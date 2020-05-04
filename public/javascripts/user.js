@@ -960,7 +960,7 @@ const seqModal = $.confirm({
 $('#advanced-btn').on('click', function () {
 
   const seqState = $("#seq-state").val();
-
+  saveFileOpen = false;
   if (seqState == 0) {
     $.confirm({
       backgroundDismiss: true,
@@ -1147,11 +1147,11 @@ const selRowsModal = $.confirm({
           //$customActionModal.modal("hide");
           await saveNewSequence(fileName, menuTitle, data);
           updateActions();
+          $("#seq-state").val("0");
         }
         else {
           saveDialog();
         }
-        // Add code for edit
       }
     },
     saveas: {
@@ -1331,6 +1331,8 @@ function saveDialog() {
           //$customActionModal.modal("hide");
           await saveNewSequence(fileName, menuTitle, data);
           updateActions();
+          $("#seq-state").val("0");
+
         }
       }
     }
