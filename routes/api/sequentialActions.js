@@ -228,7 +228,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
   automationActions.logger.notifyListeners(log);
   if (emailAddress) {
-    automationActions.mailer.sendMail(`The script ${scriptName} could not be executed`, emailAddress).catch(console.error);
+    automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
   }
 }
 
