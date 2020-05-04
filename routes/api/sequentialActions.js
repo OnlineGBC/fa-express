@@ -182,12 +182,14 @@ async function createLogs(data) {
 
   for (var i = 0; i < sortedRows.length; i++) {
     machineId = sortedRows[i].id;
+    let scriptName = sortedRows[i].scriptName;
     let log = await automationActions.database.saveLog(
       machineId,
       null,
       now,
       scheduledAt,
-      timezone
+      timezone,
+      scriptName
     );
     logIdsArray.push({
       machine: machineId,
