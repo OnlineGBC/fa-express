@@ -36,8 +36,7 @@ coverage
 build/Release
 
 # Scripts directory so  people can run their own without disrupting others' scripts
-#  Will be enabled later
-# scripts/*
+scripts/*
 
 # Dependency directory
 # https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
