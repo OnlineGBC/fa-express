@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
       folder,
       true,
       logIds,
-      generatedAt
+      now
     );
     console.log('done');
     res.json({

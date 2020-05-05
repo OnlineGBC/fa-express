@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   req.connection.setTimeout(0);
-
+  const now = Date.now();
   let {
     rows,
     isImmediate = true,
@@ -85,7 +85,8 @@ router.post("/", async (req, res) => {
           },
           folder,
           true,
-          logIds
+          logIds,
+          now
         );
         if (errorCode) {
           console.log('errorsss');
@@ -206,18 +207,10 @@ async function createLog(theRow, isImmediate, options, logIds) {
   let id = theRow.id;
   let scriptName = theRow.scriptName;
   let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
-  const now = Date.now();
   let runAt;
   let emailAddress = options.emailAddress;
   if (!isImmediate) {
     const { scheduleAt} = options;
-    // if (
-    //   typeof scheduleAt !== "number" ||
-    //   !new Date(scheduleAt).getTime() ||
-    //   scheduleAt < Date.now()
-    // ) {
-    //   throw new Error("Invalid scheduleAt parameter");
-    // }
     runAt = scheduleAt;
   }
   if (!runAt) {
