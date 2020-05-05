@@ -2,10 +2,10 @@ const express = require("express");
 const { automationActions } = require("../../container");
 
 const router = express.Router();
+const now = Date.now();
 
 router.post("/", async (req, res) => {
   req.connection.setTimeout(0);
-  const now = Date.now();
   let {
     rows,
     isImmediate = true,
@@ -178,7 +178,6 @@ async function createLogs(data) {
     timezone = '',
   } = data;
   const logIdsArray = [];
-  const now = Date.now();
   const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
   for (var i = 0; i < sortedRows.length; i++) {
