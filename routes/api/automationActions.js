@@ -16,7 +16,6 @@ router.post("/", async (req, res) => {
   } = req.body;
 
   // Inititate logs
-  const now = Date.now();
   const logIds = await createLogs();
   try {
     await automationActions.runScript(
@@ -30,8 +29,7 @@ router.post("/", async (req, res) => {
       },
       folder,
       true,
-      logIds,
-      now
+      logIds
     );
     console.log('done');
     res.json({
@@ -46,6 +44,7 @@ router.post("/", async (req, res) => {
 
   async function createLogs() {
     const logIdsArray = [];
+    const now = Date.now();
     const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
     for (var i = 0; i < machineIds.length; i++) {

@@ -2,10 +2,10 @@ const express = require("express");
 const { automationActions } = require("../../container");
 
 const router = express.Router();
-const now = Date.now();
 
 router.post("/", async (req, res) => {
   req.connection.setTimeout(0);
+
   let {
     rows,
     isImmediate = true,
@@ -85,8 +85,7 @@ router.post("/", async (req, res) => {
           },
           folder,
           true,
-          logIds,
-          now
+          logIds
         );
         if (errorCode) {
           console.log('errorsss');
@@ -178,6 +177,7 @@ async function createLogs(data) {
     timezone = '',
   } = data;
   const logIdsArray = [];
+  const now = Date.now();
   const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
   for (var i = 0; i < sortedRows.length; i++) {
@@ -206,10 +206,18 @@ async function createLog(theRow, isImmediate, options, logIds) {
   let id = theRow.id;
   let scriptName = theRow.scriptName;
   let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
+  const now = Date.now();
   let runAt;
   let emailAddress = options.emailAddress;
   if (!isImmediate) {
     const { scheduleAt} = options;
+    // if (
+    //   typeof scheduleAt !== "number" ||
+    //   !new Date(scheduleAt).getTime() ||
+    //   scheduleAt < Date.now()
+    // ) {
+    //   throw new Error("Invalid scheduleAt parameter");
+    // }
     runAt = scheduleAt;
   }
   if (!runAt) {

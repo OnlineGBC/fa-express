@@ -3,7 +3,6 @@ const { promisify } = require("util");
 const childProcess = require("child_process");
 const utils = require("../utils");
 const fs = require('fs');
-const moment = require('moment-timezone');
 
 const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
@@ -15,7 +14,7 @@ class AutomationActions {
     this.logger = logger;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false, generatedAt) {
+  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false) {
 
     //let logMessage = `Running script ${scriptName}\n`;
 
@@ -60,18 +59,11 @@ class AutomationActions {
       machines,
       options,
       isSequential,
-      logIds,
-      generatedAt
+      logIds
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds, generatedAt) {
-
-    const formatTime = (date) => `${date.format('HH:mm')} ${date.zoneAbbr()}`;
-
-    const dateGenerated = moment(generatedAt)
-      .tz(moment.tz.guess());
-    const timeGenerated = formatTime(dateGenerated);
+  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds) {
 
     const now = Date.now();
     if (!runAt) {
@@ -89,7 +81,7 @@ class AutomationActions {
 
         await utils.delay(timeout);
         let scriptName = path.basename(scriptPath);
-        let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\nGenerated: ${dateGenerated} ${timeGenerated}\n`;
+        let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\n\n`;
 
         await this.updateLogMessage(logMessage, log);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
