@@ -3,6 +3,7 @@ const { promisify } = require("util");
 const childProcess = require("child_process");
 const utils = require("../utils");
 const fs = require('fs');
+const moment = require('moment-timezone');
 
 const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
@@ -14,7 +15,7 @@ class AutomationActions {
     this.logger = logger;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false) {
+  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false, generatedAt) {
 
     //let logMessage = `Running script ${scriptName}\n`;
 
@@ -59,11 +60,19 @@ class AutomationActions {
       machines,
       options,
       isSequential,
-      logIds
+      logIds,
+      generatedAt
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds) {
+  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds, generatedAt) {
+
+    const formatTime = (date) => `${date.format('HH:mm')} ${date.zoneAbbr()}`;
+
+    const dateGenerated = moment(generatedAt)
+      .tz(moment.tz.guess());
+    const timeGenerated = formatTime(dateGenerated);
+
     const now = Date.now();
     if (!runAt) {
       runAt = now;
@@ -80,13 +89,15 @@ class AutomationActions {
 
         await utils.delay(timeout);
         let scriptName = path.basename(scriptPath);
-        let logMessage = `Running script ${scriptName}\n`;
+        let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\nGenerated: ${dateGenerated} ${timeGenerated}\n`;
+
         await this.updateLogMessage(logMessage, log);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
           logId: log.id,
           ...options
         },
-          isSequential);
+          isSequential,
+          logMessage);
       })
     );
     if (isSequential) {
@@ -99,10 +110,11 @@ class AutomationActions {
     machineId,
     machineDetails,
     options = {},
-    isSequential
+    isSequential,
+    initialLogContent
   ) {
     const { emailAddress = "", logId } = options;
-    const { loginId, internalFacingNetworkIp, osType } = machineDetails;
+    const { loginId, internalFacingNetworkIp, osType} = machineDetails;
     const hostWithLogin = `${loginId}@${internalFacingNetworkIp}`;
     const logFileName = utils.randomLogFileName();
     const isWindows = osType.toLowerCase().includes("windows");
@@ -113,7 +125,6 @@ class AutomationActions {
     let fileExt = path.extname(scriptPath).substr(1);
     let tempFile = scriptPath;
     let scriptName = path.basename(scriptPath);
-    let initialLogContent = `Running script ${scriptName}\n`;
     if (fileExt == 'cmd') {
       if (!isWindows) {
         const log = await this.database.updateLogContentById(
