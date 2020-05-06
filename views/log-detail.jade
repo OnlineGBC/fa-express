@@ -48,7 +48,7 @@ block content
         if data.DateScheduled != null
           .form-group.col
             label.col-form-label(for='DateScheduled') Scheduled
-            .col-10
+            .col-12
               input#DateScheduled.form-control(name='DateScheduled', type='text', required='required', value='#{data.DateScheduled} #{data.TimeScheduled}')
               .invalid-feedback
                 // server errors

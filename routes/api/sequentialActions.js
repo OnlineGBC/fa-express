@@ -67,13 +67,11 @@ router.post("/", async (req, res) => {
 
     index++;
     rows.forEach(async function (row, row_i) {
-      console.log('Is immediate' + isImmediate);
+      console.log('starting with:' + row.id);
       scriptName = row.scriptName;
       machineIds = [row.id];
       folder = row.folderKey;
       try {
-        console.log('starting with:' + row.id);
-        console.log('sending schedule at = ' + scheduleAt);
         let returnCode = await automationActions.runScript(
           scriptName,
           machineIds,
@@ -87,10 +85,11 @@ router.post("/", async (req, res) => {
           true,
           logIds
         );
-        if (errorCode) {
+        /* if (errorCode) {
+          console.log("ERRORCODE = "+ errorCode);
           console.log('errorsss');
           return;
-        }
+        } */
         console.log('Successfull results for ' + row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
@@ -99,13 +98,18 @@ router.post("/", async (req, res) => {
         allStatus = true;
         console.log("Global Error Status = " + errorCode);
 
-        rowsPlaceholder.some(function (tempRow, theIndex) {
+        rowsPlaceholder.forEach(function(tempRow,theIndex){
           if (!('status' in tempRow)) {
+            console.log("changing status");
             allStatus = false;
           }
+        });
+
+        rowsPlaceholder.some(function (tempRow, theIndex) {
+          console.log("ROW GROUP -> ");
+          console.log("ROW GROUP INDEX -> " + theIndex+ " row ID = "+tempRow.id);
+
           if (('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')) {
-            console.log('Error Code status for ' + tempRow.id);
-            console.log('ErrorCode = ' + tempRow.errorCode);
             errorCode = true;
             filteredRow = rows.filter(obj => {
               return obj.id === tempRow.id
@@ -136,8 +140,10 @@ router.post("/", async (req, res) => {
           return;
         }
         else if (allStatus) {
+          console.log("All status is true");
           isImmediate = true;
           if (index < orderArray.length) {
+            errorCode = false;
             beginExecution(index);
           }
           else {
@@ -210,7 +216,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
   let runAt;
   let emailAddress = options.emailAddress;
   if (!isImmediate) {
-    const { scheduleAt} = options;
+    const { scheduleAt } = options;
     // if (
     //   typeof scheduleAt !== "number" ||
     //   !new Date(scheduleAt).getTime() ||

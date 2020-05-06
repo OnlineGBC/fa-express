@@ -230,7 +230,7 @@ class AutomationActions {
     }
 
     fs.unlink(scriptPath, (err) => {
-      console.log(err);
+      //console.log(err);
     });
 
     // New message string added
