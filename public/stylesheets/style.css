@@ -246,3 +246,6 @@ div#seqModal {
   max-height: 80px;
   max-width:286px;
 }
+label.col-form-label {
+  padding-left: 15px;
+}

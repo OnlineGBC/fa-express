@@ -1,5 +1,7 @@
 uname -a
 
+find /lib
+
 sudo apt list --upgradable
 
 echo .

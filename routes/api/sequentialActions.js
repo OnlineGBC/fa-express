@@ -4,28 +4,29 @@ const { automationActions } = require("../../container");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
+  req.connection.setTimeout(0);
 
   let {
     rows,
     isImmediate = true,
     scheduleAt,
-    emailAddress= '',
+    emailAddress = '',
     timezone = '',
     continueOnErrors
   } = req.body;
 
 
-  function compare( a, b ) {
-    if ( a.Order_Exec < b.Order_Exec ){
+  function compare(a, b) {
+    if (a.Order_Exec < b.Order_Exec) {
       return -1;
     }
-    if ( a.Order_Exec > b.Order_Exec ){
+    if (a.Order_Exec > b.Order_Exec) {
       return 1;
     }
     return 0;
   }
-  
-  
+
+
 
   // Rows sorted according to order
   sortedRows = rows.sort(compare);
@@ -35,9 +36,13 @@ router.post("/", async (req, res) => {
   let orderSet = Array();
   let start = 0;
 
-  for(let i=0 ; i < sortedRows.length; i++){
-    if(sortedRows[i].Order_Exec > start){
-      if(start > 0){
+
+  // Inititate logs
+  const logIds = await createLogs(req.body);
+
+  for (let i = 0; i < sortedRows.length; i++) {
+    if (sortedRows[i].Order_Exec > start) {
+      if (start > 0) {
         orderArray.push(orderSet);
       }
       // Reset the array when order number changes
@@ -45,7 +50,7 @@ router.post("/", async (req, res) => {
       start = sortedRows[i].Order_Exec;
     }
     orderSet.push(sortedRows[i]);
-    if(i == sortedRows.length-1){
+    if (i == sortedRows.length - 1) {
       orderArray.push(orderSet);
     }
   }
@@ -55,20 +60,18 @@ router.post("/", async (req, res) => {
   //Remove below after test and uncomment up
   beginExecution(0);
 
-  async function beginExecution(index){
+  async function beginExecution(index) {
     let rows = orderArray[index];
     let rowsPlaceholder = rows;
     errorCode = false;
 
     index++;
-    rows.forEach(async function(row,row_i){
-      console.log('Is immediate'+isImmediate);
+    rows.forEach(async function (row, row_i) {
+      console.log('starting with:' + row.id);
       scriptName = row.scriptName;
       machineIds = [row.id];
       folder = row.folderKey;
       try {
-        console.log('starting with:'+row.id);
-        console.log('sending schedule at = '+scheduleAt);
         let returnCode = await automationActions.runScript(
           scriptName,
           machineIds,
@@ -79,48 +82,56 @@ router.post("/", async (req, res) => {
             timezone
           },
           folder,
-          true
+          true,
+          logIds
         );
-        if(errorCode){
+        /* if (errorCode) {
+          console.log("ERRORCODE = "+ errorCode);
           console.log('errorsss');
           return;
-        }
-        console.log('Successfull results for '+row.id);
+        } */
+        console.log('Successfull results for ' + row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
-        
+
         //Check if all rows are completed before proceeding with next group of order
         allStatus = true;
-        console.log("Global Error Status = " +errorCode);
-        
-        rowsPlaceholder.some(function(tempRow,theIndex){
-          if(!('status' in tempRow)){
+        console.log("Global Error Status = " + errorCode);
+
+        rowsPlaceholder.forEach(function(tempRow,theIndex){
+          if (!('status' in tempRow)) {
+            console.log("changing status");
             allStatus = false;
           }
-          if(('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')){
-            console.log('Error Code status for '+tempRow.id);
-            console.log('ErrorCode = '+tempRow.errorCode);
+        });
+
+        rowsPlaceholder.some(function (tempRow, theIndex) {
+          console.log("ROW GROUP -> ");
+          console.log("ROW GROUP INDEX -> " + theIndex+ " row ID = "+tempRow.id);
+
+          if (('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')) {
             errorCode = true;
             filteredRow = rows.filter(obj => {
               return obj.id === tempRow.id
             })
             filteredRow[0].errorCode = undefined;
-            console.log('RRunniign the loop for index '+theIndex);
+            console.log('RRunniign the loop for index ' + theIndex);
           }
           return errorCode;
         })
-console.log("Schedule AT = "+scheduleAt);
-         //Stop execution if error is returned
-         if (errorCode && !continueOnErrors) {
+        console.log("Schedule AT = " + scheduleAt);
+        //Stop execution if error is returned
+        if (errorCode && !continueOnErrors) {
           console.log('Found an error. Stopping script execution');
           for (index; index < orderArray.length; index++) {
             let leftRows = orderArray[index];
             leftRows.forEach(async function (row) {
-              createLog(row.id, isImmediate, {
+              createLog(row, isImmediate, {
                 scheduleAt,
                 emailAddress,
                 timezone
-              });
+              },
+                logIds);
             })
           };
           res.json({
@@ -128,12 +139,14 @@ console.log("Schedule AT = "+scheduleAt);
           });
           return;
         }
-        else if(allStatus){
+        else if (allStatus) {
+          console.log("All status is true");
           isImmediate = true;
-          if(index < orderArray.length){
-          beginExecution(index);
-        }
-          else{
+          if (index < orderArray.length) {
+            errorCode = false;
+            beginExecution(index);
+          }
+          else {
             console.log("Returning after successful execution");
             res.json({
               status: "success"
@@ -149,7 +162,7 @@ console.log("Schedule AT = "+scheduleAt);
         // }
 
       } catch (error) {
-        if(continueOnErrors){
+        if (continueOnErrors) {
           console.log('Found Errors. Skipping to next set of rows');
           beginExecution(index);
         }
@@ -164,10 +177,44 @@ console.log("Schedule AT = "+scheduleAt);
 });
 
 
-async function createLog(id, isImmediate, options) {
+async function createLogs(data) {
+  let {
+    scheduleAt,
+    timezone = '',
+  } = data;
+  const logIdsArray = [];
+  const now = Date.now();
+  const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
+  for (var i = 0; i < sortedRows.length; i++) {
+    machineId = sortedRows[i].id;
+    let scriptName = sortedRows[i].scriptName;
+    let log = await automationActions.database.saveLog(
+      machineId,
+      null,
+      now,
+      scheduledAt,
+      timezone,
+      scriptName
+    );
+    logIdsArray.push({
+      machine: machineId,
+      log
+    });
+    sortedRows[i].logId = log.id;
+    automationActions.logger.notifyListeners(log);
+  }
+  return logIdsArray;
+}
+
+async function createLog(theRow, isImmediate, options, logIds) {
+
+  let id = theRow.id;
+  let scriptName = theRow.scriptName;
+  let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
   const now = Date.now();
   let runAt;
+  let emailAddress = options.emailAddress;
   if (!isImmediate) {
     const { scheduleAt } = options;
     // if (
@@ -184,16 +231,13 @@ async function createLog(id, isImmediate, options) {
   }
   const immediate = runAt === now;
   const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
-  const log = await automationActions.database.saveLog(
-    id,
-    null,
-    now,
-    scheduledAt,
-    options.timezone
-  );
+
   log.dataValues.status = 'error';
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
   automationActions.logger.notifyListeners(log);
+  if (emailAddress) {
+    automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
+  }
 }
 
 module.exports = router;

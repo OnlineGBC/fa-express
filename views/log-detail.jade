@@ -5,7 +5,7 @@ block content
   form#log-form
   .content(style='display: flex; flex-direction: column; min-height: 100vh;')
     .modal-header(style='background: #eaeaea')
-      h3.modal-title Log Detail
+      h3.modal-title Log Detail for #{data.ScriptName}
     .modal-body(style='flex: 1; display: flex; flex-direction: column;')
       input#id(type='hidden', name='id', value='#{data.id}')
       .row
@@ -44,11 +44,11 @@ block content
           .col-12
             input#DateGenerated.form-control(name='DateGenerated', type='text', required='required', value='#{data.DateGenerated} #{data.TimeGenerated}')
             .invalid-feedback
-              // server errors
+              // server errors    
         if data.DateScheduled != null
           .form-group.col
             label.col-form-label(for='DateScheduled') Scheduled
-            .col-10
+            .col-12
               input#DateScheduled.form-control(name='DateScheduled', type='text', required='required', value='#{data.DateScheduled} #{data.TimeScheduled}')
               .invalid-feedback
                 // server errors

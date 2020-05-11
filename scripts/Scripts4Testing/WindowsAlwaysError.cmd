@@ -1,5 +1,5 @@
 whoami
-dir /a
+dir /s
 
 # This will give a non-zero errorlevel
 dele random_file123.txt

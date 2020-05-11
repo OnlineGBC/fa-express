@@ -77,6 +77,15 @@ module.exports = (sequelize, DataTypes) =>
         },
         osType() {
           return this.OSType;
+        },
+        hostName() {
+          return this.HostName;
+        },
+        sid() {
+          return this.SID;
+        },
+        custName() {
+          return this.CUSTNAME;
         }
       }
     }

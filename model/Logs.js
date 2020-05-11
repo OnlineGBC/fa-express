@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
     HostName: DataTypes.TEXT,
     ErroCode: DataTypes.INTEGER(11),
     CustName: DataTypes.TEXT,
+    ScriptName: DataTypes.TEXT
   },
   {
     indexes: [

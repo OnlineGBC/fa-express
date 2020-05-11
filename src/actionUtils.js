@@ -16,7 +16,7 @@ async function saveAction(
   { filePath, contents },
   folder
 ) {
-  if (!["sh", "cmd"].includes(extension)) {
+  if (!["sh", "cmd", "json"].includes(extension)) {
     throw new Error("Invalid script extension");
   }
   const targetName = `${filename}.${extension}`;

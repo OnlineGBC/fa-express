@@ -14,7 +14,12 @@ class AutomationActions {
     this.logger = logger;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true) {
+  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false) {
+
+    //let logMessage = `Running script ${scriptName}\n`;
+
+    //await this.updateLogMessage(logMessage,machinesIds,logIds);
+
     if (!scriptName) {
       throw new Error("Invalid scriptName parameter");
     }
@@ -36,7 +41,7 @@ class AutomationActions {
     }
     let runAt;
     if (!isImmediate) {
-      console.log("received scheduleat = "+options.scheduleAt);
+      console.log("received scheduleat = " + options.scheduleAt);
       const { scheduleAt } = options;
       if (
         typeof scheduleAt !== "number" ||
@@ -53,11 +58,13 @@ class AutomationActions {
       machinesIds,
       machines,
       options,
-      isSequential
+      isSequential,
+      logIds
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential) {
+  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds) {
+
     const now = Date.now();
     if (!runAt) {
       runAt = now;
@@ -70,24 +77,22 @@ class AutomationActions {
         //const machineId = machinesIds[index];
         const machineId = machineDetails.dataValues.id;
         const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
-        const log = await this.database.saveLog(
-          machineId,
-          null,
-          now,
-          scheduledAt,
-          options.timezone
-        );
-        log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
-        this.logger.notifyListeners(log);
+        const log = logIds.filter(logs => machineId == logs.machine)[0].log;
+
         await utils.delay(timeout);
+        let scriptName = path.basename(scriptPath);
+        let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\n\n`;
+
+        await this.updateLogMessage(logMessage, log);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
           logId: log.id,
           ...options
         },
-        isSequential);
+          isSequential,
+          logMessage);
       })
     );
-    if(isSequential){
+    if (isSequential) {
       return thePromise;
     }
   }
@@ -97,10 +102,11 @@ class AutomationActions {
     machineId,
     machineDetails,
     options = {},
-    isSequential
+    isSequential,
+    initialLogContent
   ) {
     const { emailAddress = "", logId } = options;
-    const { loginId, internalFacingNetworkIp, osType } = machineDetails;
+    const { loginId, internalFacingNetworkIp, osType} = machineDetails;
     const hostWithLogin = `${loginId}@${internalFacingNetworkIp}`;
     const logFileName = utils.randomLogFileName();
     const isWindows = osType.toLowerCase().includes("windows");
@@ -111,9 +117,8 @@ class AutomationActions {
     let fileExt = path.extname(scriptPath).substr(1);
     let tempFile = scriptPath;
     let scriptName = path.basename(scriptPath);
-    let initialLogContent = `Running script ${scriptName}\n`;
-    if(fileExt == 'cmd'){
-      if(!isWindows){
+    if (fileExt == 'cmd') {
+      if (!isWindows) {
         const log = await this.database.updateLogContentById(
           logId,
           `${initialLogContent}The script ${scriptName} will not run on the *nix platform`,
@@ -121,8 +126,9 @@ class AutomationActions {
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
+        console.log("wrong os");
         this.logger.notifyListeners(log);
-          // Dispatch mail
+        // Dispatch mail
         if (emailAddress) {
           this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the *nix platform`, emailAddress).catch(console.error);
         }
@@ -130,8 +136,8 @@ class AutomationActions {
       }
       rcFile = path.join(__dirname, "/../../scripts/", "rclevel.cmd");
     }
-    else if(fileExt == 'sh'){
-      if(isWindows){
+    else if (fileExt == 'sh') {
+      if (isWindows) {
         const log = await this.database.updateLogContentById(
           logId,
           `${initialLogContent}The script ${scriptName} will not run on the Windows platform`,
@@ -139,8 +145,9 @@ class AutomationActions {
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
+        console.log("wrong os");
         this.logger.notifyListeners(log);
-            // Dispatch mail
+        // Dispatch mail
         if (emailAddress) {
           this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the Windows platform`, emailAddress).catch(console.error);
         }
@@ -149,8 +156,9 @@ class AutomationActions {
       rcFile = path.join(__dirname, "/../../scripts/", "rclevel.sh");
     }
 
-    scriptPath = path.join(__dirname, "/../../scripts/", this.makeid(10)+'.'+fileExt);
-    
+    scriptPath = path.join(__dirname, "/../../scripts/", this.makeid(10) + '.' + fileExt);
+
+    // Change below line to cat
     await exec(`cat ${tempFile} ${rcFile} > ${scriptPath}`);
 
 
@@ -169,7 +177,7 @@ class AutomationActions {
       copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
       remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${
         isWindows ? "del" : "rm"
-      } ${tempFilePath}`,
+        } ${tempFilePath}`,
       chmod: isWindows
         ? null
         : `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} chmod 777 ${tempFilePath}`
@@ -221,24 +229,28 @@ class AutomationActions {
       }
     }
 
-    fs.unlink(scriptPath,(err)=>{
-      console.log(err);
+    fs.unlink(scriptPath, (err) => {
+      //console.log(err);
     });
-    
+
     // New message string added
-    logContent = initialLogContent+logContent;
+    logContent = initialLogContent + logContent;
 
     const log = await this.database.updateLogContentById(
       logId,
       logContent,
       errorCode
     );
-    console.log('The error code for id = '+machineId+' is = '+ errorCode);
+    console.log('The error code for id = ' + machineId + ' is = ' + errorCode);
     console.log('logs done');
     this.logger.writeLogFile(logFileName, log);
+    if (errorCode == 0) {
+      log.dataValues.status = 'completed';
+      this.logger.notifyListeners(log);
+    }
     //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
-    if(isSequential){
-      if(errorCode != 0){
+    if (isSequential) {
+      if (errorCode != 0) {
         log.dataValues.status = 'failed';
         this.logger.notifyListeners(log);
       }
@@ -262,21 +274,33 @@ class AutomationActions {
 
     return new Promise(resolve => {
       ls.on("exit", (returnCode) => {
-        console.log("return code is "+returnCode);
-        resolve({output:fullOutput,returnCode})
-        }
+        console.log("return code is " + returnCode);
+        resolve({ output: fullOutput, returnCode })
+      }
       );
     });
   }
+
+  async updateLogMessage(message, logRef) {
+
+    let log = await this.database.updateLogContentById(
+      logRef.id,
+      message,
+      1
+    );
+    log.dataValues.status = 'processing';
+    this.logger.notifyListeners(log);
+    console.log("-----------");
+  }
   makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
- }
+  }
 }
 
 module.exports = AutomationActions;

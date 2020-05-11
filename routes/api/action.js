@@ -38,6 +38,41 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.post("/sequence", async (req, res) => {
+  const { body } = req;
+  const { fileName, extension, fileContents, folder, menuTitle } = body;
+  if (fileName && extension && fileContents ) {
+    try {
+      const fileInfo = {};
+      if (fileContents) {
+        fileInfo.contents = fileContents;
+      } else {
+        fileInfo.filePath = files.file.tempFilePath;
+      }
+      await actionUtils.saveAction(
+        fileName,
+        extension,
+        menuTitle,
+        fileInfo,
+        folder
+      );
+      res.json({
+        status: "success"
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        error: error.message
+      });
+    }
+  } else {
+    res.status(400).json({
+      status: "error",
+      error: "invalid data"
+    });
+  }
+});
+
 router.get("/", async (req, res) => {
   const actions = await actionUtils.listActions();
   res.json(actions);
