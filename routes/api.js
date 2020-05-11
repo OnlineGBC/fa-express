@@ -56,6 +56,7 @@ router.get('/timezones', (req, res) => {
 
 router.get('/logs/', (req, res) => {
   database.logsModel.findAll({
+    attributes: { exclude: ['content'] },
     order: [['id', 'DESC']],
   })
     .then((result) => {

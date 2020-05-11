@@ -818,7 +818,6 @@ $(document).ready(() => {
       { data: "CFN" },
       { data: "SID" },
       { data: "CustName" },
-      { data: "content" },
       { data: "DateGenerated" },
       { data: "DateScheduled" },
       { data: "SID" }
@@ -826,17 +825,6 @@ $(document).ready(() => {
     columnDefs: [
       {
         targets: 6,
-        //width: 400,
-        render(data) {
-          if (data === null) {
-            return "";
-          }
-          const bytesView = new Uint8Array(data.data);
-          return '<div class="cell-scroll">' + unescape(new TextDecoder().decode(bytesView)) + '</div>';
-        }
-      },
-      {
-        targets: 7,
         width: 140,
         render(data, type, row) {
           if (type === "display") {
@@ -846,7 +834,7 @@ $(document).ready(() => {
         }
       },
       {
-        targets: 8,
+        targets: 7,
         width: 140,
         render(data, type, row) {
           if (!data) {
@@ -859,7 +847,7 @@ $(document).ready(() => {
         }
       },
       {
-        targets: 9,
+        targets: 8,
         orderable: false,
         width: 120,
         render(data, type, row) {
