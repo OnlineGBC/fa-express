@@ -222,7 +222,7 @@ class AutomationActions {
       if (emailAddress) {
         this.mailer
           .sendMail(
-            initialLogContent + "Error occurred. Please contact developer or your internal technical support.",
+            initialLogContent + error,
             emailAddress
           )
           .catch(console.error);
@@ -293,7 +293,7 @@ class AutomationActions {
     console.log("-----------");
   }
   makeid(length) {
-    var result = '';
+    var result = 'TEMP-';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
     for (var i = 0; i < length; i++) {
