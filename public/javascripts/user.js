@@ -65,7 +65,6 @@ const logsTable = $("#status-box").DataTable({
 
 $("#action-buttons .dropdown-item").click(function () {
   const targetModalId = $(this).data("target");
-  console.log(targetmodalId);
   $(targetModalId).modal("show");
 });
 
@@ -1202,6 +1201,9 @@ $('#appActionsDropdown').on('click', '.sub-actions', function (e) {
             orderSet = Array();
             start = sortedRows[i].Order_Exec;
           }
+          
+          // set ignore errors value the first time the row is fetched
+          $("#ignoreError").val(sortedRows[i].ignoreErrors);
           orderSet.push(sortedRows[i]);
           scriptName = sortedRows[i].scriptName;
           folderKey = sortedRows[i].folderKey;
@@ -1302,6 +1304,8 @@ function saveDialog() {
           }
           const data = {};
           var rowData = [];
+          var ignoreErrors = $("#ignoreError").val();
+
           selected.forEach(function (row, i) {
             var scriptName = row.scriptName;
             var folderKey = row.folderKey;
@@ -1311,6 +1315,7 @@ function saveDialog() {
               tempObj.scriptName = scriptName;
               tempObj.folderKey = folderKey;
               tempObj.Order_Exec = i;
+              tempObj.ignoreErrors = ignoreErrors;
               rowData.push(tempObj);
             })
           });
