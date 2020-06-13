@@ -68,9 +68,12 @@ router.post("/", async (req, res) => {
     index++;
     rows.forEach(async function (row, row_i) {
       console.log('starting with:' + row.id);
+
       scriptName = row.scriptName;
       machineIds = [row.id];
       folder = row.folderKey;
+      machineLogId = row.logId;
+
       try {
         let returnCode = await automationActions.runScript(
           scriptName,
@@ -83,7 +86,8 @@ router.post("/", async (req, res) => {
           },
           folder,
           true,
-          logIds
+          logIds,
+          machineLogId
         );
         /* if (errorCode) {
           console.log("ERRORCODE = "+ errorCode);
@@ -200,7 +204,8 @@ async function createLogs(data) {
     logIdsArray.push({
       machine: machineId,
       log
-    });
+    }); 
+
     sortedRows[i].logId = log.id;
     automationActions.logger.notifyListeners(log);
   }

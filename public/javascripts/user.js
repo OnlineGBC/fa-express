@@ -675,6 +675,7 @@ $(() => {
 
   socket.on("log", log => {
     updateLog = false;
+    console.log(log);
     var indexes = logsTable
       .rows()
       .indexes()
@@ -682,7 +683,6 @@ $(() => {
         return log.id === logsTable.row(value).data().id;
       });
     if (indexes.length > 0) {
-      console.log(log);
       var rowIndex = indexes[0];
       if (log.status == "processing") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
