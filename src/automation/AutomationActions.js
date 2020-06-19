@@ -14,12 +14,12 @@ class AutomationActions {
     this.logger = logger;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false) {
+  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false, machineLogId = false) {
 
     //let logMessage = `Running script ${scriptName}\n`;
 
     //await this.updateLogMessage(logMessage,machinesIds,logIds);
-
+    
     if (!scriptName) {
       throw new Error("Invalid scriptName parameter");
     }
@@ -59,11 +59,12 @@ class AutomationActions {
       machines,
       options,
       isSequential,
-      logIds
+      logIds,
+      machineLogId
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds) {
+  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds, machineLogId) {
 
     const now = Date.now();
     if (!runAt) {
@@ -75,14 +76,19 @@ class AutomationActions {
     const thePromise = Promise.all(
       machines.map(async (machineDetails, index) => {
         //const machineId = machinesIds[index];
+        let log;
         const machineId = machineDetails.dataValues.id;
         const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
-        const log = logIds.filter(logs => machineId == logs.machine)[0].log;
-
+        if(!machineLogId){
+          log = logIds.filter(logs => machineId == logs.machine)[0].log;
+        }
+        else{
+          log = logIds.filter(logs => machineLogId == logs.log.dataValues.id)[0].log;
+        }
         await utils.delay(timeout);
         let scriptName = path.basename(scriptPath);
         let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\n\n`;
-
+        
         await this.updateLogMessage(logMessage, log);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
           logId: log.id,
