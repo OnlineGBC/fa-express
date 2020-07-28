@@ -1,13 +1,50 @@
 const moment = require('moment-timezone');
 const { Op } = require('sequelize');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 class Database {
   constructor(sequelize) {
     this.sequelize = sequelize;
     this.automationModel = this.sequelize.import(path.resolve(__dirname, '../model/Automation'));
     this.logsModel = this.sequelize.import(path.resolve(__dirname, '../model/Logs'));
+    this.userModel = this.sequelize.import(path.resolve(__dirname, '../model/User'));
     this.sequelize.sync();
+  }
+
+  findUser(email) {
+    return this.userModel.findOne(
+      {
+        where: {
+          email
+        }
+      })
+  }
+
+  getUserById(id) {
+    return this.userModel.findOne(
+      {
+        where: {
+          id
+        }
+      })
+  }
+
+  async createUser(email, password) {
+
+    const saltRounds = 10;
+
+    const userModel = this.userModel;
+
+    // Create password hash
+    bcrypt.genSalt(saltRounds, function (err, salt) {
+      bcrypt.hash(password, salt, function (err, hash) {
+        return userModel.create({
+          email,
+          password: hash
+        });
+      });
+    });
   }
 
   async findMachineDetailsByIds(ids) {
@@ -24,7 +61,7 @@ class Database {
     return this.automationModel.findAll();
   }
 
-  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(),ScriptName = false) {
+  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(), ScriptName = false) {
     const machines = await this.findMachineDetailsByIds([machineId]);
     if (!machines[0]) {
       throw new Error('Machine not found');

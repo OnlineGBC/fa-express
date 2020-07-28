@@ -1,0 +1,15 @@
+extends ../auth-layout
+
+block content
+    p #{message}
+    .login-form
+        form(action='/auth/register' method='post')
+            h2(class="text-center") Register
+            div(class='form-group')
+                input(class="form-control" id='email' type='text' name='email' placeholder="Email")
+            div(class='form-group')
+                input(class="form-control" id='password' type='password' name='password' placeholder="Password")           
+            div(class='form-group')
+                input(type='submit' value='Login' class="btn btn-primary btn-block")
+            .text-center
+                a(href="/login") Login 
