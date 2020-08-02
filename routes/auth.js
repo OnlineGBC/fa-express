@@ -39,9 +39,10 @@ passport.serializeUser(function (user, cb) {
   cb(null, user.id);
 });
 
-passport.deserializeUser(function (id, cb) {
-  //console.log("ID "+id);
-  return cb(null,database.getUserById(id));
+passport.deserializeUser(async function (id, cb) {
+  console.log("deserializing");
+  let user = await database.getUserById(id);
+  return cb(null,user);
 });
 
 
@@ -51,13 +52,11 @@ router.use(passport.session());
 
 router.post('/login',
   passport.authenticate('local', {
-    successRedirect: '/',
     failureRedirect: '/login',
-    failureFlash: true
   }),
   function (req, res) {
-    //console.log(req.user);
-    //res.redirect('/login',req.flash('error'));
+    console.log(req.user.email);
+    res.redirect('/');
   }
 )
 
