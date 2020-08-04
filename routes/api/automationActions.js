@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
   } = req.body;
 
   // Inititate logs
-  const logIds = await createLogs();
+  const logIds = await createLogs(req.user.id);
   
   try {
     await automationActions.runScript(
@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
     });
   }
 
-  async function createLogs() {
+  async function createLogs(uid) {
     const logIdsArray = [];
     const now = Date.now();
     const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
@@ -56,7 +56,8 @@ router.post("/", async (req, res) => {
         now,
         scheduledAt,
         timezone,
-        scriptName
+        scriptName,
+        uid
       );
       logIdsArray.push({
         machine: machineId,

@@ -3,6 +3,7 @@ const socket = io.connect();
 let table;
 let timeZones;
 const logsTable = $("#status-box").DataTable({
+  ajax: '/api/logs',
   responsive: true,
   paginate: true,
   rowId: "id",
@@ -54,6 +55,7 @@ const logsTable = $("#status-box").DataTable({
       targets: 8,
       width: 100,
       render(data, type, row) {
+        console.log("TYPE "+type);
         if (type === "display") {
           data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
         }
