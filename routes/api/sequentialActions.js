@@ -1,5 +1,6 @@
 const express = require("express");
 const { automationActions } = require("../../container");
+var cron = require('node-cron');
 
 const router = express.Router();
 
@@ -58,6 +59,15 @@ router.post("/", async (req, res) => {
   orderNum = 1;
 
   //Remove below after test and uncomment up
+  let theDate = new Date(scheduleAt);
+  let minute = theDate.getMinutes();
+  let hour = theDate.getHours();
+  let day = theDate.getDay();
+  let month = theDate.getMonth();
+  let year = theDate.getFullYear();
+  var task = cron.schedule(`${minute} ${hour} ${day} ${month} *`, () => {
+    console.log('stopasded task');
+  });
   beginExecution(0);
 
   async function beginExecution(index) {
@@ -102,7 +112,7 @@ router.post("/", async (req, res) => {
         allStatus = true;
         console.log("Global Error Status = " + errorCode);
 
-        rowsPlaceholder.forEach(function(tempRow,theIndex){
+        rowsPlaceholder.forEach(function (tempRow, theIndex) {
           if (!('status' in tempRow)) {
             console.log("changing status");
             allStatus = false;
@@ -111,7 +121,7 @@ router.post("/", async (req, res) => {
 
         rowsPlaceholder.some(function (tempRow, theIndex) {
           console.log("ROW GROUP -> ");
-          console.log("ROW GROUP INDEX -> " + theIndex+ " row ID = "+tempRow.id);
+          console.log("ROW GROUP INDEX -> " + theIndex + " row ID = " + tempRow.id);
 
           if (('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')) {
             errorCode = true;
@@ -204,7 +214,7 @@ async function createLogs(data) {
     logIdsArray.push({
       machine: machineId,
       log
-    }); 
+    });
 
     sortedRows[i].logId = log.id;
     automationActions.logger.notifyListeners(log);
