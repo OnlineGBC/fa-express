@@ -97,7 +97,7 @@ async function listActions() {
       );
     })
   );
-  console.log(folders);
+  //console.log(folders);
   return { files: fileList, folders };
 }
 

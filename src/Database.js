@@ -105,7 +105,8 @@ class Database {
       DateScheduled: formattedDateScheduled,
       TimeScheduled: timeScheduled,
       TZ: timezoneAbbreviation,
-      ScriptName
+      ScriptName,
+      Status: "scheduled"
     });
   }
 
@@ -117,7 +118,7 @@ class Database {
     });
   }
 
-  async updateLogContentById(id, content, errorCode) {
+  async updateLogContentById(id, content, errorCode, Status = 'scheduled') {
     if (typeof errorCode !== 'number') {
       errorCode = null;
     }
@@ -129,6 +130,7 @@ class Database {
       .update({
         content,
         ErroCode: errorCode,
+        Status
       });
   }
 }

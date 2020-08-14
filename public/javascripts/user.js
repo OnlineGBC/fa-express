@@ -21,7 +21,7 @@ const logsTable = $("#status-box").DataTable({
     { data: "CustName" },
     { data: "DateGenerated" },
     { data: "DateScheduled" },
-    { data: "SID" }
+    { data: "Status" }
   ],
   columnDefs: [
     {
@@ -55,9 +55,25 @@ const logsTable = $("#status-box").DataTable({
       targets: 8,
       width: 100,
       render(data, type, row) {
-        console.log("TYPE "+type);
-        if (type === "display") {
+        console.log("daata");
+        console.log(data);
+        if (data == "processing") {
+          data = `<a href="/logs/${row.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
+        }
+        else if (data == "fileError") {
+          data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">Wrong OS</a>`;
+        }
+        else if (data == "completed") {
+          data = `<a href="/logs/${row.id}" class="_show-log text-success" target="_blank">Completed</a>`;
+        }
+        else if (data == 'error') {
+          data = `<span style="color:red">Not Executed</span>`;
+        }
+        else if(data == 'scheduled'){
           data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
+        }
+        else{
+          data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
         }
         return data;
       }
@@ -685,12 +701,13 @@ $(() => {
         return log.id === logsTable.row(value).data().id;
       });
     if (indexes.length > 0) {
+      console.log(log.status);
       var rowIndex = indexes[0];
       if (log.status == "processing") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
       }
       else if (log.status == "fileError") {
-        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">${log.errorMsg}</a>`;
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">Wrong OS</a>`;
       }
       else if (log.status == "completed") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-success" target="_blank">Completed</a>`;

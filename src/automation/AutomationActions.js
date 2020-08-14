@@ -19,7 +19,7 @@ class AutomationActions {
     //let logMessage = `Running script ${scriptName}\n`;
 
     //await this.updateLogMessage(logMessage,machinesIds,logIds);
-    
+
     if (!scriptName) {
       throw new Error("Invalid scriptName parameter");
     }
@@ -52,7 +52,7 @@ class AutomationActions {
       }
       runAt = scheduleAt;
     }
-    return this.scheduleScript(
+    this.scheduleScript(
       runAt,
       scriptPath,
       machinesIds,
@@ -128,7 +128,8 @@ class AutomationActions {
         const log = await this.database.updateLogContentById(
           logId,
           `${initialLogContent}The script ${scriptName} will not run on the *nix platform`,
-          1
+          1,
+          'fileError'
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
@@ -147,7 +148,8 @@ class AutomationActions {
         const log = await this.database.updateLogContentById(
           logId,
           `${initialLogContent}The script ${scriptName} will not run on the Windows platform`,
-          1
+          1,
+          'fileError'
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
@@ -165,9 +167,7 @@ class AutomationActions {
     scriptPath = path.join(__dirname, "/../../scripts/", this.makeid(10) + '.' + fileExt);
 
     // Change below line to cat
-    await exec(`cat ${tempFile} ${rcFile} > ${scriptPath}`);
-
-
+    await exec(`type ${tempFile} ${rcFile} > ${scriptPath}`);
 
     const scriptBaseName = path.basename(scriptPath);
 
@@ -195,7 +195,7 @@ class AutomationActions {
     /*console.log('Destination'+logId);
     logContent = await (await exec('dir')).stdout;
     console.log('creating log'); */
-
+console.log(commands.copy);
     try {
       await exec(commands.copy);
       console.log(
@@ -241,11 +241,19 @@ class AutomationActions {
 
     // New message string added
     logContent = initialLogContent + logContent;
+    let status = '';
+    if (errorCode == 0) {
+      status = 'completed';
+    }
+    else{
+      status = 'failed';
+    }
 
     const log = await this.database.updateLogContentById(
       logId,
       logContent,
-      errorCode
+      errorCode,
+      status
     );
     console.log('The error code for id = ' + machineId + ' is = ' + errorCode);
     console.log('logs done');
@@ -256,6 +264,7 @@ class AutomationActions {
     }
     //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
     if (isSequential) {
+      console.log("is sequential");
       if (errorCode != 0) {
         log.dataValues.status = 'failed';
         this.logger.notifyListeners(log);
@@ -292,7 +301,8 @@ class AutomationActions {
     let log = await this.database.updateLogContentById(
       logRef.id,
       message,
-      1
+      1,
+      'processing'
     );
     log.dataValues.status = 'processing';
     this.logger.notifyListeners(log);
