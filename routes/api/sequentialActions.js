@@ -62,13 +62,20 @@ router.post("/", async (req, res) => {
   let theDate = new Date(scheduleAt);
   let minute = theDate.getMinutes();
   let hour = theDate.getHours();
-  let day = theDate.getDay();
-  let month = theDate.getMonth();
+  let day = theDate.getDate();
+  let month = theDate.getMonth() + 1;
   let year = theDate.getFullYear();
+
+  isImmediate = true;
   var task = cron.schedule(`${minute} ${hour} ${day} ${month} *`, () => {
-    console.log('stopasded task');
+    console.log('starging task');
+    beginExecution(0);
   });
-  beginExecution(0);
+  res.json({
+    status: "success"
+  });
+
+  //beginExecution(0);
 
   async function beginExecution(index) {
     let rows = orderArray[index];
@@ -148,9 +155,9 @@ router.post("/", async (req, res) => {
                 logIds);
             })
           };
-          res.json({
+          /* res.json({
             status: "failed"
-          });
+          }); */
           return;
         }
         else if (allStatus) {
@@ -162,18 +169,12 @@ router.post("/", async (req, res) => {
           }
           else {
             console.log("Returning after successful execution");
-            res.json({
+            /* res.json({
               status: "success"
-            }); // Send response after all scripts have run. Otherwise HTTP_HEADERS_SENT will be thrown
+            }); */ // Send response after all scripts have run. Otherwise HTTP_HEADERS_SENT will be thrown
             return;
           }
         }
-        // else{
-        //   if(continueOnErrors){
-        //     console.log('Found Errors. Skipping to next set of rows');
-        //     beginExecution(index);
-        //   }
-        // }
 
       } catch (error) {
         if (continueOnErrors) {

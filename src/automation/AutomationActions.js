@@ -52,7 +52,7 @@ class AutomationActions {
       }
       runAt = scheduleAt;
     }
-    this.scheduleScript(
+    return this.scheduleScript(
       runAt,
       scriptPath,
       machinesIds,
