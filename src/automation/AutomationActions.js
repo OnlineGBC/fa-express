@@ -167,7 +167,7 @@ class AutomationActions {
     scriptPath = path.join(__dirname, "/../../scripts/", this.makeid(10) + '.' + fileExt);
 
     // Change below line to cat
-    await exec(`type ${tempFile} ${rcFile} > ${scriptPath}`);
+    await exec(`cat ${tempFile} ${rcFile} > ${scriptPath}`);
 
     const scriptBaseName = path.basename(scriptPath);
 
