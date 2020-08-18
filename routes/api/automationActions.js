@@ -16,8 +16,7 @@ router.post("/", async (req, res) => {
   } = req.body;
 
   // Inititate logs
-  const logIds = await createLogs(100);
-  //const logIds = await createLogs(req.user.id);
+  const logIds = await createLogs(req.user.id);
   
   try {
     automationActions.runScript(

@@ -249,3 +249,6 @@ div#seqModal {
 label.col-form-label {
   padding-left: 15px;
 }
+div#menu-header {
+  text-align: right;
+}

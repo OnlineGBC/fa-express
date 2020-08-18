@@ -58,6 +58,9 @@ router.get('/logs/', (req, res) => {
   database.logsModel.findAll({
     attributes: { exclude: ['content'] },
     order: [['id', 'DESC']],
+    where: {
+      uid: req.user.id
+    }
   })
     .then((result) => {
       res.json({ data: result });

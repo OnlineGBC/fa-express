@@ -22,8 +22,7 @@ function loggedIn(req, res, next) {
   if (req.user) {
       next();
   } else {
-      next();
-      //res.redirect('/login');
+      res.redirect('/login');
   }
 }
 
@@ -41,12 +40,11 @@ router.get('/register', (req, res) => {
 router.get('/login', (req, res) => {
   res.render('auth/login', {message: req.flash('error')});
 });
-/* 
-router.get('/welcome', (req, res) => {
-  console.log(req.user);
-  res.render('auth/welcome', {name: req.user.email});
+
+router.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
 });
- */
 router.get('/favicon.ico', (req, res) => {
   res.statusCode = 200;
   res.end();

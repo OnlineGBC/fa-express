@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
 
 
   // Inititate logs
-  const logIds = await createLogs(req.body);
+  const logIds = await createLogs(req.body,req.user.id);
 
   for (let i = 0; i < sortedRows.length; i++) {
     if (sortedRows[i].Order_Exec > start) {
@@ -59,7 +59,10 @@ router.post("/", async (req, res) => {
   orderNum = 1;
 
   //Remove below after test and uncomment up
-  let theDate = new Date(scheduleAt);
+  let theDate = new Date();
+  if(!isImmediate){
+    let theDate = new Date(scheduleAt);
+  }
   let minute = theDate.getMinutes();
   let hour = theDate.getHours();
   let day = theDate.getDate();
@@ -192,7 +195,7 @@ router.post("/", async (req, res) => {
 });
 
 
-async function createLogs(data) {
+async function createLogs(data,uid) {
   let {
     scheduleAt,
     timezone = '',
@@ -210,7 +213,8 @@ async function createLogs(data) {
       now,
       scheduledAt,
       timezone,
-      scriptName
+      scriptName,
+      uid
     );
     logIdsArray.push({
       machine: machineId,
