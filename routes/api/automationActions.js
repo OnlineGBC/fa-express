@@ -15,6 +15,8 @@ router.post("/", async (req, res) => {
     folder
   } = req.body;
 
+  automationActions.setUid(req.user.id);
+
   // Inititate logs
   const logIds = await createLogs(req.user.id);
   
@@ -63,7 +65,7 @@ router.post("/", async (req, res) => {
         machine: machineId,
         log
       });
-      automationActions.logger.notifyListeners(log);
+      automationActions.logger.notifyListeners(log,uid);
     }
     return logIdsArray;
   }

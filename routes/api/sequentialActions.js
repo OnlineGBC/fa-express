@@ -36,7 +36,8 @@ router.post("/", async (req, res) => {
   let orderArray = Array();
   let orderSet = Array();
   let start = 0;
-
+  
+  automationActions.setUid(req.user.id);
 
   // Inititate logs
   const logIds = await createLogs(req.body,req.user.id);
@@ -109,11 +110,7 @@ router.post("/", async (req, res) => {
           logIds,
           machineLogId
         );
-        /* if (errorCode) {
-          console.log("ERRORCODE = "+ errorCode);
-          console.log('errorsss');
-          return;
-        } */
+  
         console.log('Successfull results for ' + row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
@@ -222,7 +219,7 @@ async function createLogs(data,uid) {
     });
 
     sortedRows[i].logId = log.id;
-    automationActions.logger.notifyListeners(log);
+    automationActions.logger.notifyListeners(log,automationActions.getUid());
   }
   return logIdsArray;
 }
@@ -254,7 +251,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
 
   log.dataValues.status = 'error';
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
-  automationActions.logger.notifyListeners(log);
+  automationActions.logger.notifyListeners(log,automationActions.getUid());
   if (emailAddress) {
     automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
   }
