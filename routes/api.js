@@ -67,4 +67,8 @@ router.get('/logs/', (req, res) => {
     });
 });
 
+router.get('/getUid', (req, res) => {
+  res.json(req.user.id);
+});
+
 module.exports = router;

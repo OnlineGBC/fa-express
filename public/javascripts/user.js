@@ -691,16 +691,29 @@ $(() => {
       });
   });
 
-  socket.on("log", log => {
+  function getUid(log,callback){
+    $.ajax({
+      url: "/api/getUid",
+      type: "get",
+      success: function (id) {
+        console.log(id);
+        callback(log,id);
+      }
+    });
+  }
+  function renderLog(log,uid){
     updateLog = false;
     console.log(log);
+    if(log.uid != uid){
+      return;
+    }
     var indexes = logsTable
       .rows()
       .indexes()
       .filter(function (value, index) {
         return log.id === logsTable.row(value).data().id;
       });
-    if (indexes.length > 0) {
+    if (indexes.length > 0) { 
       console.log(log.status);
       var rowIndex = indexes[0];
       if (log.status == "processing") {
@@ -723,6 +736,9 @@ $(() => {
     else {
       logsTable.row.add(log).draw(false);
     }
+  }
+  socket.on("log", log => {
+    getUid(log,renderLog);
   });
 });
 
