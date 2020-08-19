@@ -36,11 +36,11 @@ router.post("/", async (req, res) => {
   let orderArray = Array();
   let orderSet = Array();
   let start = 0;
-  
+
   automationActions.setUid(req.user.id);
 
   // Inititate logs
-  const logIds = await createLogs(req.body,req.user.id);
+  const logIds = await createLogs(req.body, req.user.id);
 
   for (let i = 0; i < sortedRows.length; i++) {
     if (sortedRows[i].Order_Exec > start) {
@@ -61,20 +61,25 @@ router.post("/", async (req, res) => {
 
   //Remove below after test and uncomment up
   let theDate = new Date();
-  if(!isImmediate){
+  if (!isImmediate) {
     let theDate = new Date(scheduleAt);
-  }
-  let minute = theDate.getMinutes();
-  let hour = theDate.getHours();
-  let day = theDate.getDate();
-  let month = theDate.getMonth() + 1;
-  let year = theDate.getFullYear();
+    let minute = theDate.getMinutes();
+    let hour = theDate.getHours();
+    let day = theDate.getDate();
+    let month = theDate.getMonth() + 1;
+    let year = theDate.getFullYear();
+    let cronString = `${minute} ${hour} ${day} ${month} *`;
 
-  isImmediate = true;
-  var task = cron.schedule(`${minute} ${hour} ${day} ${month} *`, () => {
-    console.log('starging task');
+
+    isImmediate = true;
+    var task = cron.schedule(`${minute} ${hour} ${day} ${month} *`, () => {
+      console.log('starging task');
+      beginExecution(0);
+    });
+  }
+  else{
     beginExecution(0);
-  });
+  }
   res.json({
     status: "success"
   });
@@ -110,7 +115,7 @@ router.post("/", async (req, res) => {
           logIds,
           machineLogId
         );
-  
+
         console.log('Successfull results for ' + row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
@@ -192,7 +197,7 @@ router.post("/", async (req, res) => {
 });
 
 
-async function createLogs(data,uid) {
+async function createLogs(data, uid) {
   let {
     scheduleAt,
     timezone = '',
@@ -219,7 +224,7 @@ async function createLogs(data,uid) {
     });
 
     sortedRows[i].logId = log.id;
-    automationActions.logger.notifyListeners(log,automationActions.getUid());
+    automationActions.logger.notifyListeners(log, automationActions.getUid());
   }
   return logIdsArray;
 }
@@ -251,7 +256,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
 
   log.dataValues.status = 'error';
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
-  automationActions.logger.notifyListeners(log,automationActions.getUid());
+  automationActions.logger.notifyListeners(log, automationActions.getUid());
   if (emailAddress) {
     automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
   }
