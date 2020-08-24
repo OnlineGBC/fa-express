@@ -1,14 +1,19 @@
 extends ../auth-layout
 
 block content
-    p #{message}
     .login-form
+        h2(class="text-center") Login
+        if message != ''
+            div.alert.alert-danger(role="alert") #{message}
         form(action='/auth/login' method='post')
-            h2(class="text-center") Log In
+            div.text-center.top-image
+                img.text-center(src='/assets/images/user.png')
             div(class='form-group')
                 input(class="form-control" id='email' type='text' name='email' placeholder="Email")
             div(class='form-group')
-                input(class="form-control" id='password' type='password' name='password' placeholder="Password")           
+                input(class="form-control" id='password' type='password' name='password' placeholder="Password")
+            div(class='form-group')
+                input(class="form-control" id='key' type='text' name='key' placeholder="2FA Code")           
             div(class='form-group')
                 input(type='submit' value='Login' class="btn btn-primary btn-block")
             .text-center Already have an account?

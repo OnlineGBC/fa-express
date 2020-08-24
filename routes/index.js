@@ -30,11 +30,13 @@ function loggedIn(req, res, next) {
 router.get('/', loggedIn, (req, res) => {
   res.render('index', {
     title: 'Robotics Process Automation',
+    name:req.user.fname
   });
 });
 
 router.get('/register', (req, res) => {
-  res.render('auth/register', {message: req.flash('error')});
+  let message = req.session.error || '';
+  res.render('auth/register', {message});
 });
 
 router.get('/login', (req, res) => {

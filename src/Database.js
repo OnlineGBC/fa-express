@@ -30,18 +30,21 @@ class Database {
       })
   }
 
-  async createUser(email, password) {
+  async createUser(email, password, key, fname, lname) {
 
     const saltRounds = 10;
 
     const userModel = this.userModel;
-
+console.log(key);
     // Create password hash
     bcrypt.genSalt(saltRounds, function (err, salt) {
       bcrypt.hash(password, salt, function (err, hash) {
         return userModel.create({
+          fname,
+          lname,
           email,
-          password: hash
+          password: hash,
+          otp_key:key
         });
       });
     });

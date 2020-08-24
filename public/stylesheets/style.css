@@ -251,4 +251,37 @@ label.col-form-label {
 }
 div#menu-header {
   text-align: right;
+  position: relative;
+}
+#menu-header img {
+  width: 50px;
+}
+.drop {
+  display: inline;
+  font-size: 20px;
+  margin-left: 5px;
+  position: relative;
+  z-index: 11111;
+  top: 16px;
+}
+.items {
+    width: 140px;
+    position: absolute;
+    display: none;
+    border: 1px solid #d0d0d0;
+    top: 16px;
+    font-size: 17px;
+    right: -130px;
+    text-align: left;
+    padding: 10px;
+}
+
+a.nav-link {}
+
+.drop:hover .items {
+    display: inline-block !important;
+}
+
+.drop:hover #menu-header .items {
+    display: block;
 }
