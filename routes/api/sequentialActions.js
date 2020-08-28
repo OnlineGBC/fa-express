@@ -1,6 +1,8 @@
 const express = require("express");
 const { automationActions } = require("../../container");
 var cron = require('node-cron');
+var scheduler = require('node-schedule');
+const TaskManager = require('../../src/TaskManager');
 
 const router = express.Router();
 
@@ -13,7 +15,8 @@ router.post("/", async (req, res) => {
     scheduleAt,
     emailAddress = '',
     timezone = '',
-    continueOnErrors
+    continueOnErrors,
+    reference
   } = req.body;
 
 
@@ -72,12 +75,18 @@ router.post("/", async (req, res) => {
 
 
     isImmediate = true;
-    var task = cron.schedule(`${minute} ${hour} ${day} ${month} *`, () => {
-      console.log('starging task');
-      beginExecution(0);
+
+    let taskId;
+    var task = scheduler.scheduleJob(cronString, async function () {
+      console.log('starting task');
+      await beginExecution(0);
+      console.log("Removing task no. " + taskId);
+      TaskManager.remove(taskId);
     });
+    taskId = await TaskManager.add(task, reference, logIds, req.user.id);
+    console.log("TaskId = " + taskId);
   }
-  else{
+  else {
     beginExecution(0);
   }
   res.json({

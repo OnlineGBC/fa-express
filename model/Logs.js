@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
       primaryKey: true,
     },
     uid: DataTypes.INTEGER(11),
+    ref_num: DataTypes.INTEGER(11),
     CFN: DataTypes.STRING(16),
     IFN: DataTypes.STRING(16),
     SID: DataTypes.STRING(16),

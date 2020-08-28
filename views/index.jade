@@ -38,27 +38,6 @@ block content
                             th ACTION
                     tbody
                         tr
-                            td
-                                div.checkbox
-                                    input(type='checkbox').dt-checkboxes
-                                    label
-                            td 192.168.1.1
-                            td asd
-                            td mkmk
-                            td IFN
-                            td CFN
-                            td OSType
-                            td SID
-                            td DBType
-                            td AppType
-                            td CDIR
-                            td CUSTNAME
-                            td LOCATION
-                            td
-                                a.edit(href='#')
-                                    i.fa.fa-pencil
-                                a.delete(href='#')
-                                    i.fa.fa-trash
 
     include log-display.html
     include modals/crud-form.html
@@ -69,9 +48,11 @@ block content
     include modals/customFolder.html
     include modals/contextModal.html
     include modals/sequentialModal.html
+    include modals/scheduledJobs.html
 
 block scripts
     script(src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js")
     script(src='/javascripts/user.js')
     script(src='/javascripts/custom-action.js')
+    script(src='/javascripts/scheduler.js')
 

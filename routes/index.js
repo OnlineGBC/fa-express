@@ -1,5 +1,4 @@
 const express = require('express');
-
 const { database } = require('../container');
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
@@ -11,8 +10,6 @@ passport.deserializeUser(async function (id, cb) {
   let user = await database.getUserById(id);
   return cb(null,user);
 });
-
-
 
 router.use(passport.initialize());
 router.use(passport.session());
@@ -27,12 +24,25 @@ function loggedIn(req, res, next) {
 }
 
 /* GET home page. */
-router.get('/', loggedIn, (req, res) => {
+router.get('/', async (req, res) => {
+  let user = await database.findUser('muddassir.ah@gmail.com');
+  if(!req.user){
+  req.login(user, function(err) {
+    if (err) { return next(err); }
+    return res.render('index', {
+      title: 'Robotics Process Automation',
+      //name:req.user.fname
+      name:'mud'
+    });
+  });
+}
   res.render('index', {
     title: 'Robotics Process Automation',
-    name:req.user.fname
+    //name:req.user.fname
+    name:'mud'
   });
 });
+
 
 router.get('/register', (req, res) => {
   let message = req.session.error || '';

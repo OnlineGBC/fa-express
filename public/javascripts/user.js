@@ -51,6 +51,13 @@ const logsTable = $("#status-box").DataTable({
         return `<span style="font-weight: bold;">${data}</span>`;
       }
     },
+    { // Add Reschedule Button
+      targets: 9,
+      width: 140,
+      render(data, type, row) {
+        return `<a title="D:\muddassir_work\fa-express\scripts\test.sh" class="reschedule-action btn btn-primary" href="#">Reschedule</a>`;
+      }
+    },
     {
       targets: 8,
       width: 100,
@@ -87,7 +94,7 @@ $("#action-buttons .dropdown-item").click(function () {
 });
 
 $(() => {
-  $("#time").inputmask("hh:mm", {
+  $("#time,#r_time").inputmask("hh:mm", {
     placeholder: "hh:mm",
     clearMaskOnLostFocus: false,
     showMaskOnHover: false,
@@ -241,14 +248,14 @@ $(() => {
   }).then(zones => {
     timeZones = zones;
     for (const item of zones) {
-      $("#zone").append(
+      $("#zone,#r_zone").append(
         $(`<option value="${item.hours}">${item.text}</option>`)
       );
     }
   });
 
   // Datepicker to scheduler modal
-  $("#date").datepicker();
+  $("#date,#r_date").datepicker();
 
   // Populate LoginIds in modal
   $.ajax({
@@ -524,6 +531,8 @@ $(() => {
 
   $schedulerForm.submit(e => {
     e.preventDefault();
+
+    const reference = $("#ref_num").val();
     const isImmediate = $("#schedule").val() === "immediate";
 
     const dateValue = $("#date").val();
@@ -611,7 +620,8 @@ $(() => {
           isImmediate,
           scheduleAt,
           timezone,
-          continueOnErrors
+          continueOnErrors,
+          reference
         }),
         dataType: "json",
         contentType: "application/json"
@@ -639,7 +649,8 @@ $(() => {
           isImmediate,
           scheduleAt,
           timezone,
-          folder: folderKey
+          folder: folderKey,
+          reference
         }),
         dataType: "json",
         contentType: "application/json"

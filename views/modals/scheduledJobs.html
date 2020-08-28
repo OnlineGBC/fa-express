@@ -1,0 +1,59 @@
+<div class="modal hide" id="scheduledJobsModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <form id="rescheduler-form">
+      <div class="modal-content">
+        <div class="modal-header" style="background: #eaeaea">
+          <h3 class="modal-title">Scheduled Jobs</h3>
+        </div>
+        <div class="modal-body">
+          <div class="main-form">
+            <div class="listing">
+              <h3 class="title">Select job to reschedule</h3>
+              <div class="item">
+                <div class="jobsList"></div>
+              </div>
+            </div>
+            <div class="hidden_fields_r">
+              <div class="item">
+                <p>Date of change</p>
+                <input id="r_date" class="form-control" autocomplete="off" placeholder="mm/dd/yyyy" name="r_date" />
+                <span class="glyphicon glyphicon-calendar"></span>
+              </div>
+              <div class="item">
+                <p>Time of change</p>
+                <div class="flex-box">
+                  <input id="r_time" class="form-control" autocomplete="off" name="r_time" placeholder="hh:mm" />
+                  <select id="r_format" name="r_format">
+                    <option value="am">AM</option>
+                    <option value="pm">PM</option>
+                  </select>
+                  <select id="r_zone" name="r_zone" class="form-dropdown" autocomplete="off">
+                    <option selected disabled>Select Timezone</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <p class="error-message" style="color: red;"></p>
+            <input type="hidden" id="job_id" name="job_id" value="" />
+          </div>
+        </div>
+        <div class="modal-footer hidden_fields_r">
+
+          <button class="btn btn-danger" data-dismiss="modal">
+            Cancel
+          </button>
+          <button class="btn btn-primary" type="submit">
+            Reschedule
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  function showFields_r(value) {
+    $("#job_id").val(value);
+    $('.listing').hide();
+    $('.hidden_fields_r').show();
+  }
+</script>

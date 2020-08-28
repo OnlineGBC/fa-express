@@ -101,18 +101,23 @@ select {
 .form-dropdown {
   width: 50%;
 }
+
+#scheduledJobsModal .form-control,
+.form-dropdown {
+  width: 50%;
+}
 .flex-box {
   display: flex;
   justify-content: space-around;
 }
 
-input#time {
+input#time,#r_time {
   text-align: center;
   flex-grow: 1;
   width: 20px !important;
 }
 
-input#date {
+input#date,#r_date {
   display: inline-block;
 }
 .flex-box * {
@@ -120,7 +125,7 @@ input#date {
   margin: 0px 5px;
 }
 
-select#format {
+select#format,#_format {
   flex: 1;
 }
 
@@ -284,4 +289,16 @@ a.nav-link {}
 
 .drop:hover #menu-header .items {
     display: block;
+}
+
+.job-item {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 15px;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.job-item:hover {
+  background: #ffe1e1;
+  box-shadow: 1px 1px 5px 0px #dc8a8a;
 }
