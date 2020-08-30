@@ -24,8 +24,8 @@ function loggedIn(req, res, next) {
 }
 
 /* GET home page. */
-router.get('/', async (req, res) => {
-  let user = await database.findUser('muddassir.ah@gmail.com');
+router.get('/', loggedIn, async (req, res) => {
+  /* let user = await database.findUser('muddassir.ah@gmail.com');
   if(!req.user){
   req.login(user, function(err) {
     if (err) { return next(err); }
@@ -35,11 +35,10 @@ router.get('/', async (req, res) => {
       name:'mud'
     });
   });
-}
+} */
   res.render('index', {
     title: 'Robotics Process Automation',
-    //name:req.user.fname
-    name:'mud'
+    name:req.user.fname
   });
 });
 
