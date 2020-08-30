@@ -51,13 +51,6 @@ const logsTable = $("#status-box").DataTable({
         return `<span style="font-weight: bold;">${data}</span>`;
       }
     },
-    { // Add Reschedule Button
-      targets: 9,
-      width: 140,
-      render(data, type, row) {
-        return `<a title="D:\muddassir_work\fa-express\scripts\test.sh" class="reschedule-action btn btn-primary" href="#">Reschedule</a>`;
-      }
-    },
     {
       targets: 8,
       width: 100,
