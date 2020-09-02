@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `email` varchar(50) NOT NULL,
   `password` varchar(60) NOT NULL,
   `otp_key` varchar(35) DEFAULT NULL,
+  `admin` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 COMMIT;
