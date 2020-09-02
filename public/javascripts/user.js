@@ -33,7 +33,7 @@ const logsTable = $("#status-box").DataTable({
       width: 140,
       render(data, type, row) {
         if (type === "display") {
-          data = `${data} ${row.TimeGenerated}`;
+          data = `${data}`;
         }
         return data;
       }
@@ -46,7 +46,7 @@ const logsTable = $("#status-box").DataTable({
           return "-";
         }
         if (type === "display") {
-          data = `${data} ${row.TimeScheduled}`;
+          data = `${data}`;
         }
         return `<span style="font-weight: bold;">${data}</span>`;
       }
@@ -55,8 +55,6 @@ const logsTable = $("#status-box").DataTable({
       targets: 8,
       width: 100,
       render(data, type, row) {
-        console.log("daata");
-        console.log(data);
         if (data == "processing") {
           data = `<a href="/logs/${row.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
         }
@@ -80,6 +78,8 @@ const logsTable = $("#status-box").DataTable({
     }
   ]
 });
+
+
 
 $("#action-buttons .dropdown-item").click(function () {
   const targetModalId = $(this).data("target");
@@ -109,18 +109,15 @@ $(() => {
     const fd = new FormData();
 
     fd.append("file", this.files[0]);
-    console.log(fd);
     $.ajax({
       url: "/api/upload",
       type: "POST",
       data: fd,
       success: res => {
-        console.log(res);
         const uColumns = res.columns;
         userData = res.data;
         let $u_options = "";
         uColumns.forEach(value => {
-          console.log(value);
           $u_options += `<option value="${value}">${value}</option>`;
         });
 
@@ -627,7 +624,6 @@ $(() => {
         }
       })
         .fail(err => {
-          console.log('Failed miserably');
           showReturnCodeModal(false);
         });;
     }
@@ -707,7 +703,6 @@ $(() => {
   }
   function renderLog(log,uid){
     updateLog = false;
-    console.log(log);
     if(log.uid != uid){
       return;
     }
@@ -718,7 +713,6 @@ $(() => {
         return log.id === logsTable.row(value).data().id;
       });
     if (indexes.length > 0) { 
-      console.log(log.status);
       var rowIndex = indexes[0];
       if (log.status == "processing") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
@@ -866,7 +860,7 @@ $(document).ready(() => {
         width: 140,
         render(data, type, row) {
           if (type === "display") {
-            data = `${data} ${row.TimeGenerated}`;
+            data = `${data}`;
           }
           return data;
         }
@@ -879,7 +873,7 @@ $(document).ready(() => {
             return "-";
           }
           if (type === "display") {
-            data = `${data} ${row.TimeScheduled}`;
+            data = `${data}`;
           }
           return `<span style="font-weight: bold;">${data}</span>`;
         }
@@ -906,7 +900,6 @@ $(".log-container").on("click", ".show-log", function (e) {
   const $modal = $("#log-form-modal");
   const $form = $("#log-form");
   const data = logsTable.row($row).data();
-  console.log(data, "---");
   $form.validate({
     errorClass: "is-invalid",
     errorPlacement(error, element) {

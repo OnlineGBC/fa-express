@@ -1,14 +1,17 @@
 extends layout
 
 block content
-    .container#automation-main
+    .container#automation-main(class=admin?'admin':'')
         #menu-header
             img(src="/assets/images/profile-icon.png")
             div.drop
                 i.fa.fa-caret-down
                 .items
                     p Hi, #{name}
-                    a(href='/logout')="Logout"
+                    p
+                        a(href='/profile')="Edit Profile"
+                    p
+                        a(href='/logout')="Logout"
         .row
             .col
                 h1#automation-title= "Systems"

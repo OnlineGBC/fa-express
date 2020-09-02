@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
       lname: DataTypes.STRING(20),
       email: DataTypes.STRING(50),
       password: DataTypes.STRING.BINARY,
-      otp_key: DataTypes.STRING(35)
+      otp_key: DataTypes.STRING(35),
+      admin: DataTypes.INTEGER
     }
   );
   

@@ -7,6 +7,7 @@ const ActionRouter = require('./api/action');
 const { database } = require('../container');
 const TaskManager = require('../src/TaskManager');
 var scheduler = require('node-schedule');
+const { Sequelize } = require('sequelize');
 
 const router = express.Router();
 
@@ -58,7 +59,10 @@ router.get('/timezones', (req, res) => {
 
 router.get('/logs/', (req, res) => {
   database.logsModel.findAll({
-    attributes: { exclude: ['content'] },
+    attributes: ['id','uid','ref_num','CFN','IFN','SID','CustName','HostName',
+    [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')),'DateGenerated'],
+    [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')),'DateScheduled'],
+  ],
     order: [['id', 'DESC']],
     where: {
       uid: req.user.id
@@ -104,6 +108,17 @@ router.post('/reschedule', async (req, res) => {
 
   console.log("Updating Logs");
   await database.updateLogTime(id,scheduleAt,timezone);
+  res.json({status:200});
+})
+
+router.post('/cancelJob',(req,res) => {
+  const {id} = req.body;
+  console.log(id);
+  const task = TaskManager.get(id);
+  console.log("Cancelling Task");
+  task.cancel();
+  console.log("Task has been cancelled");
+  TaskManager.remove(id);
   res.json({status:200});
 })
 

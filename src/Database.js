@@ -31,6 +31,35 @@ class Database {
       })
   }
 
+  updateUser(fname, lname, email, password, id) {
+    const saltRounds = 10;
+    const userModel = this.userModel;
+    if (password != '') {
+      // Create password hash
+      bcrypt.genSalt(saltRounds, function (err, salt) {
+        bcrypt.hash(password, salt, function (err, hash) {
+          return userModel.update({
+            fname,
+            lname,
+            email,
+            password: hash
+          },
+            {
+              where: { id }
+            });
+        });
+      });
+    }
+    return userModel.update({
+      fname,
+      lname,
+      email,
+    },
+      {
+        where: { id }
+      });
+  }
+
   saveJob(title, logs, uid) {
     console.log(logs);
     return this.jobsModel.create({
@@ -39,7 +68,7 @@ class Database {
     });
   }
 
-  async clearJob(id){
+  async clearJob(id) {
     console.log(id);
     await this.jobsModel.destroy({
       where: {
@@ -109,9 +138,9 @@ class Database {
     return this.logsModel.update({
       DateScheduled: formattedDateScheduled,
       TimeScheduled: timeScheduled,
-    },{
-      where:{
-        ref_num:jobId
+    }, {
+      where: {
+        ref_num: jobId
       }
     })
   }

@@ -255,8 +255,8 @@ label.col-form-label {
   padding-left: 15px;
 }
 div#menu-header {
-  text-align: right;
   position: relative;
+  margin-bottom: 40px;
 }
 #menu-header img {
   width: 50px;
@@ -278,10 +278,9 @@ div#menu-header {
     font-size: 17px;
     right: -130px;
     text-align: left;
+    background:white;
     padding: 10px;
 }
-
-a.nav-link {}
 
 .drop:hover .items {
     display: inline-block !important;
@@ -301,4 +300,20 @@ a.nav-link {}
 .job-item:hover {
   background: #ffe1e1;
   box-shadow: 1px 1px 5px 0px #dc8a8a;
+}
+
+li.app-custom-files {
+  display: none;
+}
+
+.admin li.app-custom-files {
+  display: block;
+}
+
+li.app-custom-folders {
+  display: none;
+}
+
+.admin li.app-custom-folders {
+  display: block;
 }

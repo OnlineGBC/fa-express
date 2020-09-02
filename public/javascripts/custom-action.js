@@ -122,6 +122,10 @@ async function updateActions() {
         }
       })
       .on("contextmenu", function(e) {
+
+        if(!($("#automation-main").hasClass('admin'))){
+          return;
+        }
         $('#context-menu input[name="context-action"]').val(item.filePath);
         $('#context-menu input[name="context-type"]').val("file");
         $('#context-menu input[name="context-name"]').val(item.menuTitle);
@@ -170,6 +174,9 @@ async function updateActions() {
     newAction.attr("href", "#");
     newAction
       .on("contextmenu", function(e) {
+        if(!($("#automation-main").hasClass('admin'))){
+          return;
+        }
         $('#context-menu input[name="context-action"]').val(key);
         $('#context-menu input[name="context-type"]').val("folder");
         $('#context-menu input[name="context-name"]').val("");
@@ -218,6 +225,9 @@ async function updateActions() {
       });
       newAction1
         .on("contextmenu", function(e) {
+          if(!($("#automation-main").hasClass('admin'))){
+            return;
+          }
           $('#context-menu input[name="context-action"]').val(item.filePath);
           $('#context-menu input[name="context-type"]').val("file");
           $('#context-menu input[name="context-name"]').val(item.menuTitle);

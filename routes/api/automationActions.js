@@ -98,6 +98,8 @@ router.post("/", async (req, res) => {
         machine: machineId,
         log
       });
+      log.DateGenerated = log.DateGenerated + ' ' + log.TimeGenerated;
+      log.DateScheduled = log.DateScheduled + ' ' + log.TimeScheduled;
       automationActions.logger.notifyListeners(log, uid);
     }
     return logIdsArray;

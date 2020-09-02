@@ -73,3 +73,29 @@ $reschedulerForm.submit(e => {
         }
     });
 });
+
+function cancelJob(){
+    var id = $("#job_id").val();
+
+    $.alert({
+        type: "info",
+        title: "Please wait",
+        content: "Job has been cancelled"
+    });
+
+    $.ajax({
+        url: "/api/cancelJob",
+        type: "POST",
+        data: JSON.stringify({
+            id
+        }),
+        dataType: "json",
+        contentType: "application/json",
+        success: (data) => {
+            console.log(data);
+            logsTable.ajax.reload();
+        }
+    });
+
+    return false;
+}
