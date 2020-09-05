@@ -1,9 +1,12 @@
 const express = require('express');
-const { database } = require('../container');
+const config = require('../config/config');
+const nodemailer = require('nodemailer');
+const { database, mailer } = require('../container');
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 passport.deserializeUser(async function (id, cb) {
   let user = await database.getUserById(id);
@@ -26,8 +29,9 @@ function loggedIn(req, res, next) {
 router.get('/', loggedIn, async (req, res) => {
 
   // Uncomment for development
-  /* let user = await database.findUser('asd');
-  if (!req.user) {
+  let user = await database.findUser('asd');
+  let admin = req.user.admin;
+  /* if (!req.user) {
     req.login(user, function (err) {
       if (err) { return next(err); }
       return res.render('index', {
@@ -38,12 +42,11 @@ router.get('/', loggedIn, async (req, res) => {
       });
     });
   } */
-  let admin = user.admin;
-  res.render('index', {
-    title: 'Robotics Process Automation',
-    name:req.user.fname,
-    admin
-  });
+   res.render('index', {
+     title: 'Robotics Process Automation',
+     name:req.user.fname,
+     admin
+   });
 });
 
 
@@ -66,6 +69,54 @@ router.get('/logout', function (req, res) {
   req.logout();
   res.redirect('/');
 });
+
+router.get('/forgot-password', (req, res) => {
+  return res.render("auth/forgot-password",{message:"",error:""});
+})
+
+router.post('/forgot-password', async (req,res) => {
+
+  const email = req.body.email;
+  let user = await database.findUser(email);
+  let error = "";
+  let message = "";
+
+  if (!user) {
+    return res.render('auth/forgot-password',{error:"No user exists with this email",message});
+  }
+
+  const token = jwt.sign({ id: user.id }, process.env.RESET_TOKEN_KEY, { expiresIn: '10m' });
+  const emailAddress = user.email;
+  const host = req.headers.host;
+
+  user.reset_token = token;
+  await user.save();
+
+  const data = `<h3>Click on the link below to generate a new password</h3>
+    <p><a href="http://${host}/reset-password/${token}" >Reset Password</a></p>`;
+  const transporter = nodemailer.createTransport(config.smtp);
+  const info = await transporter.sendMail({
+    from: config.emailFrom, // sender address
+    to: emailAddress, // list of receivers
+    subject: 'Password reset', // Subject line
+    html: data, // html body
+  });
+  return res.render('auth/forgot-password',{error,message:"An email has been sent to you with the reset link"});
+
+})
+
+router.get('/reset-password/:token', async (req, res) => {
+
+  const reset_token = req.params.token;
+  jwt.verify(reset_token, process.env.RESET_TOKEN_KEY, function (err, decoded) {
+    if (err) {
+      return res.status(401).json({ err });
+    }
+    else {
+      return res.render('auth/reset-password',{message:'',reset_token});
+    }
+  });
+})
 
 router.post('/edit', loggedIn, async (req, res) => {
   email = req.body.email;

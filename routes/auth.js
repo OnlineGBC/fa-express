@@ -5,21 +5,21 @@ var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 var twoFactor = require('node-2fa');
-
+const jwt = require('jsonwebtoken');
 
 
 passport.use(new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
-  passReqToCallback : true
+  passReqToCallback: true
 },
-  async function (req,email, password, cb) {
+  async function (req, email, password, cb) {
     let user = await database.findUser(email);
     if (user) {
       const match = await bcrypt.compare(password, user.password);
       const key = req.body.key;
       const secret = user.otp_key;
-    
+
       if (match && twoFactor.verifyToken(secret, key)) {
         console.log('Logged in');
         return cb(null, user);
@@ -73,7 +73,7 @@ router.post('/register',
       password = req.body.password;
       c_password = req.body.c_password;
 
-      if(password != c_password){
+      if (password != c_password) {
         req.session.error = "Passwords do not match";
         res.redirect('/register');
         return;
@@ -95,9 +95,9 @@ router.post('/register',
   }
 );
 
-router.get('/two-factor',function(req,res){
+router.get('/two-factor', function (req, res) {
   let message = req.session.message || '';
-  res.render('auth/2fa', { data: req.session.key,message });
+  res.render('auth/2fa', { data: req.session.key, message });
 })
 
 router.post('/two-factor', function (req, res) {
@@ -108,15 +108,49 @@ router.post('/two-factor', function (req, res) {
   let fname = req.session.fname;
   let lname = req.session.lname;
 
-  if(twoFactor.verifyToken(secret, key)){
-    user = database.createUser(email, password,secret,fname,lname);
+  if (twoFactor.verifyToken(secret, key)) {
+    user = database.createUser(email, password, secret, fname, lname);
     res.redirect('/login');
   }
-  else{
+  else {
     req.session.message = 'Invalid Code. Please try again';
     res.redirect('two-factor')
   }
 
+})
+
+router.post('/reset-password', (req, res) => {
+
+  const { password, c_password,token } = req.body;
+
+  jwt.verify(token, process.env.RESET_TOKEN_KEY, async function (err, decoded) {
+    if (err) {
+      return res.status(401).json({ error: err });
+    }
+    else {
+      const user = await database.userModel.findOne({ where: { reset_token:token } });
+      if (!user) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+      else {
+        if (password != c_password) {
+          res.render('auth/reset-password', { message: "Passwords do not match",reset_token:token });
+        }
+        else {
+          bcrypt.genSalt(10, function (err, salt) {
+            bcrypt.hash(password, salt, async function (err, hash) {
+              if (!err) {
+                user.password = hash;
+                user.reset_token = null;
+                await user.save();
+                res.redirect('/login');
+              }
+            });
+          });
+        }
+      }
+    }
+  });
 })
 
 module.exports = router;

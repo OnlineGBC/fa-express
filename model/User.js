@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
       email: DataTypes.STRING(50),
       password: DataTypes.STRING.BINARY,
       otp_key: DataTypes.STRING(35),
+      reset_token: DataTypes.STRING,
       admin: DataTypes.INTEGER
     }
   );

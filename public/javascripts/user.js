@@ -826,7 +826,6 @@ $(document).ready(() => {
 
   $('[data-toggle="tooltip"]').tooltip();
 
-  // $("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
   if ($("#schedule").length && $("#schedule").val() != "immediate") {
     $(".hidden_fields").show();
   }
