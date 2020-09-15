@@ -233,6 +233,11 @@ async function createLogs(data, uid) {
     });
 
     sortedRows[i].logId = log.id;
+    
+    log.DateGenerated = log.DateGenerated + ' ' + log.TimeGenerated;
+    if (scheduleAt) {
+      log.DateScheduled = log.DateScheduled + ' ' + log.TimeScheduled;
+    }
     automationActions.logger.notifyListeners(log, automationActions.getUid());
   }
   return logIdsArray;

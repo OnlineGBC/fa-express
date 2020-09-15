@@ -44,7 +44,7 @@ router.post("/", async (req, res) => {
     });
 
     taskId = await TaskManager.add(task, reference, logIds, req.user.id);
-    console.log("TaskId = "+taskId);
+    console.log("TaskId = " + taskId);
   }
   else {
     beginExecution();
@@ -99,7 +99,9 @@ router.post("/", async (req, res) => {
         log
       });
       log.DateGenerated = log.DateGenerated + ' ' + log.TimeGenerated;
-      log.DateScheduled = log.DateScheduled + ' ' + log.TimeScheduled;
+      if (scheduleAt) {
+        log.DateScheduled = log.DateScheduled + ' ' + log.TimeScheduled;
+      }
       automationActions.logger.notifyListeners(log, uid);
     }
     return logIdsArray;

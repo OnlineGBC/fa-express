@@ -42,6 +42,8 @@ const logsTable = $("#status-box").DataTable({
       targets: 7,
       width: 140,
       render(data, type, row) {
+        console.log("DATE");
+        console.log(data);
         if (!data) {
           return "-";
         }
