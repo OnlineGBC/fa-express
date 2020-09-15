@@ -26,12 +26,12 @@ function loggedIn(req, res, next) {
 }
 
 /* GET home page. */
-router.get('/', async (req, res) => {
+router.get('/', loggedIn, async (req, res) => {
 
   // Uncomment for development
-  let user = await database.findUser('muddassir.ah@gmail.com');
-  let admin = user.admin;
-  if (!req.user) {
+  //let user = await database.findUser('asd');
+  let admin = req.user.admin;
+  /* if (!req.user) {
     req.login(user, function (err) {
       if (err) { return next(err); }
       return res.render('index', {
@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
         admin
       });
     });
-  }
+  } */
    res.render('index', {
      title: 'Robotics Process Automation',
      name:req.user.fname,
