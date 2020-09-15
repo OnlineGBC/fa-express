@@ -55,6 +55,7 @@ const logsTable = $("#status-box").DataTable({
       targets: 8,
       width: 100,
       render(data, type, row) {
+        console.log(data);
         if (data == "processing") {
           data = `<a href="/logs/${row.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
         }

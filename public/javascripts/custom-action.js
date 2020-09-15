@@ -73,7 +73,7 @@ submitCreateFolder = async (customFolderModal, folderName) => {
 
 const draggable = {
   accept: "li",
-  drop: function(event, ui) {
+  drop: function (event, ui) {
     console.log("first");
     console.log(
       $(this)
@@ -96,12 +96,22 @@ async function updateActions() {
   actions.files.forEach(item => {
     const newAction = $(
       "<a data-toggle='tooltip' data-placement='right' title='" +
-        item.filePath +
-        "' class='sub-actions'></a>"
+      item.filePath +
+      "' class='sub-actions'></a>"
     );
     newAction.attr("href", "#");
     newAction
-      .on("click", function() {
+      .on("click", function () {
+
+        var selected_rows = table.rows({ selected: true }).data();
+        if (selected_rows.length == 0 && item.scriptName.indexOf('.json') < 0) {
+          $.alert({
+            type: "red",
+            title: "Ooops",
+            content: "Please select a server first!"
+          });
+          return false;
+        }
         $("#context-menu")
           .removeClass("show")
           .hide();
@@ -116,14 +126,14 @@ async function updateActions() {
           scriptName: item.scriptName,
           folderKey: ""
         });
-        console.log(item);
-        if($("#seq-state").val() == "0" && item.scriptName.indexOf('.json') < 0){
+
+        if ($("#seq-state").val() == "0" && item.scriptName.indexOf('.json') < 0) {
           $schedulerModal.modal("show");
         }
       })
-      .on("contextmenu", function(e) {
+      .on("contextmenu", function (e) {
 
-        if(!($("#automation-main").hasClass('admin'))){
+        if (!($("#automation-main").hasClass('admin'))) {
           return;
         }
         $('#context-menu input[name="context-action"]').val(item.filePath);
@@ -173,8 +183,8 @@ async function updateActions() {
     const newAction = $("<a class='test closed'></a>");
     newAction.attr("href", "#");
     newAction
-      .on("contextmenu", function(e) {
-        if(!($("#automation-main").hasClass('admin'))){
+      .on("contextmenu", function (e) {
+        if (!($("#automation-main").hasClass('admin'))) {
           return;
         }
         $('#context-menu input[name="context-action"]').val(key);
@@ -203,29 +213,42 @@ async function updateActions() {
     actions.folders[key].forEach(item => {
       const newAction1 = $(
         "<a data-toggle='tooltip' data-placement='right' title='" +
-          item.filePath +
-          "' class='sub-actions'></a>"
+        item.filePath +
+        "' class='sub-actions'></a>"
       );
       newAction1.attr("href", "#");
       newAction1.click(() => {
+
+        var selected_rows = table.rows({ selected: true }).data();
+        if (selected_rows.length == 0 && item.scriptName.indexOf('.json') < 0) {
+          $.alert({
+            type: "red",
+            title: "Ooops",
+            content: "Please select a server first!"
+          });
+          return false;
+        }
+
         const $schedulerModal = $("#scheduler_modal");
         $schedulerModal.data({
           scriptName: item.scriptName,
           folderKey: key
         });
 
-        if($("#seq-state").val() == 0 && item.scriptName.indexOf('.json') < 0){
+        if ($("#seq-state").val() == 0 && item.scriptName.indexOf('.json') < 0) {
           $schedulerModal.modal("show");
         }
-        else if(item.scriptName.indexOf('.json') > 0){
+
+        // Show scheduler modal for saved sequences
+        else if (item.scriptName.indexOf('.json') > 0) {
           // variable referenced in user.js
           globalSaveFileMenu = item.menuTitle;
           globalSaveFileName = item.scriptName.replace(".json", "");
         }
       });
       newAction1
-        .on("contextmenu", function(e) {
-          if(!($("#automation-main").hasClass('admin'))){
+        .on("contextmenu", function (e) {
+          if (!($("#automation-main").hasClass('admin'))) {
             return;
           }
           $('#context-menu input[name="context-action"]').val(item.filePath);
@@ -299,14 +322,14 @@ $(document).ready(() => {
     $customFolderModal.find("#folder-name").val("");
   });
 
-  $("#context-menu a").on("click", function() {
+  $("#context-menu a").on("click", function () {
     $(this)
       .parent()
       .removeClass("show")
       .hide();
   });
 
-  $(document).click(function() {
+  $(document).click(function () {
     $("#context-menu")
       .removeClass("show")
       .hide();
@@ -326,24 +349,24 @@ $(document).ready(() => {
     showScene($customActionModal, selectedMethod);
   });
 
-  $('#file-name').on('change', function(e) {
+  $('#file-name').on('change', function (e) {
     var file_name = $('#context-menu input[name="context-action"]').val();
     var menu_name = $contextModal.find('input[name="menu-name"]').val();
     if ($(this).val() != file_name && menuTitle_before != menu_name) {
       e.preventDefault()
       setBtnActive($contextModal, true)
-    }else{
+    } else {
       setBtnActive($contextModal, false)
     }
   })
 
-  $('#menu-name').on('change', function() {
+  $('#menu-name').on('change', function () {
     var file_name_before = $('#context-menu input[name="context-action"]').val();
     var file_name = $contextModal.find('input[name="file-name"]').val();
     if (file_name_before != file_name && menuTitle_before != $(this).val()) {
       // $contextModal.find('.default button.saveas').attr('disabled', false);
       setBtnActive($contextModal, true)
-    }else{
+    } else {
       // $contextModal.find('.default button.saveas').attr('disabled', true);
       setBtnActive($contextModal, false)
     }
@@ -432,7 +455,7 @@ $(document).ready(() => {
     placeholder: ""
   });
 
-  $(".dropdown-submenu").on("click", "a.test.closed", function(e) {
+  $(".dropdown-submenu").on("click", "a.test.closed", function (e) {
     $(this)
       .parent()
       .parent()
@@ -454,7 +477,7 @@ $(document).ready(() => {
       });
   });
 
-  $("#appActionButton").on("click", function() {
+  $("#appActionButton").on("click", function () {
     $(this)
       .next("ul")
       .find("ul")
@@ -462,7 +485,7 @@ $(document).ready(() => {
       .hide();
   });
 
-  $(".dropdown-submenu").on("click", "a.test", function(e) {
+  $(".dropdown-submenu").on("click", "a.test", function (e) {
     if ($(this).data("menu") == "sub-menu") {
       console.log("new sub");
       $(this)
@@ -481,7 +504,7 @@ $(document).ready(() => {
     let filePath = $('#context-menu input[name="context-action"]').val();
     let type = $('#context-menu input[name="context-type"]').val();
     let name = $('#context-menu input[name="context-name"]').val();
-    
+
     if (type == "file") {
       getFileContent(filePath, $contextModal);
       // showContextModal($contextModal, "default");
@@ -557,11 +580,11 @@ $(document).ready(() => {
 getFileContent = (filePath, $modal) => {
   $.ajax({
     url: "/api/action/getfilecontent",
-    type:"POST",
+    type: "POST",
     data: {
       filePath
     },
-    success: function(data) {
+    success: function (data) {
       // console.log(data)
       // $modal.find('.default button.saveas').attr('disabled', true);
       setBtnActive($modal, false)
@@ -589,12 +612,12 @@ makeUpdateFolderName = $modal => {
 };
 
 setBtnActive = ($contextModal, active) => {
-  if(active) {
+  if (active) {
     $contextModal.find('.default button.saveas').css('background', '');
     $contextModal.find('.default button.saveas').css('opacity', '');
     $contextModal.find('.default button.saveas').addClass('btn-primary');
     $contextModal.find('.default button.saveas').attr('disabled', false);
-  }else{
+  } else {
     $contextModal.find('.default button.saveas').css('background', 'rgba(234, 234, 234, 1.0)');
     $contextModal.find('.default button.saveas').css('opacity', '1.0');
     $contextModal.find('.default button.saveas').removeClass('btn-primary');

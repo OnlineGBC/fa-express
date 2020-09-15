@@ -62,6 +62,7 @@ router.get('/logs/', (req, res) => {
     attributes: ['id','uid','ref_num','CFN','IFN','SID','CustName','HostName',
     [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')),'DateGenerated'],
     [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')),'DateScheduled'],
+    'Status'
   ],
     order: [['id', 'DESC']],
     where: {
