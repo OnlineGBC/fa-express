@@ -18,9 +18,11 @@ class Logger {
   }
 
   notifyListeners(log, uid = false) {
-    console.log("LOG UID = " + uid);
-    console.log("LOG UID2 = " + log.uid);
-    if(log.uid != uid){
+    log.DateGenerated = log.DateGenerated + ' ' + log.TimeGenerated;
+    if (log.DateScheduled) {
+      log.DateScheduled = log.DateScheduled + ' ' + log.TimeScheduled;
+    }
+    if (log.uid != uid) {
       return;
     }
     for (const listener of this.onSaveLogListeners) {
