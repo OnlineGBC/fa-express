@@ -294,7 +294,7 @@ div#menu-header {
   cursor: pointer;
   font-size: 18px;
   padding: 15px;
-  border-bottom: 1px solid #e4e4e4;
+  margin-bottom: 20px;
 }
 
 .job-item:hover {
@@ -316,4 +316,36 @@ li.app-custom-folders {
 
 .admin li.app-custom-folders {
   display: block;
+}
+.job-item p {
+    font-size: 17px;
+    padding: 15px 0px;
+    border-bottom: 1px solid #efefef;
+    font-weight: bold;
+    color: darkred;
+}
+
+.jobsTable th {background: none;}
+
+table.jobsTable.table-custom {
+    font-size: 15px;
+}
+
+.jobsList {
+  max-height: 500px;
+  overflow: auto;
+}
+
+.jobsList::-webkit-scrollbar {
+width: 5px;
+}
+
+/* Track */
+.jobsList::-webkit-scrollbar-track {
+background: #eaeaea;
+}
+
+/* Handle */
+.jobsList::-webkit-scrollbar-thumb {
+background: #000;
 }

@@ -21,12 +21,17 @@ const logsTable = $("#status-box").DataTable({
     { data: "CustName" },
     { data: "DateGenerated" },
     { data: "DateScheduled" },
+    { data: "ScriptName" },
     { data: "Status" }
   ],
   columnDefs: [
     {
       targets: 0,
       visible: false
+    },
+    {
+      targets: 5,
+      width: 80
     },
     {
       targets: 6,
@@ -54,7 +59,7 @@ const logsTable = $("#status-box").DataTable({
       }
     },
     {
-      targets: 8,
+      targets: 9,
       width: 100,
       render(data, type, row) {
         console.log(data);
@@ -70,10 +75,13 @@ const logsTable = $("#status-box").DataTable({
         else if (data == 'error') {
           data = `<span style="color:red">Not Executed</span>`;
         }
-        else if(data == 'scheduled'){
+        else if (data == 'scheduled') {
           data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
         }
-        else{
+        else if (data == 'cancelled') {
+          data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">Cancelled</a>`;
+        }
+        else {
           data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
         }
         return data;
@@ -620,7 +628,7 @@ $(() => {
         contentType: "application/json"
       }).then(res => {
         if (res.status == 'success') {
-          showReturnCodeModal(true);
+          //showReturnCodeModal(true);
         }
         else {
           showReturnCodeModal(false);
@@ -694,19 +702,19 @@ $(() => {
       });
   });
 
-  function getUid(log,callback){
+  function getUid(log, callback) {
     $.ajax({
       url: "/api/getUid",
       type: "get",
       success: function (id) {
         console.log(id);
-        callback(log,id);
+        callback(log, id);
       }
     });
   }
-  function renderLog(log,uid){
+  function renderLog(log, uid) {
     updateLog = false;
-    if(log.uid != uid){
+    if (log.uid != uid) {
       return;
     }
     var indexes = logsTable
@@ -715,7 +723,7 @@ $(() => {
       .filter(function (value, index) {
         return log.id === logsTable.row(value).data().id;
       });
-    if (indexes.length > 0) { 
+    if (indexes.length > 0) {
       var rowIndex = indexes[0];
       if (log.status == "processing") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
@@ -729,6 +737,9 @@ $(() => {
       else if (log.status == 'error') {
         updatedText = `<span style="color:red">Not Executed</span>`;
       }
+      else if (log.status == 'cancelled') {
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">Cancelled</a>`;
+      }
       else {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
       }
@@ -739,7 +750,7 @@ $(() => {
     }
   }
   socket.on("log", log => {
-    getUid(log,renderLog);
+    getUid(log, renderLog);
   });
 });
 
@@ -777,7 +788,7 @@ function tableInitCallback() {
   // after table plugin renders it's main controls, move action buttons into sme location
 
   /* const $tableControls = $('#automation_wrapper .row > div');
-	$tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2'); */
+  $tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2'); */
 
   $("#add-row-container").append($("#create-auto-row"));
   $("#actions-container")
@@ -854,9 +865,14 @@ $(document).ready(() => {
       { data: "CustName" },
       { data: "DateGenerated" },
       { data: "DateScheduled" },
+      { data: "ScriptName" },
       { data: "SID" }
     ],
     columnDefs: [
+      {
+        targets: 5,
+        width: 100
+      },
       {
         targets: 6,
         width: 140,
@@ -881,7 +897,7 @@ $(document).ready(() => {
         }
       },
       {
-        targets: 8,
+        targets: 9,
         orderable: false,
         width: 120,
         render(data, type, row) {
@@ -1134,14 +1150,14 @@ const selRowsModal = $.confirm({
         //refreshTable();
       }
     },
-   /*  edit: {
-      text: 'Edit',
-      btnClass: 'btn-primary seqButton',
-      action: function () {
-        return false;
-        // Add code for edit
-      }
-    }, */
+    /*  edit: {
+       text: 'Edit',
+       btnClass: 'btn-primary seqButton',
+       action: function () {
+         return false;
+         // Add code for edit
+       }
+     }, */
     save: {
       text: 'Save',
       btnClass: 'btn-primary seqButton',
@@ -1175,14 +1191,14 @@ const selRowsModal = $.confirm({
         }
       }
     },
-   /*  saveas: {
-      text: 'SaveAs',
-      btnClass: 'btn-primary seqButton',
-      action: function () {
-        saveDialog();
-        // Add code for edit
-      }
-    } */
+    /*  saveas: {
+       text: 'SaveAs',
+       btnClass: 'btn-primary seqButton',
+       action: function () {
+         saveDialog();
+         // Add code for edit
+       }
+     } */
   }
 });
 
@@ -1235,7 +1251,7 @@ $('#appActionsDropdown').on('click', '.sub-actions', function (e) {
             orderSet = Array();
             start = sortedRows[i].Order_Exec;
           }
-          
+
           // set ignore errors value the first time the row is fetched
           $("#ignoreError").val(sortedRows[i].ignoreErrors);
           orderSet.push(sortedRows[i]);

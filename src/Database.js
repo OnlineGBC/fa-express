@@ -75,6 +75,11 @@ class Database {
         id
       }
     });
+    await this.logsModel.update({Status:'cancelled'},{
+      where: {
+        ref_num: id
+      }
+    })
     console.log("Job removed from db");
     return;
   }

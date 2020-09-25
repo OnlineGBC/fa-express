@@ -59,11 +59,12 @@ router.get('/timezones', (req, res) => {
 
 router.get('/logs/', (req, res) => {
   database.logsModel.findAll({
-    attributes: ['id','uid','ref_num','CFN','IFN','SID','CustName','HostName',
-    [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')),'DateGenerated'],
-    [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')),'DateScheduled'],
-    'Status'
-  ],
+    attributes: ['id', 'uid', 'ref_num', 'CFN', 'IFN', 'SID', 'CustName', 'HostName',
+      [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')), 'DateGenerated'],
+      [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')), 'DateScheduled'],
+      'ScriptName',
+      'Status'
+    ],
     order: [['id', 'DESC']],
     where: {
       uid: req.user.id
@@ -79,9 +80,16 @@ router.get('/getUid', (req, res) => {
 });
 
 router.get('/jobs', (req, res) => {
-  database.jobsModel.findAll({
+  Logs = database.logsModel;
+  Jobs = database.jobsModel;
+  Jobs.belongsTo(Logs, { targetKey: 'ref_num', foreignKey: 'id' })
+
+  Jobs.findAll({
     attributes: { exclude: ['uid'] },
     order: [['id', 'DESC']],
+    include: [{
+      model: Logs,
+    }],
     where: {
       uid: req.user.id
     }
@@ -108,19 +116,24 @@ router.post('/reschedule', async (req, res) => {
   task.reschedule(cronString);
 
   console.log("Updating Logs");
-  await database.updateLogTime(id,scheduleAt,timezone);
-  res.json({status:200});
+  await database.updateLogTime(id, scheduleAt, timezone);
+  res.json({ status: 200 });
 })
 
-router.post('/cancelJob',(req,res) => {
-  const {id} = req.body;
+router.post('/cancelJob', async (req, res) => {
+  const { id } = req.body;
   console.log(id);
   const task = TaskManager.get(id);
   console.log("Cancelling Task");
-  task.cancel();
-  console.log("Task has been cancelled");
-  TaskManager.remove(id);
-  res.json({status:200});
+  try {
+    task.cancel();
+    console.log("Task has been cancelled");
+    await TaskManager.remove(id);
+    res.json({ status: 200 });
+  }
+  catch (error) {
+    res.sendStatus(404);
+  }
 })
 
 module.exports = router;
