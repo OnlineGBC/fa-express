@@ -713,6 +713,7 @@ $(() => {
     });
   }
   function renderLog(log, uid) {
+    console.log(log);
     updateLog = false;
     if (log.uid != uid) {
       return;
@@ -743,7 +744,7 @@ $(() => {
       else {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
       }
-      logsTable.cell({ row: rowIndex, column: 8 }).node().innerHTML = updatedText;
+      logsTable.cell({ row: rowIndex, column: 9 }).node().innerHTML = updatedText;
     }
     else {
       logsTable.row.add(log).draw(false);
