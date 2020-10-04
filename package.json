@@ -17,7 +17,7 @@
     "dotenv": "^8.0.0",
     "eol": "^0.9.1",
     "express": "^4.17.1",
-    "express-fileupload": "^1.1.6",
+    "express-fileupload": "^1.1.10",
     "express-session": "^1.17.0",
     "express-validator": "^5.3.1",
     "helmet": "^3.22.0",
