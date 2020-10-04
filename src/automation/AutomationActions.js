@@ -8,10 +8,19 @@ const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
 
 class AutomationActions {
+
   constructor(database, mailer, logger) {
     this.database = database;
     this.mailer = mailer;
     this.logger = logger;
+    this.uid = false;
+  }
+
+  setUid(id){
+    this.uid = id;
+  }
+  getUid(){
+    return this.uid;
   }
 
   async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false, machineLogId = false) {
@@ -19,7 +28,7 @@ class AutomationActions {
     //let logMessage = `Running script ${scriptName}\n`;
 
     //await this.updateLogMessage(logMessage,machinesIds,logIds);
-    
+
     if (!scriptName) {
       throw new Error("Invalid scriptName parameter");
     }
@@ -128,12 +137,13 @@ class AutomationActions {
         const log = await this.database.updateLogContentById(
           logId,
           `${initialLogContent}The script ${scriptName} will not run on the *nix platform`,
-          1
+          1,
+          'fileError'
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
         console.log("wrong os");
-        this.logger.notifyListeners(log);
+        this.logger.notifyListeners(log,this.uid);
         // Dispatch mail
         if (emailAddress) {
           this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the *nix platform`, emailAddress).catch(console.error);
@@ -147,12 +157,13 @@ class AutomationActions {
         const log = await this.database.updateLogContentById(
           logId,
           `${initialLogContent}The script ${scriptName} will not run on the Windows platform`,
-          1
+          1,
+          'fileError'
         );
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
         console.log("wrong os");
-        this.logger.notifyListeners(log);
+        this.logger.notifyListeners(log,this.uid);
         // Dispatch mail
         if (emailAddress) {
           this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the Windows platform`, emailAddress).catch(console.error);
@@ -166,8 +177,6 @@ class AutomationActions {
 
     // Change below line to cat
     await exec(`cat ${tempFile} ${rcFile} > ${scriptPath}`);
-
-
 
     const scriptBaseName = path.basename(scriptPath);
 
@@ -195,7 +204,7 @@ class AutomationActions {
     /*console.log('Destination'+logId);
     logContent = await (await exec('dir')).stdout;
     console.log('creating log'); */
-
+console.log(commands.copy);
     try {
       await exec(commands.copy);
       console.log(
@@ -241,24 +250,33 @@ class AutomationActions {
 
     // New message string added
     logContent = initialLogContent + logContent;
+    let status = '';
+    if (errorCode == 0) {
+      status = 'completed';
+    }
+    else{
+      status = 'failed';
+    }
 
     const log = await this.database.updateLogContentById(
       logId,
       logContent,
-      errorCode
+      errorCode,
+      status
     );
     console.log('The error code for id = ' + machineId + ' is = ' + errorCode);
     console.log('logs done');
     this.logger.writeLogFile(logFileName, log);
     if (errorCode == 0) {
       log.dataValues.status = 'completed';
-      this.logger.notifyListeners(log);
+      this.logger.notifyListeners(log,this.uid);
     }
     //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
     if (isSequential) {
+      console.log("is sequential");
       if (errorCode != 0) {
         log.dataValues.status = 'failed';
-        this.logger.notifyListeners(log);
+        this.logger.notifyListeners(log,this.uid);
       }
       return errorCode;
     }
@@ -292,10 +310,11 @@ class AutomationActions {
     let log = await this.database.updateLogContentById(
       logRef.id,
       message,
-      1
+      1,
+      'processing'
     );
     log.dataValues.status = 'processing';
-    this.logger.notifyListeners(log);
+    this.logger.notifyListeners(log,this.uid);
     console.log("-----------");
   }
   makeid(length) {

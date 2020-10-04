@@ -3,6 +3,7 @@ const socket = io.connect();
 let table;
 let timeZones;
 const logsTable = $("#status-box").DataTable({
+  ajax: '/api/logs',
   responsive: true,
   paginate: true,
   rowId: "id",
@@ -20,7 +21,8 @@ const logsTable = $("#status-box").DataTable({
     { data: "CustName" },
     { data: "DateGenerated" },
     { data: "DateScheduled" },
-    { data: "SID" }
+    { data: "ScriptName" },
+    { data: "Status" }
   ],
   columnDefs: [
     {
@@ -28,11 +30,15 @@ const logsTable = $("#status-box").DataTable({
       visible: false
     },
     {
+      targets: 5,
+      width: 80
+    },
+    {
       targets: 6,
       width: 140,
       render(data, type, row) {
         if (type === "display") {
-          data = `${data} ${row.TimeGenerated}`;
+          data = `${data}`;
         }
         return data;
       }
@@ -41,21 +47,42 @@ const logsTable = $("#status-box").DataTable({
       targets: 7,
       width: 140,
       render(data, type, row) {
+        console.log("DATE");
+        console.log(data);
         if (!data) {
           return "-";
         }
         if (type === "display") {
-          data = `${data} ${row.TimeScheduled}`;
+          data = `${data}`;
         }
         return `<span style="font-weight: bold;">${data}</span>`;
       }
     },
     {
-      targets: 8,
+      targets: 9,
       width: 100,
       render(data, type, row) {
-        if (type === "display") {
+        console.log(data);
+        if (data == "processing") {
+          data = `<a href="/logs/${row.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
+        }
+        else if (data == "fileError") {
+          data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">Wrong OS</a>`;
+        }
+        else if (data == "completed") {
+          data = `<a href="/logs/${row.id}" class="_show-log text-success" target="_blank">Completed</a>`;
+        }
+        else if (data == 'error') {
+          data = `<span style="color:red">Not Executed</span>`;
+        }
+        else if (data == 'scheduled') {
           data = `<a href="/logs/${row.id}" class="_show-log" target="_blank">Scheduled</a>`;
+        }
+        else if (data == 'cancelled') {
+          data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">Cancelled</a>`;
+        }
+        else {
+          data = `<a href="/logs/${row.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
         }
         return data;
       }
@@ -63,13 +90,15 @@ const logsTable = $("#status-box").DataTable({
   ]
 });
 
+
+
 $("#action-buttons .dropdown-item").click(function () {
   const targetModalId = $(this).data("target");
   $(targetModalId).modal("show");
 });
 
 $(() => {
-  $("#time").inputmask("hh:mm", {
+  $("#time,#r_time").inputmask("hh:mm", {
     placeholder: "hh:mm",
     clearMaskOnLostFocus: false,
     showMaskOnHover: false,
@@ -91,18 +120,15 @@ $(() => {
     const fd = new FormData();
 
     fd.append("file", this.files[0]);
-    console.log(fd);
     $.ajax({
       url: "/api/upload",
       type: "POST",
       data: fd,
       success: res => {
-        console.log(res);
         const uColumns = res.columns;
         userData = res.data;
         let $u_options = "";
         uColumns.forEach(value => {
-          console.log(value);
           $u_options += `<option value="${value}">${value}</option>`;
         });
 
@@ -223,14 +249,14 @@ $(() => {
   }).then(zones => {
     timeZones = zones;
     for (const item of zones) {
-      $("#zone").append(
+      $("#zone,#r_zone").append(
         $(`<option value="${item.hours}">${item.text}</option>`)
       );
     }
   });
 
   // Datepicker to scheduler modal
-  $("#date").datepicker();
+  $("#date,#r_date").datepicker();
 
   // Populate LoginIds in modal
   $.ajax({
@@ -506,6 +532,8 @@ $(() => {
 
   $schedulerForm.submit(e => {
     e.preventDefault();
+
+    const reference = $("#ref_num").val();
     const isImmediate = $("#schedule").val() === "immediate";
 
     const dateValue = $("#date").val();
@@ -593,20 +621,20 @@ $(() => {
           isImmediate,
           scheduleAt,
           timezone,
-          continueOnErrors
+          continueOnErrors,
+          reference
         }),
         dataType: "json",
         contentType: "application/json"
       }).then(res => {
         if (res.status == 'success') {
-          showReturnCodeModal(true);
+          //showReturnCodeModal(true);
         }
         else {
           showReturnCodeModal(false);
         }
       })
         .fail(err => {
-          console.log('Failed miserably');
           showReturnCodeModal(false);
         });;
     }
@@ -621,7 +649,8 @@ $(() => {
           isImmediate,
           scheduleAt,
           timezone,
-          folder: folderKey
+          folder: folderKey,
+          reference
         }),
         dataType: "json",
         contentType: "application/json"
@@ -673,9 +702,22 @@ $(() => {
       });
   });
 
-  socket.on("log", log => {
-    updateLog = false;
+  function getUid(log, callback) {
+    $.ajax({
+      url: "/api/getUid",
+      type: "get",
+      success: function (id) {
+        console.log(id);
+        callback(log, id);
+      }
+    });
+  }
+  function renderLog(log, uid) {
     console.log(log);
+    updateLog = false;
+    if (log.uid != uid) {
+      return;
+    }
     var indexes = logsTable
       .rows()
       .indexes()
@@ -688,7 +730,7 @@ $(() => {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
       }
       else if (log.status == "fileError") {
-        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">${log.errorMsg}</a>`;
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">Wrong OS</a>`;
       }
       else if (log.status == "completed") {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-success" target="_blank">Completed</a>`;
@@ -696,14 +738,20 @@ $(() => {
       else if (log.status == 'error') {
         updatedText = `<span style="color:red">Not Executed</span>`;
       }
+      else if (log.status == 'cancelled') {
+        updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">Cancelled</a>`;
+      }
       else {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
       }
-      logsTable.cell({ row: rowIndex, column: 8 }).node().innerHTML = updatedText;
+      logsTable.cell({ row: rowIndex, column: 9 }).node().innerHTML = updatedText;
     }
     else {
       logsTable.row.add(log).draw(false);
     }
+  }
+  socket.on("log", log => {
+    getUid(log, renderLog);
   });
 });
 
@@ -741,7 +789,7 @@ function tableInitCallback() {
   // after table plugin renders it's main controls, move action buttons into sme location
 
   /* const $tableControls = $('#automation_wrapper .row > div');
-	$tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2'); */
+  $tableControls.removeClass('col-sm-12 col-md-6').addClass('col-sm-6 col-md-2'); */
 
   $("#add-row-container").append($("#create-auto-row"));
   $("#actions-container")
@@ -793,7 +841,6 @@ $(document).ready(() => {
 
   $('[data-toggle="tooltip"]').tooltip();
 
-  // $("#DateGenerated").val(moment.utc($("#DateGenerated").val()).local().format("YYYY-MM-DD HH:mm"));
   if ($("#schedule").length && $("#schedule").val() != "immediate") {
     $(".hidden_fields").show();
   }
@@ -819,15 +866,20 @@ $(document).ready(() => {
       { data: "CustName" },
       { data: "DateGenerated" },
       { data: "DateScheduled" },
+      { data: "ScriptName" },
       { data: "SID" }
     ],
     columnDefs: [
+      {
+        targets: 5,
+        width: 100
+      },
       {
         targets: 6,
         width: 140,
         render(data, type, row) {
           if (type === "display") {
-            data = `${data} ${row.TimeGenerated}`;
+            data = `${data}`;
           }
           return data;
         }
@@ -840,13 +892,13 @@ $(document).ready(() => {
             return "-";
           }
           if (type === "display") {
-            data = `${data} ${row.TimeScheduled}`;
+            data = `${data}`;
           }
           return `<span style="font-weight: bold;">${data}</span>`;
         }
       },
       {
-        targets: 8,
+        targets: 9,
         orderable: false,
         width: 120,
         render(data, type, row) {
@@ -867,7 +919,6 @@ $(".log-container").on("click", ".show-log", function (e) {
   const $modal = $("#log-form-modal");
   const $form = $("#log-form");
   const data = logsTable.row($row).data();
-  console.log(data, "---");
   $form.validate({
     errorClass: "is-invalid",
     errorPlacement(error, element) {
@@ -1100,14 +1151,14 @@ const selRowsModal = $.confirm({
         //refreshTable();
       }
     },
-   /*  edit: {
-      text: 'Edit',
-      btnClass: 'btn-primary seqButton',
-      action: function () {
-        return false;
-        // Add code for edit
-      }
-    }, */
+    /*  edit: {
+       text: 'Edit',
+       btnClass: 'btn-primary seqButton',
+       action: function () {
+         return false;
+         // Add code for edit
+       }
+     }, */
     save: {
       text: 'Save',
       btnClass: 'btn-primary seqButton',
@@ -1141,14 +1192,14 @@ const selRowsModal = $.confirm({
         }
       }
     },
-   /*  saveas: {
-      text: 'SaveAs',
-      btnClass: 'btn-primary seqButton',
-      action: function () {
-        saveDialog();
-        // Add code for edit
-      }
-    } */
+    /*  saveas: {
+       text: 'SaveAs',
+       btnClass: 'btn-primary seqButton',
+       action: function () {
+         saveDialog();
+         // Add code for edit
+       }
+     } */
   }
 });
 
@@ -1201,7 +1252,7 @@ $('#appActionsDropdown').on('click', '.sub-actions', function (e) {
             orderSet = Array();
             start = sortedRows[i].Order_Exec;
           }
-          
+
           // set ignore errors value the first time the row is fetched
           $("#ignoreError").val(sortedRows[i].ignoreErrors);
           orderSet.push(sortedRows[i]);

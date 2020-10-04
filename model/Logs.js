@@ -6,6 +6,8 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
+    uid: DataTypes.INTEGER(11),
+    ref_num: DataTypes.INTEGER(11),
     CFN: DataTypes.STRING(16),
     IFN: DataTypes.STRING(16),
     SID: DataTypes.STRING(16),
@@ -18,7 +20,8 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
     HostName: DataTypes.TEXT,
     ErroCode: DataTypes.INTEGER(11),
     CustName: DataTypes.TEXT,
-    ScriptName: DataTypes.TEXT
+    ScriptName: DataTypes.TEXT,
+    Status: DataTypes.STRING(20)
   },
   {
     indexes: [

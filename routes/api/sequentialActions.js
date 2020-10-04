@@ -1,5 +1,8 @@
 const express = require("express");
 const { automationActions } = require("../../container");
+var cron = require('node-cron');
+var scheduler = require('node-schedule');
+const TaskManager = require('../../src/TaskManager');
 
 const router = express.Router();
 
@@ -12,7 +15,8 @@ router.post("/", async (req, res) => {
     scheduleAt,
     emailAddress = '',
     timezone = '',
-    continueOnErrors
+    continueOnErrors,
+    reference
   } = req.body;
 
 
@@ -36,9 +40,10 @@ router.post("/", async (req, res) => {
   let orderSet = Array();
   let start = 0;
 
+  automationActions.setUid(req.user.id);
 
   // Inititate logs
-  const logIds = await createLogs(req.body);
+  const logIds = await createLogs(req.body, req.user.id);
 
   for (let i = 0; i < sortedRows.length; i++) {
     if (sortedRows[i].Order_Exec > start) {
@@ -58,7 +63,37 @@ router.post("/", async (req, res) => {
   orderNum = 1;
 
   //Remove below after test and uncomment up
-  beginExecution(0);
+  let theDate = new Date();
+  if (!isImmediate) {
+    let theDate = new Date(scheduleAt);
+    let minute = theDate.getMinutes();
+    let hour = theDate.getHours();
+    let day = theDate.getDate();
+    let month = theDate.getMonth() + 1;
+    let year = theDate.getFullYear();
+    let cronString = `${minute} ${hour} ${day} ${month} *`;
+
+
+    isImmediate = true;
+
+    let taskId;
+    var task = scheduler.scheduleJob(cronString, async function () {
+      console.log('starting task');
+      await beginExecution(0);
+      console.log("Removing task no. " + taskId);
+      TaskManager.remove(taskId);
+    });
+    taskId = await TaskManager.add(task, reference, logIds, req.user.id);
+    console.log("TaskId = " + taskId);
+  }
+  else {
+    beginExecution(0);
+  }
+  res.json({
+    status: "success"
+  });
+
+  //beginExecution(0);
 
   async function beginExecution(index) {
     let rows = orderArray[index];
@@ -89,11 +124,7 @@ router.post("/", async (req, res) => {
           logIds,
           machineLogId
         );
-        /* if (errorCode) {
-          console.log("ERRORCODE = "+ errorCode);
-          console.log('errorsss');
-          return;
-        } */
+
         console.log('Successfull results for ' + row.id);
         row.errorCode = returnCode;
         row.status = 'completed';
@@ -102,7 +133,7 @@ router.post("/", async (req, res) => {
         allStatus = true;
         console.log("Global Error Status = " + errorCode);
 
-        rowsPlaceholder.forEach(function(tempRow,theIndex){
+        rowsPlaceholder.forEach(function (tempRow, theIndex) {
           if (!('status' in tempRow)) {
             console.log("changing status");
             allStatus = false;
@@ -111,7 +142,7 @@ router.post("/", async (req, res) => {
 
         rowsPlaceholder.some(function (tempRow, theIndex) {
           console.log("ROW GROUP -> ");
-          console.log("ROW GROUP INDEX -> " + theIndex+ " row ID = "+tempRow.id);
+          console.log("ROW GROUP INDEX -> " + theIndex + " row ID = " + tempRow.id);
 
           if (('errorCode' in tempRow) && (tempRow.errorCode != 0) && (typeof tempRow.errorCode != 'undefined')) {
             errorCode = true;
@@ -138,9 +169,9 @@ router.post("/", async (req, res) => {
                 logIds);
             })
           };
-          res.json({
+          /* res.json({
             status: "failed"
-          });
+          }); */
           return;
         }
         else if (allStatus) {
@@ -152,18 +183,12 @@ router.post("/", async (req, res) => {
           }
           else {
             console.log("Returning after successful execution");
-            res.json({
+            /* res.json({
               status: "success"
-            }); // Send response after all scripts have run. Otherwise HTTP_HEADERS_SENT will be thrown
+            }); */ // Send response after all scripts have run. Otherwise HTTP_HEADERS_SENT will be thrown
             return;
           }
         }
-        // else{
-        //   if(continueOnErrors){
-        //     console.log('Found Errors. Skipping to next set of rows');
-        //     beginExecution(index);
-        //   }
-        // }
 
       } catch (error) {
         if (continueOnErrors) {
@@ -181,7 +206,7 @@ router.post("/", async (req, res) => {
 });
 
 
-async function createLogs(data) {
+async function createLogs(data, uid) {
   let {
     scheduleAt,
     timezone = '',
@@ -199,15 +224,16 @@ async function createLogs(data) {
       now,
       scheduledAt,
       timezone,
-      scriptName
+      scriptName,
+      uid
     );
     logIdsArray.push({
       machine: machineId,
       log
-    }); 
+    });
 
     sortedRows[i].logId = log.id;
-    automationActions.logger.notifyListeners(log);
+    automationActions.logger.notifyListeners(log, automationActions.getUid());
   }
   return logIdsArray;
 }
@@ -239,7 +265,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
 
   log.dataValues.status = 'error';
   log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
-  automationActions.logger.notifyListeners(log);
+  automationActions.logger.notifyListeners(log, automationActions.getUid());
   if (emailAddress) {
     automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
   }

@@ -3,9 +3,9 @@ const Entities = require('html-entities').AllHtmlEntities;
 const config = require('../config/config');
 
 const entities = new Entities();
-
 class Mailer {
   async sendMail(data, emailAddress) {
+
     const encodedData = entities.encode(data);
     const transporter = nodemailer.createTransport(config.smtp);
     const info = await transporter.sendMail({

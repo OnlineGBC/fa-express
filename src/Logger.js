@@ -17,7 +17,14 @@ class Logger {
     this.onSaveLogListeners.push(listener);
   }
 
-  notifyListeners(log) {
+  notifyListeners(log, uid = false) {
+    log.DateGenerated = log.DateGenerated + ' ' + log.TimeGenerated;
+    if (log.DateScheduled) {
+      log.DateScheduled = log.DateScheduled + ' ' + log.TimeScheduled;
+    }
+    if (log.uid != uid) {
+      return;
+    }
     for (const listener of this.onSaveLogListeners) {
       listener(log);
     }

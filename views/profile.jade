@@ -1,0 +1,52 @@
+extends auth-layout
+
+block content
+  .container.mt-5
+    h1.text-center.mb-5 Edit Profile
+    if message != ''
+      div.alert.alert-danger(role="alert") #{message}
+    .row.flex-lg-nowrap
+      .col
+        .row
+          .col.mb-3
+            .card
+              .card-body
+                form.form(novalidate action="/edit" method="post")
+                  .row
+                    .col
+                      .row
+                        .col
+                          .form-group
+                            label="First Name"
+                            input.form-control(type="text" name="fname" value="#{user.fname}")
+                        .col
+                          .form-group
+                            label="Last Name"
+                            input.form-control(type="text" name="lname" value="#{user.lname}")
+                      .row
+                        .col
+                          .form-group
+                            label="Email"
+                            input.form-control(type="text" name="email" value="#{user.email}")
+                  .row
+                    .col-12.col-sm-6.mb-3
+                      .mb-3.mt-3
+                       b="Change Password"
+                      .row
+                        .col
+                          .form-group
+                            label="Current Password"
+                            input.form-control(type="password" name="old_password" placeholder="••••••")
+                      .row
+                        .col
+                          .form-group
+                            label="New Password"
+                            input.form-control(type="password" name="password" placeholder="••••••")
+                      .row
+                        .col
+                          .form-group
+                            label="Confirm Password"
+                            input.form-control(type="password" name="c_password" placeholder="••••••")
+                  .row
+                    .col.d-flex.justify-content-end
+                      button.btn.btn-primary(type="submit")="Save Changes"

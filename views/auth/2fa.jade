@@ -1,0 +1,16 @@
+extends ../auth-layout
+block content
+    .login-form(style='width:400px')
+        h2(class='text-center') Setup 2FA
+        hr
+        form(action='/auth/two-factor' method='post')
+            p(class='text-center') Scan the QR code or enter the secret key in Google Authenticator
+            div(class='text-center mb-2')
+                img(src='#{data.qr}' height='200px')
+            div(class='text-center mb-5')
+                p Secret key - #{data.secret}
+            p(style="color:red") #{message}
+            div(class='form-group')
+                input(class="form-control" id='key' type='text' name='key' placeholder="Enter code")
+            div(class='form-group')
+                input(type='submit' value='Submit' class="btn btn-primary btn-block")

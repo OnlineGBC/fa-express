@@ -1,13 +1,119 @@
 const moment = require('moment-timezone');
 const { Op } = require('sequelize');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 class Database {
   constructor(sequelize) {
     this.sequelize = sequelize;
     this.automationModel = this.sequelize.import(path.resolve(__dirname, '../model/Automation'));
     this.logsModel = this.sequelize.import(path.resolve(__dirname, '../model/Logs'));
+    this.userModel = this.sequelize.import(path.resolve(__dirname, '../model/User'));
+    this.jobsModel = this.sequelize.import(path.resolve(__dirname, '../model/Jobs'));
     this.sequelize.sync();
+  }
+
+  findUser(email) {
+    return this.userModel.findOne(
+      {
+        where: {
+          email
+        }
+      })
+  }
+
+  getUserById(id) {
+    return this.userModel.findOne(
+      {
+        where: {
+          id
+        }
+      })
+  }
+
+  updateUser(fname, lname, email, password, id) {
+    const saltRounds = 10;
+    const userModel = this.userModel;
+    if (password != '') {
+      // Create password hash
+      bcrypt.genSalt(saltRounds, function (err, salt) {
+        bcrypt.hash(password, salt, function (err, hash) {
+          return userModel.update({
+            fname,
+            lname,
+            email,
+            password: hash
+          },
+            {
+              where: { id }
+            });
+        });
+      });
+    }
+    return userModel.update({
+      fname,
+      lname,
+      email,
+    },
+      {
+        where: { id }
+      });
+  }
+
+  saveJob(title, logs, uid) {
+    console.log(logs);
+    return this.jobsModel.create({
+      uid,
+      title
+    });
+  }
+
+  async clearJob(id) {
+    console.log(id);
+    await this.jobsModel.destroy({
+      where: {
+        id
+      }
+    });
+    await this.logsModel.update({Status:'cancelled'},{
+      where: {
+        ref_num: id
+      }
+    })
+    console.log("Job removed from db");
+    return;
+  }
+
+  updateLogsWithJob(jobId, logs) {
+    const logIds = Array();
+    logs.forEach(entry => {
+      let logId = entry.log.id;
+      logIds.push(logId);
+    });
+    return this.logsModel.update({ ref_num: jobId }, {
+      where: {
+        id: logIds
+      }
+    })
+  }
+
+  async createUser(email, password, key, fname, lname) {
+
+    const saltRounds = 10;
+
+    const userModel = this.userModel;
+    // Create password hash
+    bcrypt.genSalt(saltRounds, function (err, salt) {
+      bcrypt.hash(password, salt, function (err, hash) {
+        return userModel.create({
+          fname,
+          lname,
+          email,
+          password: hash,
+          otp_key: key
+        });
+      });
+    });
   }
 
   async findMachineDetailsByIds(ids) {
@@ -24,7 +130,27 @@ class Database {
     return this.automationModel.findAll();
   }
 
-  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(),ScriptName = false) {
+  updateLogTime(jobId, scheduledAt, timezone) {
+
+    let formattedDateScheduled;
+    let timeScheduled;
+    const dateScheduled = moment(scheduledAt)
+      .tz(timezone);
+    const formatTime = (date) => `${date.format('HH:mm')} ${date.zoneAbbr()}`;
+
+    formattedDateScheduled = dateScheduled.format('YYYY-MM-DD');
+    timeScheduled = formatTime(dateScheduled);
+    return this.logsModel.update({
+      DateScheduled: formattedDateScheduled,
+      TimeScheduled: timeScheduled,
+    }, {
+      where: {
+        ref_num: jobId
+      }
+    })
+  }
+
+  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(), ScriptName = false, uid = null) {
     const machines = await this.findMachineDetailsByIds([machineId]);
     if (!machines[0]) {
       throw new Error('Machine not found');
@@ -56,6 +182,7 @@ class Database {
     }
 
     return this.logsModel.create({
+      uid,
       IFN,
       CFN,
       SID,
@@ -67,7 +194,8 @@ class Database {
       DateScheduled: formattedDateScheduled,
       TimeScheduled: timeScheduled,
       TZ: timezoneAbbreviation,
-      ScriptName
+      ScriptName,
+      Status: "scheduled"
     });
   }
 
@@ -79,7 +207,7 @@ class Database {
     });
   }
 
-  async updateLogContentById(id, content, errorCode) {
+  async updateLogContentById(id, content, errorCode, Status = 'scheduled') {
     if (typeof errorCode !== 'number') {
       errorCode = null;
     }
@@ -91,6 +219,7 @@ class Database {
       .update({
         content,
         ErroCode: errorCode,
+        Status
       });
   }
 }

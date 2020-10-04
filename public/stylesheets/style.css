@@ -101,18 +101,23 @@ select {
 .form-dropdown {
   width: 50%;
 }
+
+#scheduledJobsModal .form-control,
+.form-dropdown {
+  width: 50%;
+}
 .flex-box {
   display: flex;
   justify-content: space-around;
 }
 
-input#time {
+input#time,#r_time {
   text-align: center;
   flex-grow: 1;
   width: 20px !important;
 }
 
-input#date {
+input#date,#r_date {
   display: inline-block;
 }
 .flex-box * {
@@ -120,7 +125,7 @@ input#date {
   margin: 0px 5px;
 }
 
-select#format {
+select#format,#_format {
   flex: 1;
 }
 
@@ -248,4 +253,99 @@ div#seqModal {
 }
 label.col-form-label {
   padding-left: 15px;
+}
+div#menu-header {
+  position: relative;
+  margin-bottom: 40px;
+}
+#menu-header img {
+  width: 50px;
+}
+.drop {
+  display: inline;
+  font-size: 20px;
+  margin-left: 5px;
+  position: relative;
+  z-index: 11111;
+  top: 16px;
+}
+.items {
+    width: 140px;
+    position: absolute;
+    display: none;
+    border: 1px solid #d0d0d0;
+    top: 16px;
+    font-size: 17px;
+    right: -130px;
+    text-align: left;
+    background:white;
+    padding: 10px;
+}
+
+.drop:hover .items {
+    display: inline-block !important;
+}
+
+.drop:hover #menu-header .items {
+    display: block;
+}
+
+.job-item {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.job-item:hover {
+  background: #ffe1e1;
+  box-shadow: 1px 1px 5px 0px #dc8a8a;
+}
+
+li.app-custom-files {
+  display: none;
+}
+
+.admin li.app-custom-files {
+  display: block;
+}
+
+li.app-custom-folders {
+  display: none;
+}
+
+.admin li.app-custom-folders {
+  display: block;
+}
+.job-item p {
+    font-size: 17px;
+    padding: 15px 0px;
+    border-bottom: 1px solid #efefef;
+    font-weight: bold;
+    color: darkred;
+}
+
+.jobsTable th {background: none;}
+
+table.jobsTable.table-custom {
+    font-size: 15px;
+}
+
+.jobsList {
+  max-height: 500px;
+  overflow: auto;
+}
+
+.jobsList::-webkit-scrollbar {
+width: 5px;
+}
+
+/* Track */
+.jobsList::-webkit-scrollbar-track {
+background: #eaeaea;
+}
+
+/* Handle */
+.jobsList::-webkit-scrollbar-thumb {
+background: #000;
 }
