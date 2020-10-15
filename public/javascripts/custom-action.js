@@ -89,7 +89,6 @@ const draggable = {
 
 async function updateActions() {
   const actions = await getActions();
-  console.log(actions);
   $("#appActionsDropdown .dropdown-item.custom-action").remove();
   ////////////////////////////
   /// /script folder actions

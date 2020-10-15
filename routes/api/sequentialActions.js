@@ -1,6 +1,5 @@
 const express = require("express");
 const { automationActions } = require("../../container");
-var cron = require('node-cron');
 var scheduler = require('node-schedule');
 const TaskManager = require('../../src/TaskManager');
 

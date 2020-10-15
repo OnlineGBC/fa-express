@@ -9,4 +9,11 @@ module.exports = {
     },
   },
   emailFrom: 'FUN-SWAlert@onlinegbc.com',
+  development: {
+    username: 'root',
+    password: null,
+    database: 'fa_rpa',
+    host: '127.0.0.1',
+    dialect: 'mysql'
+  }
 };

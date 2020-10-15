@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
     TZ: DataTypes.STRING,
     DateScheduled: DataTypes.STRING,
     TimeScheduled: DataTypes.STRING,
+    periodic: DataTypes.INTEGER(1),
     HostName: DataTypes.TEXT,
     ErroCode: DataTypes.INTEGER(11),
     CustName: DataTypes.TEXT,

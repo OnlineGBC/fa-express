@@ -63,7 +63,8 @@ router.get('/logs/', (req, res) => {
       [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')), 'DateGenerated'],
       [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')), 'DateScheduled'],
       'ScriptName',
-      'Status'
+      'Status',
+      'periodic'
     ],
     order: [['id', 'DESC']],
     where: {
@@ -136,4 +137,14 @@ router.post('/cancelJob', async (req, res) => {
   }
 })
 
+router.post('/periodic', async (req,res) => {
+  const {id} = req.body;
+  console.log(id);
+  const {details} = await database.periodicModel.findOne({
+    where: {
+      id
+    },
+  });
+  res.json(details);
+})
 module.exports = router;

@@ -29,7 +29,7 @@ function loggedIn(req, res, next) {
 router.get('/', loggedIn, async (req, res) => {
 
   // Uncomment for development
-  //let user = await database.findUser('asd');
+  //let user = await database.findUser('muddassir.ah@gmail.com');
   let admin = req.user.admin;
   /* if (!req.user) {
     req.login(user, function (err) {

@@ -10,6 +10,7 @@ class Database {
     this.logsModel = this.sequelize.import(path.resolve(__dirname, '../model/Logs'));
     this.userModel = this.sequelize.import(path.resolve(__dirname, '../model/User'));
     this.jobsModel = this.sequelize.import(path.resolve(__dirname, '../model/Jobs'));
+    this.periodicModel = this.sequelize.import(path.resolve(__dirname, '../model/Periodic_jobs'));
     this.sequelize.sync();
   }
 
@@ -60,8 +61,7 @@ class Database {
       });
   }
 
-  saveJob(title, logs, uid) {
-    console.log(logs);
+  saveJob(title, uid) {
     return this.jobsModel.create({
       uid,
       title
@@ -150,7 +150,13 @@ class Database {
     })
   }
 
-  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(), ScriptName = false, uid = null) {
+  async createPeriodic(details){
+    return this.periodicModel.create({
+      details
+    });
+  }
+
+  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(), ScriptName = false, uid = null, periodic = null,ref_num) {
     const machines = await this.findMachineDetailsByIds([machineId]);
     if (!machines[0]) {
       throw new Error('Machine not found');
@@ -195,7 +201,9 @@ class Database {
       TimeScheduled: timeScheduled,
       TZ: timezoneAbbreviation,
       ScriptName,
-      Status: "scheduled"
+      Status: "scheduled",
+      periodic,
+      ref_num
     });
   }
 
