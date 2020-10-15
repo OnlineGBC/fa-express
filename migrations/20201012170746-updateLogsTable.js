@@ -10,7 +10,7 @@ module.exports = {
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
     return Promise.all([
-      queryInterface.createTable('periodic_jobs',
+      queryInterface.createTable('Periodic_jobs',
         {
           id: {
             type: Sequelize.INTEGER,
@@ -37,7 +37,7 @@ module.exports = {
       return queryInterface.dropTable('users');
     */
     return Promise.all([
-      queryInterface.dropTable('periodic_jobs'),
+      queryInterface.dropTable('Periodic_jobs'),
       queryInterface.removeColumn('Logs', 'periodic')
     ])
   }
