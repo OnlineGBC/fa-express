@@ -557,6 +557,36 @@ $(() => {
     let periodicString = false;
 
     let error = false;
+
+    const dateValue = $("#date").val();
+
+    const isValidDate = !!Date.parse(dateValue);
+    const isValidTime = $("#time")[0].inputmask.isValid();
+
+    const isValid = isImmediate || (isValidDate && isValidTime);
+
+    timezoneHours = $("#zone").val() || "";
+    selectedTimezoneText = $("#zone option:selected").text();
+    timezone = timezoneHours
+      ? timeZones.find(({ text }) => text === selectedTimezoneText).timezone
+      : "";
+
+    if (!isImmediate) {
+      scheduleDate = new Date(
+        `${dateValue} ${$("#time").val()} ${$(
+          "#format"
+        ).val()} GMT${timezoneHours}`
+      );
+      scheduleAt = scheduleDate.getTime();
+    }
+
+    if (!isValid || scheduleAt < Date.now()) {
+      $schedulerForm
+        .find(".error-message")
+        .text("Please select a valid date, time and time zone in the future");
+      return;
+    }
+
     if (isPeriodic) {
       $('.periodic_fields input').each(function (i, item) {
         if (item.value == '') {
@@ -569,44 +599,19 @@ $(() => {
           .text("Please fill all fields");
         return;
       }
-      timezoneHours = $("#zone_p").val() || "";
-      selectedTimezoneText = $("#zone_p option:selected").text();
-      timezone = timezoneHours
-        ? timeZones.find(({ text }) => text === selectedTimezoneText).timezone
-        : "";
-      periodicString = "Hours: " + $("#hours option:selected").text() + "<br>Days: " + $("#days option:selected").text() + "<br>Month: " + $("#months option:selected").text() + "<br>Weekday: " + $("#weekday option:selected").text();
-      timeString = $("#minutes").val() + " " + $("#hours").val() + " " + $("#days").val() + " " + $("#months").val() + " " + $("#weekday").val();
 
-    }
+      let minute = scheduleDate.getMinutes();
+      let hour = scheduleDate.getHours();
+      let day = scheduleDate.getDate();
+      let month = scheduleDate.getMonth() + 1;
+      let year = scheduleDate.getFullYear();
 
-    else {
-      const dateValue = $("#date").val();
+      periodicString = `Every ${$("#minutes").val()} minute/s <br> 
+      Every ${$("#hours").val()} hour/s <br> 
+      Every ${$("#days").val()} day/s <br> 
+      `;
+      timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
 
-      const isValidDate = !!Date.parse(dateValue);
-      const isValidTime = $("#time")[0].inputmask.isValid();
-
-      const isValid = isImmediate || (isValidDate && isValidTime);
-
-      timezoneHours = $("#zone").val() || "";
-      selectedTimezoneText = $("#zone option:selected").text();
-      timezone = timezoneHours
-        ? timeZones.find(({ text }) => text === selectedTimezoneText).timezone
-        : "";
-
-      if (!isImmediate) {
-        scheduleAt = new Date(
-          `${dateValue} ${$("#time").val()} ${$(
-            "#format"
-          ).val()} GMT${timezoneHours}`
-        ).getTime();
-      }
-
-      if (!isValid || scheduleAt < Date.now()) {
-        $schedulerForm
-          .find(".error-message")
-          .text("Please select a valid date, time and time zone in the future");
-        return;
-      }
     }
 
     const scriptName = $schedulerModal.data("scriptName");

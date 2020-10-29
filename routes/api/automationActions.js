@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
       let day = theDate.getDate();
       let month = theDate.getMonth() + 1;
       let year = theDate.getFullYear();
-      let cronString = `* ${hour} ${day} ${month} *`;
+      let cronString = `${minute} ${hour} ${day} ${month} *`;
       var task = scheduler.scheduleJob(cronString, async function () {
         console.log('starting task');
         await beginExecution();
