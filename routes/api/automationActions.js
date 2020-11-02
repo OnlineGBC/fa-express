@@ -64,7 +64,8 @@ router.post("/", async (req, res) => {
         logIds = await createLogs(req.user.id);
       });
     }
-
+    
+    TaskManager.update(taskId,task);
   }
   else {
     beginExecution();

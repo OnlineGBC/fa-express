@@ -600,18 +600,16 @@ $(() => {
         return;
       }
 
-      let minute = scheduleDate.getMinutes();
-      let hour = scheduleDate.getHours();
-      let day = scheduleDate.getDate();
-      let month = scheduleDate.getMonth() + 1;
-      let year = scheduleDate.getFullYear();
+      let p_value = $("#p_value").val();
+      let p_context = $("#p_context").val();
+      let minute = (p_context == 'minute') ? scheduleDate.getMinutes()+'/'+p_value : '*';
+      let hour = (p_context == 'hour') ? scheduleDate.getHours()+'/'+p_value : '*';
+      let day = (p_context == 'day') ? scheduleDate.getDate()+'/'+p_value : '*';
+      let month = (p_context == 'month') ? (scheduleDate.getMonth() + 1)+'/'+p_value : '*';
 
-      periodicString = `Every ${$("#minutes").val()} minute/s <br> 
-      Every ${$("#hours").val()} hour/s <br> 
-      Every ${$("#days").val()} day/s <br> 
-      `;
-      timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
-
+      periodicString = `Every ${p_value} ${p_context}/s`
+      //timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
+      timeString = minute + ' ' + hour + ' ' + day + ' ' + month + " *";
     }
 
     const scriptName = $schedulerModal.data("scriptName");

@@ -58,49 +58,15 @@
             </div>
             <div class="periodic_fields">
               <div class="item">
-                <label>Minute: </label>
-                Every <input type="text" id="minutes" value="" /> minute/s
-              </div>
-              <div class="item">
-                <label>Hour: </label>
-                Every <input type="text" id="hours" value="" /> hour/s
-              </div>
-
-              <div class="item">
-                <label>Day: </label>
-                Every <input type="text" id="days" value="" /> day/s
-              </div>
-
-              <div class="item">
                 <label>Month: </label>
-                Every <input type="text" id="months" value="" /> month/s
+                Every <input type="text" id="p_value" value="" />
+                <select id="p_context" style="width:80px">
+                  <option value="minute">Minute</option>
+                  <option value="hour">Hour</option>
+                  <option value="day">Day</option>
+                  <option value="month">Month</option>
+                </select>
               </div>
-
-             <!--  <div class="item">
-                <label>Weekday: </label>
-                <select style="width: 175px" id="weekday">
-                  <option value="">-- Common Settings --</option>
-                  <option value="*">Every Day </option>
-                  <option value="1-5">Every Weekday </option>
-                  <option value="0,6">Every Weekend Day </option>
-                  <option value="1,3,5">Every Monday, Wednesday, and Friday </option>
-                  <option value="2,4">Every Tuesday and Thursday </option>
-                  <option value="">-- Weekdays --</option>
-                  <option value="0">Sunday </option>
-                  <option value="1">Monday </option>
-                  <option value="2">Tuesday </option>
-                  <option value="3">Wednesday </option>
-                  <option value="4">Thursday </option>
-                  <option value="5">Friday </option>
-                  <option value="6">Saturday </option>
-                </select>
-              </div> -->
-
-              <!--  <div class="item">
-                <select id="zone_p" name="zone_p" class="form-dropdown" autocomplete="off">
-                  <option selected disabled>Select Timezone</option>
-                </select>
-              </div> -->
             </div>
             <p class="error-message" style="color: red;"></p>
             <input type="hidden" id="task_name" name="task_name" value="" />

@@ -36,7 +36,7 @@ $("#scheduled-jobs").on("click", () => {
                 var logs = job.logs;
                 tableContent += `<div class="job-item" data-id="${id}" onclick="showFields_r(${id})"><p>Job Ref#: ` + title + '</p>';
                 tableContent += '<table class="jobsTable table-custom"><thead>';
-                tableContent += '<th>ScriptName</th><th>HostName</th><th>Scheduled Date/Time</th>';
+                tableContent += '<th>ScriptName</th><th>HostName</th><th>Scheduled Date/Time</th><th>Status</th>';
                 tableContent += '</thead>';
                 tableContent += '<tbody>';
                 logs.forEach(function (item) {
@@ -49,6 +49,7 @@ $("#scheduled-jobs").on("click", () => {
                     else {
                         tableContent += '<td>' + item['DateScheduled'] + ' ' + item['TimeScheduled'] + '</td>';
                     }
+                    tableContent += '<td>'+item['Status']+'</td>';
                     tableContent += '</tr>';
                 })
                 tableContent += '</tbody></table></div>';

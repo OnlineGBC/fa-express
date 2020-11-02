@@ -124,6 +124,7 @@ router.post('/reschedule', async (req, res) => {
 router.post('/cancelJob', async (req, res) => {
   const { id } = req.body;
   console.log(id);
+  console.log(TaskManager.tasks);
   const task = TaskManager.get(id);
   console.log("Cancelling Task");
   try {
@@ -133,6 +134,7 @@ router.post('/cancelJob', async (req, res) => {
     res.json({ status: 200 });
   }
   catch (error) {
+    console.log(error);
     res.sendStatus(404);
   }
 })

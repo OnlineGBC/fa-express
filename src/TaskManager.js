@@ -28,10 +28,15 @@ const remove = async (id) => {
   return;
 }
 
+const update = (id,task) => {
+  tasks['job_'+id] = task;
+}
+
 
 module.exports = {
   add,
   get,
   remove,
+  update,
   tasks
 };
