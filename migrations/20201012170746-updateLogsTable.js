@@ -17,7 +17,7 @@ module.exports = {
             primaryKey: true,
             autoIncrement: true
           },
-          details: Sequelize.STRING
+          details: Sequelize.TEXT
 
         }),
       queryInterface.addColumn(
