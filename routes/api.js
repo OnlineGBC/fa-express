@@ -92,7 +92,7 @@ router.get('/jobs', (req, res) => {
       model: Logs,
       attributes: { exclude: ['content'] },
       where: {
-        Status: {$not : 'completed'}
+        Status: {[Sequelize.not] : 'completed'}
       }
     }],
     where: {
