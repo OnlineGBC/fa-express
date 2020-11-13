@@ -7,7 +7,7 @@ const ActionRouter = require('./api/action');
 const { database } = require('../container');
 const TaskManager = require('../src/TaskManager');
 var scheduler = require('node-schedule');
-const { Sequelize } = require('sequelize');
+const { Sequelize,Op } = require('sequelize');
 
 const router = express.Router();
 
@@ -92,7 +92,7 @@ router.get('/jobs', (req, res) => {
       model: Logs,
       attributes: { exclude: ['content'] },
       where: {
-        Status: {[Sequelize.not] : 'completed'}
+        Status: {[Op.not] : 'completed'}
       }
     }],
     where: {
