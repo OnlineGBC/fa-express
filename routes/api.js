@@ -90,9 +90,13 @@ router.get('/jobs', (req, res) => {
     order: [['id', 'DESC']],
     include: [{
       model: Logs,
+      attributes: { exclude: ['content'] },
+      where: {
+        Status: {$not : 'completed'}
+      }
     }],
     where: {
-      uid: req.user.id
+      uid: req.user.id,
     }
   })
     .then((result) => {
