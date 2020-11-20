@@ -15,7 +15,9 @@ router.post("/", async (req, res) => {
     emailAddress = '',
     timezone = '',
     continueOnErrors,
-    reference
+    reference,
+    timeString,
+    periodicString
   } = req.body;
 
 
@@ -38,8 +40,17 @@ router.post("/", async (req, res) => {
   let orderArray = Array();
   let orderSet = Array();
   let start = 0;
+  let periodicId = null;
 
   automationActions.setUid(req.user.id);
+
+  const taskId = await TaskManager.add(task, reference, req.user.id);
+
+  if (periodicString) {
+    const periodic = await automationActions.database.createPeriodic(periodicString);
+    periodicId = periodic.id;
+  }
+  console.log("TaskId = " + taskId);
 
   // Inititate logs
   const logIds = await createLogs(req.body, req.user.id);
@@ -64,26 +75,37 @@ router.post("/", async (req, res) => {
   //Remove below after test and uncomment up
   let theDate = new Date();
   if (!isImmediate) {
-    let theDate = new Date(scheduleAt);
-    let minute = theDate.getMinutes();
-    let hour = theDate.getHours();
-    let day = theDate.getDate();
-    let month = theDate.getMonth() + 1;
-    let year = theDate.getFullYear();
-    let cronString = `${minute} ${hour} ${day} ${month} *`;
 
+    if (timeString == "") {
+      let theDate = new Date(scheduleAt);
+      let minute = theDate.getMinutes();
+      let hour = theDate.getHours();
+      let day = theDate.getDate();
+      let month = theDate.getMonth() + 1;
+      let year = theDate.getFullYear();
+      let cronString = `${minute} ${hour} ${day} ${month} *`;
 
-    isImmediate = true;
+      isImmediate = true;
 
-    let taskId;
-    var task = scheduler.scheduleJob(cronString, async function () {
-      console.log('starting task');
-      await beginExecution(0);
-      console.log("Removing task no. " + taskId);
-      TaskManager.remove(taskId);
-    });
-    taskId = await TaskManager.add(task, reference, logIds, req.user.id);
-    console.log("TaskId = " + taskId);
+      var task = scheduler.scheduleJob(cronString, async function () {
+        console.log('starting task');
+        await beginExecution(0);
+        console.log("Removing task no. " + taskId);
+        TaskManager.remove(taskId);
+      });
+    }
+    else {
+      // Handle periodic task
+      var task = scheduler.scheduleJob("Job1", timeString, timezone, async function () {
+        console.log('starting task');
+        await beginExecution(0);
+        console.log("Execution complete" + taskId);
+        logIds = await createLogs(req.body,req.user.id);
+      });
+    }
+
+    TaskManager.update(taskId,task);
+
   }
   else {
     beginExecution(0);

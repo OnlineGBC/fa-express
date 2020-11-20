@@ -607,7 +607,7 @@ $(() => {
       let day = (p_context == 'day') ? scheduleDate.getDate()+'/'+p_value : '*';
       let month = (p_context == 'month') ? (scheduleDate.getMonth() + 1)+'/'+p_value : '*';
 
-      periodicString = `Every ${p_value} ${p_context}/s`
+      periodicString = `Every ${p_value} ${p_context}/s`;
       //timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
       timeString = minute + ' ' + hour + ' ' + day + ' ' + month + " *";
     }
@@ -665,7 +665,9 @@ $(() => {
           scheduleAt,
           timezone,
           continueOnErrors,
-          reference
+          reference,
+          timeString,
+          periodicString
         }),
         dataType: "json",
         contentType: "application/json"
