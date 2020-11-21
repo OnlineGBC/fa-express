@@ -48,10 +48,11 @@
                   <input id="time" class="form-control" autocomplete="off" name="time" placeholder="hh:mm" />
                   <select id="format" name="format">
                     <option value="am">AM</option>
-                    <option value="pm">PM</option>
+                    <option selected value="pm">PM</option>
                   </select>
                   <select id="zone" name="zone" class="form-dropdown" autocomplete="off">
                     <option selected disabled>Select Timezone</option>
+                    <option selected value="+05:00">PKT +05:00 (Asia/Karachi)</option>
                   </select>
                 </div>
               </div>
@@ -59,7 +60,7 @@
             <div class="periodic_fields">
               <div class="item">
                 <label>Month: </label>
-                Every <input type="text" id="p_value" value="" />
+                Every <input type="text" id="p_value" value="1" />
                 <select id="p_context" style="width:80px">
                   <option value="minute">Minute</option>
                   <option value="hour">Hour</option>

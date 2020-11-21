@@ -76,6 +76,7 @@ router.post("/", async (req, res) => {
   let theDate = new Date();
   if (!isImmediate) {
 
+    isImmediate = true;
     if (timeString == "") {
       let theDate = new Date(scheduleAt);
       let minute = theDate.getMinutes();
@@ -84,9 +85,6 @@ router.post("/", async (req, res) => {
       let month = theDate.getMonth() + 1;
       let year = theDate.getFullYear();
       let cronString = `${minute} ${hour} ${day} ${month} *`;
-
-      isImmediate = true;
-
       var task = scheduler.scheduleJob(cronString, async function () {
         console.log('starting task');
         await beginExecution(0);
@@ -131,6 +129,7 @@ router.post("/", async (req, res) => {
       machineLogId = row.logId;
 
       try {
+        console.log("Entered try & catch");
         let returnCode = await automationActions.runScript(
           scriptName,
           machineIds,
@@ -216,10 +215,10 @@ router.post("/", async (req, res) => {
           console.log('Found Errors. Skipping to next set of rows');
           beginExecution(index);
         }
-        res.status(400).json({
+        /* res.status(400).json({
           status: "error",
           error: error.message
-        });
+        }); */
       }
       isImmediate = true;
     })
