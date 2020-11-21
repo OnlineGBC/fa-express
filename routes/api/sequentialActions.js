@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
   console.log("TaskId = " + taskId);
 
   // Inititate logs
-  const logIds = await createLogs(req.body, req.user.id);
+  let logIds = await createLogs(req.body, req.user.id);
 
   for (let i = 0; i < sortedRows.length; i++) {
     if (sortedRows[i].Order_Exec > start) {
