@@ -1,6 +1,6 @@
 const express = require("express");
 const { automationActions } = require("../../container");
-var scheduler = require('node-schedule');
+var scheduler = require('node-schedule-tz');
 const TaskManager = require('../../src/TaskManager');
 
 const router = express.Router();
