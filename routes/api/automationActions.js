@@ -61,6 +61,7 @@ router.post("/", async (req, res) => {
         console.log('starting task');
         await beginExecution();
         console.log("Execution complete" + taskId);
+        scheduleAt = task.nextInvocation().getTime();
         logIds = await createLogs(req.user.id);
       });
     }

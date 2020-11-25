@@ -20,7 +20,6 @@ router.post("/", async (req, res) => {
     periodicString
   } = req.body;
 
-
   function compare(a, b) {
     if (a.Order_Exec < b.Order_Exec) {
       return -1;
@@ -53,7 +52,7 @@ router.post("/", async (req, res) => {
   console.log("TaskId = " + taskId);
 
   // Inititate logs
-  let logIds = await createLogs(req.body, req.user.id);
+  let logIds = await createLogs(req.user.id);
 
   for (let i = 0; i < sortedRows.length; i++) {
     if (sortedRows[i].Order_Exec > start) {
@@ -98,7 +97,8 @@ router.post("/", async (req, res) => {
         console.log('starting task');
         await beginExecution(0);
         console.log("Execution complete" + taskId);
-        logIds = await createLogs(req.body,req.user.id);
+        scheduleAt = task.nextInvocation().getTime();
+        logIds = await createLogs(req.user.id);
       });
     }
 
@@ -223,14 +223,11 @@ router.post("/", async (req, res) => {
       isImmediate = true;
     })
   }
-});
 
+  
 
-async function createLogs(data, uid) {
-  let {
-    scheduleAt,
-    timezone = '',
-  } = data;
+async function createLogs(uid) {
+  
   const logIdsArray = [];
   const now = Date.now();
   const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
@@ -245,7 +242,9 @@ async function createLogs(data, uid) {
       scheduledAt,
       timezone,
       scriptName,
-      uid
+      uid,
+      periodicId,
+      taskId
     );
     logIdsArray.push({
       machine: machineId,
@@ -290,5 +289,7 @@ async function createLog(theRow, isImmediate, options, logIds) {
     automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
   }
 }
+});
+
 
 module.exports = router;

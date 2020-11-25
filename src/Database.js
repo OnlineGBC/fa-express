@@ -77,7 +77,8 @@ class Database {
     });
     await this.logsModel.update({Status:'cancelled'},{
       where: {
-        ref_num: id
+        ref_num: id,
+        Status: 'scheduled'
       }
     })
     console.log("Job removed from db");
@@ -145,7 +146,8 @@ class Database {
       TimeScheduled: timeScheduled,
     }, {
       where: {
-        ref_num: jobId
+        ref_num: jobId,
+        Status:'scheduled'
       }
     })
   }
