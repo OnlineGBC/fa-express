@@ -220,7 +220,7 @@ class AutomationActions {
       );
       // Dispatch mail
       if (emailAddress) {
-        var logFilePath = path.resolve(__dirname, "../../tmp", 'log.txt');
+        var logFilePath = path.resolve(__dirname, "../../", 'log.txt');
         var themailer = this.mailer;
         fs.writeFile(logFilePath, stdout.output, function (err) {
           if (err) throw err;
