@@ -221,7 +221,7 @@ console.log(commands.copy);
       );
       // Dispatch mail
       if (emailAddress) {
-        this.mailer.sendMail(initialLogContent + stdout.output, emailAddress).catch(console.error);
+        this.mailer.sendMailAttachment(initialLogContent + stdout.output, emailAddress).catch(console.error);
       }
 
       logContent = stdout.output;
