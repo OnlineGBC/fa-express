@@ -16,10 +16,10 @@ class AutomationActions {
     this.uid = false;
   }
 
-  setUid(id){
+  setUid(id) {
     this.uid = id;
   }
-  getUid(){
+  getUid() {
     return this.uid;
   }
 
@@ -88,16 +88,16 @@ class AutomationActions {
         let log;
         const machineId = machineDetails.dataValues.id;
         const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
-        if(!machineLogId){
+        if (!machineLogId) {
           log = logIds.filter(logs => machineId == logs.machine)[0].log;
         }
-        else{
+        else {
           log = logIds.filter(logs => machineLogId == logs.log.dataValues.id)[0].log;
         }
         await utils.delay(timeout);
         let scriptName = path.basename(scriptPath);
         let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\n\n`;
-        
+
         await this.updateLogMessage(logMessage, log);
         return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
           logId: log.id,
@@ -121,7 +121,7 @@ class AutomationActions {
     initialLogContent
   ) {
     const { emailAddress = "", logId } = options;
-    const { loginId, internalFacingNetworkIp, osType} = machineDetails;
+    const { loginId, internalFacingNetworkIp, osType } = machineDetails;
     const hostWithLogin = `${loginId}@${internalFacingNetworkIp}`;
     const logFileName = utils.randomLogFileName();
     const isWindows = osType.toLowerCase().includes("windows");
@@ -143,7 +143,7 @@ class AutomationActions {
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
         console.log("wrong os");
-        this.logger.notifyListeners(log,this.uid);
+        this.logger.notifyListeners(log, this.uid);
         // Dispatch mail
         if (emailAddress) {
           this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the *nix platform`, emailAddress).catch(console.error);
@@ -163,7 +163,7 @@ class AutomationActions {
         log.dataValues.status = 'fileError';
         log.dataValues.errorMsg = `Wrong OS`;
         console.log("wrong os");
-        this.logger.notifyListeners(log,this.uid);
+        this.logger.notifyListeners(log, this.uid);
         // Dispatch mail
         if (emailAddress) {
           this.mailer.sendMail(`${initialLogContent}The script ${scriptName} will not run on the Windows platform`, emailAddress).catch(console.error);
@@ -190,8 +190,7 @@ class AutomationActions {
 
     const commands = {
       copy: `scp -o StrictHostKeyChecking=no ${scriptPath} ${hostWithLogin}:${scpDestination}`,
-      remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${
-        isWindows ? "del" : "rm"
+      remove: `ssh -n -tt -o StrictHostKeyChecking=no ${hostWithLogin} ${isWindows ? "del" : "rm"
         } ${tempFilePath}`,
       chmod: isWindows
         ? null
@@ -204,7 +203,7 @@ class AutomationActions {
     /*console.log('Destination'+logId);
     logContent = await (await exec('dir')).stdout;
     console.log('creating log'); */
-console.log(commands.copy);
+    console.log(commands.copy);
     try {
       await exec(commands.copy);
       console.log(
@@ -221,7 +220,12 @@ console.log(commands.copy);
       );
       // Dispatch mail
       if (emailAddress) {
-        this.mailer.sendMailAttachment(initialLogContent + stdout.output, emailAddress).catch(console.error);
+        var logFilePath = path.resolve(__dirname, "../../tmp", 'log.txt');
+        var themailer = this.mailer;
+        fs.writeFile(logFilePath, stdout.output, function (err) {
+          if (err) throw err;
+          themailer.sendMailAttachment(logFilePath, emailAddress).catch(console.error);
+        })
       }
 
       logContent = stdout.output;
@@ -254,7 +258,7 @@ console.log(commands.copy);
     if (errorCode == 0) {
       status = 'completed';
     }
-    else{
+    else {
       status = 'failed';
     }
 
@@ -269,14 +273,14 @@ console.log(commands.copy);
     this.logger.writeLogFile(logFileName, log);
     if (errorCode == 0) {
       log.dataValues.status = 'completed';
-      this.logger.notifyListeners(log,this.uid);
+      this.logger.notifyListeners(log, this.uid);
     }
     //let returnCodeCommand = isWindows? 'echo.%errorlevel%' : 'echo $?';
     if (isSequential) {
       console.log("is sequential");
       if (errorCode != 0) {
         log.dataValues.status = 'failed';
-        this.logger.notifyListeners(log,this.uid);
+        this.logger.notifyListeners(log, this.uid);
       }
       return errorCode;
     }
@@ -314,7 +318,7 @@ console.log(commands.copy);
       'processing'
     );
     log.dataValues.status = 'processing';
-    this.logger.notifyListeners(log,this.uid);
+    this.logger.notifyListeners(log, this.uid);
     console.log("-----------");
   }
   makeid(length) {
