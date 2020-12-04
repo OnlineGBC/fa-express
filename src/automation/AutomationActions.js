@@ -62,6 +62,7 @@ class AutomationActions {
       runAt = scheduleAt;
     }
     return this.scheduleScript(
+      req,
       runAt,
       scriptPath,
       machinesIds,
@@ -73,7 +74,7 @@ class AutomationActions {
     );
   }
 
-  async scheduleScript(runAt, scriptPath, machinesIds, machines, options, isSequential, logIds, machineLogId) {
+  async scheduleScript(req,runAt, scriptPath, machinesIds, machines, options, isSequential, logIds, machineLogId) {
 
     const now = Date.now();
     if (!runAt) {
@@ -99,7 +100,7 @@ class AutomationActions {
         let logMessage = `Running script ${scriptName}\nHostName: ${machineDetails.hostName}\nIFN: ${machineDetails.internalFacingNetworkIp}\nCFN: ${machineDetails.customerFacingNetwork}\nSID: ${machineDetails.sid}\nCustName: ${machineDetails.custName}\n\n`;
 
         await this.updateLogMessage(logMessage, log);
-        return this.runScriptOnMachine(scriptPath, machineId, machineDetails, {
+        return this.runScriptOnMachine(req,scriptPath, machineId, machineDetails, {
           logId: log.id,
           ...options
         },
@@ -113,6 +114,7 @@ class AutomationActions {
   }
 
   async runScriptOnMachine(
+    req,
     scriptPath,
     machineId,
     machineDetails,
