@@ -24,10 +24,7 @@ class Mailer {
       from: config.emailFrom, // sender address
       to: emailAddress, // list of receivers
       subject: 'Logs for recent actions performed', // Subject line
-      attachments:[{
-        filename: 'log.txt',
-        path
-      }]
+      html: `<a href="${path}">Download Logs</a>`
     });
     console.log('Message sent: %s', info.messageId);
   }

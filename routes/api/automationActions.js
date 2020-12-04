@@ -78,6 +78,7 @@ router.post("/", async (req, res) => {
   function beginExecution() {
     try {
       automationActions.runScript(
+        req,
         scriptName,
         machineIds,
         isImmediate,

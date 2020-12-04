@@ -23,7 +23,7 @@ class AutomationActions {
     return this.uid;
   }
 
-  async runScript(scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false, machineLogId = false) {
+  async runScript(req,scriptName, machinesIds, isImmediate, options = {}, folder, isSequential = true, logIds = false, machineLogId = false) {
 
     //let logMessage = `Running script ${scriptName}\n`;
 
@@ -120,6 +120,7 @@ class AutomationActions {
     isSequential,
     initialLogContent
   ) {
+
     const { emailAddress = "", logId } = options;
     const { loginId, internalFacingNetworkIp, osType } = machineDetails;
     const hostWithLogin = `${loginId}@${internalFacingNetworkIp}`;
@@ -200,9 +201,7 @@ class AutomationActions {
 
     let logContent = "";
     let errorCode;
-    /*console.log('Destination'+logId);
-    logContent = await (await exec('dir')).stdout;
-    console.log('creating log'); */
+
     console.log(commands.copy);
     try {
       await exec(commands.copy);
@@ -220,12 +219,8 @@ class AutomationActions {
       );
       // Dispatch mail
       if (emailAddress) {
-        var logFilePath = path.resolve(__dirname, "../../", 'log.txt');
-        var themailer = this.mailer;
-        fs.writeFile(logFilePath, stdout.output, function (err) {
-          if (err) throw err;
-          themailer.sendMailAttachment(logFilePath, emailAddress).catch(console.error);
-        })
+        var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl + '/logs/'+logFileName;
+        this.mailer.sendMailAttachment(fullUrl, emailAddress).catch(console.error);
       }
 
       logContent = stdout.output;
