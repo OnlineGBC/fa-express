@@ -131,6 +131,7 @@ router.post("/", async (req, res) => {
       try {
         console.log("Entered try & catch");
         let returnCode = await automationActions.runScript(
+          req,
           scriptName,
           machineIds,
           isImmediate,
