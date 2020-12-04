@@ -221,7 +221,7 @@ class AutomationActions {
       );
       // Dispatch mail
       if (emailAddress) {
-        var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl + '/logs/'+logFileName;
+        var fullUrl = req.protocol + '://' + req.get('host') + '/logs/'+logFileName;
         this.mailer.sendMailAttachment(fullUrl, emailAddress).catch(console.error);
       }
 
