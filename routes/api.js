@@ -100,7 +100,13 @@ router.get('/jobs', (req, res) => {
     }
   })
     .then((result) => {
-      res.json(result);
+      var result_filter = [];
+      result.forEach((element) => {
+        if(TaskManager.get(element.id) != undefined){
+          result_filter.push(element);
+        };
+      });
+      res.json(result_filter);
     });
 });
 
