@@ -30,15 +30,9 @@ router.post("/", async (req, res) => {
     return 0;
   }
 
-
-
   // Rows sorted according to order
   sortedRows = rows.sort(compare);
 
-  // Array containing set of same order_Exec
-  let orderArray = Array();
-  let orderSet = Array();
-  let start = 0;
   let periodicId = null;
 
   automationActions.setUid(req.user.id);
@@ -52,24 +46,9 @@ router.post("/", async (req, res) => {
   console.log("TaskId = " + taskId);
 
   // Inititate logs
-  let logIds = await createLogs(req.user.id);
+  let logIds = Array();
+  logIds = await createLogs(req.user.id);
 
-  for (let i = 0; i < sortedRows.length; i++) {
-    if (sortedRows[i].Order_Exec > start) {
-      if (start > 0) {
-        orderArray.push(orderSet);
-      }
-      // Reset the array when order number changes
-      orderSet = Array();
-      start = sortedRows[i].Order_Exec;
-    }
-    orderSet.push(sortedRows[i]);
-    if (i == sortedRows.length - 1) {
-      orderArray.push(orderSet);
-    }
-  }
-
-  orderNum = 1;
 
   //Remove below after test and uncomment up
   let theDate = new Date();
@@ -115,6 +94,14 @@ router.post("/", async (req, res) => {
   //beginExecution(0);
 
   async function beginExecution(index) {
+    
+    //orderArray = Object.keys(obj).map((k) => obj[k]);
+    orderArray = orderRows(sortedRows);
+    /* orderArray = Array();
+    obj.forEach(function(value,i){
+      orderArray.push(value);
+    }); */
+    console.log(orderArray);
     let rows = orderArray[index];
     let rowsPlaceholder = rows;
     errorCode = false;
@@ -179,6 +166,7 @@ router.post("/", async (req, res) => {
         //Stop execution if error is returned
         if (errorCode && !continueOnErrors) {
           console.log('Found an error. Stopping script execution');
+          console.log(orderArray);
           for (index; index < orderArray.length; index++) {
             let leftRows = orderArray[index];
             leftRows.forEach(async function (row) {
@@ -229,7 +217,6 @@ router.post("/", async (req, res) => {
 
 async function createLogs(uid) {
   
-  const logIdsArray = [];
   const now = Date.now();
   const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
@@ -247,7 +234,7 @@ async function createLogs(uid) {
       periodicId,
       taskId
     );
-    logIdsArray.push({
+    logIds.push({
       machine: machineId,
       log
     });
@@ -255,7 +242,7 @@ async function createLogs(uid) {
     sortedRows[i].logId = log.id;
     automationActions.logger.notifyListeners(log, automationActions.getUid());
   }
-  return logIdsArray;
+  return logIds;
 }
 
 async function createLog(theRow, isImmediate, options, logIds) {
@@ -292,5 +279,27 @@ async function createLog(theRow, isImmediate, options, logIds) {
 }
 });
 
+function orderRows(rowsref) {
+
+  rowsref = JSON.parse(JSON.stringify(rowsref));
+  let orderSet = Array();
+  let start = 0;
+  let newArray = Array();
+  for (let i = 0; i < rowsref.length; i++) {
+    if (rowsref[i].Order_Exec > start) {
+      if (start > 0) {
+        newArray.push(orderSet);
+      }
+      // Reset the array when order number changes
+      orderSet = Array();
+      start = rowsref[i].Order_Exec;
+    }
+    orderSet.push(rowsref[i]);
+    if (i == rowsref.length - 1) {
+      newArray.push(orderSet);
+    }
+  }
+  return newArray;
+}
 
 module.exports = router;
