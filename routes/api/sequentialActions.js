@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
   const taskId = await TaskManager.add(task, reference, req.user.id);
 
   if (periodicString) {
-    const periodic = await automationActions.database.createPeriodic(periodicString,p_value,p_context);
+    const periodic = await automationActions.database.createPeriodic(periodicString, p_value, p_context);
     periodicId = periodic.id;
   }
   console.log("TaskId = " + taskId);
@@ -100,13 +100,7 @@ router.post("/", async (req, res) => {
 
     // Setting rerun to false to ensure that the next script only runs when current one is finished
     reRun = false;
-    //orderArray = Object.keys(obj).map((k) => obj[k]);
     orderArray = orderRows(sortedRows);
-    /* orderArray = Array();
-    obj.forEach(function(value,i){
-      orderArray.push(value);
-    }); */
-    console.log(orderArray);
     let rows = orderArray[index];
     let rowsPlaceholder = rows;
     errorCode = false;
@@ -184,12 +178,11 @@ router.post("/", async (req, res) => {
             })
           };
 
-          reRun = true;
-          scheduleAt = task.nextInvocation().getTime();
-          logIds = await createLogs(req.user.id);
-          /* res.json({
-            status: "failed"
-          }); */
+          if (row_i == rows.length - 1) {
+            reRun = true;
+            scheduleAt = task.nextInvocation().getTime();
+            logIds = await createLogs(req.user.id);
+          }
           return;
         }
         else if (allStatus) {
@@ -204,10 +197,6 @@ router.post("/", async (req, res) => {
             reRun = true;
             scheduleAt = task.nextInvocation().getTime();
             logIds = await createLogs(req.user.id);
-
-            /* res.json({
-              status: "success"
-            }); */ // Send response after all scripts have run. Otherwise HTTP_HEADERS_SENT will be thrown
             return;
           }
         }
@@ -217,10 +206,6 @@ router.post("/", async (req, res) => {
           console.log('Found Errors. Skipping to next set of rows');
           beginExecution(index);
         }
-        /* res.status(400).json({
-          status: "error",
-          error: error.message
-        }); */
       }
       isImmediate = true;
     })
