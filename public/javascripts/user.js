@@ -602,10 +602,10 @@ $(() => {
 
       let p_value = $("#p_value").val();
       let p_context = $("#p_context").val();
-      let minute = (p_context == 'minute') ? scheduleDate.getMinutes()+'/'+p_value : '*';
-      let hour = (p_context == 'hour') ? scheduleDate.getHours()+'/'+p_value : '*';
-      let day = (p_context == 'day') ? scheduleDate.getDate()+'/'+p_value : '*';
-      let month = (p_context == 'month') ? (scheduleDate.getMonth() + 1)+'/'+p_value : '*';
+      let minute = (p_context == 'minute') ? scheduleDate.getMinutes() + '/' + p_value : '*';
+      let hour = (p_context == 'hour') ? scheduleDate.getHours() + '/' + p_value : '*';
+      let day = (p_context == 'day') ? scheduleDate.getDate() + '/' + p_value : '*';
+      let month = (p_context == 'month') ? (scheduleDate.getMonth() + 1) + '/' + p_value : '*';
 
       periodicString = `Every ${p_value} ${p_context}/s`;
       //timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
@@ -667,7 +667,9 @@ $(() => {
           continueOnErrors,
           reference,
           timeString,
-          periodicString
+          periodicString,
+          p_value: $("#p_value").val(),
+          p_context: $("#p_context").val()
         }),
         dataType: "json",
         contentType: "application/json"
@@ -697,7 +699,9 @@ $(() => {
           folder: folderKey,
           reference,
           timeString,
-          periodicString
+          periodicString,
+          p_value: $("#p_value").val(),
+          p_context: $("#p_context").val()
         }),
         dataType: "json",
         contentType: "application/json"

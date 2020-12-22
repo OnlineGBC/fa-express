@@ -75,7 +75,7 @@ class Database {
         id
       }
     });
-    await this.logsModel.update({Status:'cancelled'},{
+    await this.logsModel.update({ Status: 'cancelled' }, {
       where: {
         ref_num: id,
         Status: 'scheduled'
@@ -131,6 +131,24 @@ class Database {
     return this.automationModel.findAll();
   }
 
+  async getPeriodicData(id,uid) {
+    let Logs = this.logsModel;
+    let Periodic_jobs = this.periodicModel;
+    Periodic_jobs.belongsTo(Logs, { targetKey: 'periodic', foreignKey: 'id' })
+
+    return Periodic_jobs.findOne({
+      order: [['id', 'DESC']],
+      include: [{
+        model: Logs,
+        attributes: { include: ['periodic'] },
+        where: {
+          ref_num:id,
+          uid
+        }
+      }],
+    })
+  }
+
   updateLogTime(jobId, scheduledAt, timezone) {
 
     let formattedDateScheduled;
@@ -147,18 +165,20 @@ class Database {
     }, {
       where: {
         ref_num: jobId,
-        Status:'scheduled'
+        Status: 'scheduled'
       }
     })
   }
 
-  async createPeriodic(details){
+  async createPeriodic(details, value, context) {
     return this.periodicModel.create({
-      details
+      details,
+      value,
+      context
     });
   }
 
-  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(), ScriptName = false, uid = null, periodic = null,ref_num) {
+  async saveLog(machineId, content, generatedAt, scheduledAt, timezone = moment.tz.guess(), ScriptName = false, uid = null, periodic = null, ref_num) {
     const machines = await this.findMachineDetailsByIds([machineId]);
     if (!machines[0]) {
       throw new Error('Machine not found');

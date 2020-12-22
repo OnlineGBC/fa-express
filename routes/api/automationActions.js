@@ -17,7 +17,9 @@ router.post("/", async (req, res) => {
     folder,
     reference,
     timeString,
-    periodicString
+    periodicString,
+    p_value,
+    p_context
   } = req.body;
 
   let periodicId = null;
@@ -28,7 +30,7 @@ router.post("/", async (req, res) => {
   const taskId = await TaskManager.add(task, reference, req.user.id);
 
   if (periodicString) {
-    const periodic = await automationActions.database.createPeriodic(periodicString);
+    const periodic = await automationActions.database.createPeriodic(periodicString,p_value,p_context);
     periodicId = periodic.id;
   }
   console.log("TaskId = " + taskId);

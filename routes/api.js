@@ -122,6 +122,17 @@ router.post('/reschedule', async (req, res) => {
   let year = theDate.getFullYear();
   let cronString = `${minute} ${hour} ${day} ${month} *`;
 
+  let periodicData = await database.getPeriodicData(id,req.user.id);
+  if(periodicData != null){
+    let p_context = periodicData.context;
+    let p_value = periodicData.value;
+    let minute = (p_context == 'minute') ? theDate.getMinutes() + '/' + p_value : '*';
+    let hour = (p_context == 'hour') ? theDate.getHours() + '/' + p_value : '*';
+    let day = (p_context == 'day') ? theDate.getDate() + '/' + p_value : '*';
+    let month = (p_context == 'month') ? (theDate.getMonth() + 1) + '/' + p_value : '*';
+    cronString = minute + ' ' + hour + ' ' + day + ' ' + month + " *";
+    console.log("Periodic job found");
+  }
   console.log("Rescheduling Job");
   const task = TaskManager.get(id);
   task.reschedule(cronString);

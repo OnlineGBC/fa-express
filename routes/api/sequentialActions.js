@@ -17,7 +17,9 @@ router.post("/", async (req, res) => {
     continueOnErrors,
     reference,
     timeString,
-    periodicString
+    periodicString,
+    p_value,
+    p_context
   } = req.body;
 
   function compare(a, b) {
@@ -30,6 +32,7 @@ router.post("/", async (req, res) => {
     return 0;
   }
 
+  reRun = true;
   // Rows sorted according to order
   sortedRows = rows.sort(compare);
 
@@ -40,7 +43,7 @@ router.post("/", async (req, res) => {
   const taskId = await TaskManager.add(task, reference, req.user.id);
 
   if (periodicString) {
-    const periodic = await automationActions.database.createPeriodic(periodicString);
+    const periodic = await automationActions.database.createPeriodic(periodicString,p_value,p_context);
     periodicId = periodic.id;
   }
   console.log("TaskId = " + taskId);
@@ -73,15 +76,15 @@ router.post("/", async (req, res) => {
     else {
       // Handle periodic task
       var task = scheduler.scheduleJob("Job1", timeString, timezone, async function () {
-        console.log('starting task');
-        await beginExecution(0);
+        if (reRun) {
+          console.log('starting task');
+          await beginExecution(0);
+        }
         console.log("Execution complete" + taskId);
-        scheduleAt = task.nextInvocation().getTime();
-        logIds = await createLogs(req.user.id);
       });
     }
 
-    TaskManager.update(taskId,task);
+    TaskManager.update(taskId, task);
 
   }
   else {
@@ -94,7 +97,9 @@ router.post("/", async (req, res) => {
   //beginExecution(0);
 
   async function beginExecution(index) {
-    
+
+    // Setting rerun to false to ensure that the next script only runs when current one is finished
+    reRun = false;
     //orderArray = Object.keys(obj).map((k) => obj[k]);
     orderArray = orderRows(sortedRows);
     /* orderArray = Array();
@@ -178,6 +183,10 @@ router.post("/", async (req, res) => {
                 logIds);
             })
           };
+
+          reRun = true;
+          scheduleAt = task.nextInvocation().getTime();
+          logIds = await createLogs(req.user.id);
           /* res.json({
             status: "failed"
           }); */
@@ -192,6 +201,10 @@ router.post("/", async (req, res) => {
           }
           else {
             console.log("Returning after successful execution");
+            reRun = true;
+            scheduleAt = task.nextInvocation().getTime();
+            logIds = await createLogs(req.user.id);
+
             /* res.json({
               status: "success"
             }); */ // Send response after all scripts have run. Otherwise HTTP_HEADERS_SENT will be thrown
@@ -213,70 +226,70 @@ router.post("/", async (req, res) => {
     })
   }
 
-  
 
-async function createLogs(uid) {
-  
-  const now = Date.now();
-  const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
-  for (var i = 0; i < sortedRows.length; i++) {
-    machineId = sortedRows[i].id;
-    let scriptName = sortedRows[i].scriptName;
-    let log = await automationActions.database.saveLog(
-      machineId,
-      null,
-      now,
-      scheduledAt,
-      timezone,
-      scriptName,
-      uid,
-      periodicId,
-      taskId
-    );
-    logIds.push({
-      machine: machineId,
-      log
-    });
+  async function createLogs(uid) {
 
-    sortedRows[i].logId = log.id;
+    const now = Date.now();
+    const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
+
+    for (var i = 0; i < sortedRows.length; i++) {
+      machineId = sortedRows[i].id;
+      let scriptName = sortedRows[i].scriptName;
+      let log = await automationActions.database.saveLog(
+        machineId,
+        null,
+        now,
+        scheduledAt,
+        timezone,
+        scriptName,
+        uid,
+        periodicId,
+        taskId
+      );
+      logIds.push({
+        machine: machineId,
+        log
+      });
+
+      sortedRows[i].logId = log.id;
+      automationActions.logger.notifyListeners(log, automationActions.getUid());
+    }
+    return logIds;
+  }
+
+  async function createLog(theRow, isImmediate, options, logIds) {
+
+    let id = theRow.id;
+    let scriptName = theRow.scriptName;
+    let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
+    const now = Date.now();
+    let runAt;
+    let emailAddress = options.emailAddress;
+    if (!isImmediate) {
+      const { scheduleAt } = options;
+      // if (
+      //   typeof scheduleAt !== "number" ||
+      //   !new Date(scheduleAt).getTime() ||
+      //   scheduleAt < Date.now()
+      // ) {
+      //   throw new Error("Invalid scheduleAt parameter");
+      // }
+      runAt = scheduleAt;
+    }
+    if (!runAt) {
+      runAt = now;
+    }
+    const immediate = runAt === now;
+    const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
+
+    log.dataValues.status = 'error';
+    log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
     automationActions.logger.notifyListeners(log, automationActions.getUid());
+    if (emailAddress) {
+      automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
+    }
   }
-  return logIds;
-}
-
-async function createLog(theRow, isImmediate, options, logIds) {
-
-  let id = theRow.id;
-  let scriptName = theRow.scriptName;
-  let log = logIds.filter(logs => (id == logs.machine && theRow.logId == logs.log.dataValues.id))[0].log;
-  const now = Date.now();
-  let runAt;
-  let emailAddress = options.emailAddress;
-  if (!isImmediate) {
-    const { scheduleAt } = options;
-    // if (
-    //   typeof scheduleAt !== "number" ||
-    //   !new Date(scheduleAt).getTime() ||
-    //   scheduleAt < Date.now()
-    // ) {
-    //   throw new Error("Invalid scheduleAt parameter");
-    // }
-    runAt = scheduleAt;
-  }
-  if (!runAt) {
-    runAt = now;
-  }
-  const immediate = runAt === now;
-  const scheduledAt = options.hasOwnProperty('scheduleAt') ? options.scheduleAt : null;
-
-  log.dataValues.status = 'error';
-  log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
-  automationActions.logger.notifyListeners(log, automationActions.getUid());
-  if (emailAddress) {
-    automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
-  }
-}
 });
 
 function orderRows(rowsref) {
