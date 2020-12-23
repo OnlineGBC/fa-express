@@ -253,13 +253,6 @@ router.post("/", async (req, res) => {
     let emailAddress = options.emailAddress;
     if (!isImmediate) {
       const { scheduleAt } = options;
-      // if (
-      //   typeof scheduleAt !== "number" ||
-      //   !new Date(scheduleAt).getTime() ||
-      //   scheduleAt < Date.now()
-      // ) {
-      //   throw new Error("Invalid scheduleAt parameter");
-      // }
       runAt = scheduleAt;
     }
     if (!runAt) {
@@ -270,6 +263,12 @@ router.post("/", async (req, res) => {
 
     log.dataValues.status = 'error';
     log.dataValues.uId = Math.floor(Math.random() * Math.floor(300));
+    await automationActions.database.updateLogContentById(
+      log.dataValues.id,
+      `The script was not executed`,
+      1,
+      'error'
+    );
     automationActions.logger.notifyListeners(log, automationActions.getUid());
     if (emailAddress) {
       automationActions.mailer.sendMail(`The script ${scriptName} could not be executed because a previous step in the process had a Warning/Error. Please check`, emailAddress).catch(console.error);
