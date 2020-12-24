@@ -349,3 +349,13 @@ background: #eaeaea;
 .jobsList::-webkit-scrollbar-thumb {
 background: #000;
 }
+
+.periodic_fields{
+  display:none;
+}
+.periodic_fields .item label {width: 70px;text-align: -webkit-center;}
+
+.periodic_fields .item select {
+    margin-left: 10px;
+    vertical-align: text-bottom;
+}

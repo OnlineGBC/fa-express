@@ -7,7 +7,7 @@ const ActionRouter = require('./api/action');
 const { database } = require('../container');
 const TaskManager = require('../src/TaskManager');
 var scheduler = require('node-schedule');
-const { Sequelize } = require('sequelize');
+const { Sequelize,Op } = require('sequelize');
 
 const router = express.Router();
 
@@ -63,7 +63,8 @@ router.get('/logs/', (req, res) => {
       [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')), 'DateGenerated'],
       [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')), 'DateScheduled'],
       'ScriptName',
-      'Status'
+      'Status',
+      'periodic'
     ],
     order: [['id', 'DESC']],
     where: {
@@ -89,13 +90,23 @@ router.get('/jobs', (req, res) => {
     order: [['id', 'DESC']],
     include: [{
       model: Logs,
+      attributes: { exclude: ['content'] },
+      where: {
+        Status: 'scheduled',
+      }
     }],
     where: {
-      uid: req.user.id
+      uid: req.user.id,
     }
   })
     .then((result) => {
-      res.json(result);
+      var result_filter = [];
+      result.forEach((element) => {
+        if(TaskManager.get(element.id) != undefined){
+          result_filter.push(element);
+        };
+      });
+      res.json(result_filter);
     });
 });
 
@@ -111,6 +122,17 @@ router.post('/reschedule', async (req, res) => {
   let year = theDate.getFullYear();
   let cronString = `${minute} ${hour} ${day} ${month} *`;
 
+  let periodicData = await database.getPeriodicData(id,req.user.id);
+  if(periodicData != null){
+    let p_context = periodicData.context;
+    let p_value = periodicData.value;
+    let minute = (p_context == 'minute') ? theDate.getMinutes() + '/' + p_value : '*';
+    let hour = (p_context == 'hour') ? theDate.getHours() + '/' + p_value : '*';
+    let day = (p_context == 'day') ? theDate.getDate() + '/' + p_value : '*';
+    let month = (p_context == 'month') ? (theDate.getMonth() + 1) + '/' + p_value : '*';
+    cronString = minute + ' ' + hour + ' ' + day + ' ' + month + " *";
+    console.log("Periodic job found");
+  }
   console.log("Rescheduling Job");
   const task = TaskManager.get(id);
   task.reschedule(cronString);
@@ -123,6 +145,7 @@ router.post('/reschedule', async (req, res) => {
 router.post('/cancelJob', async (req, res) => {
   const { id } = req.body;
   console.log(id);
+  console.log(TaskManager.tasks);
   const task = TaskManager.get(id);
   console.log("Cancelling Task");
   try {
@@ -132,8 +155,19 @@ router.post('/cancelJob', async (req, res) => {
     res.json({ status: 200 });
   }
   catch (error) {
+    console.log(error);
     res.sendStatus(404);
   }
 })
 
+router.post('/periodic', async (req,res) => {
+  const {id} = req.body;
+  console.log(id);
+  const {details} = await database.periodicModel.findOne({
+    where: {
+      id
+    },
+  });
+  res.json(details);
+})
 module.exports = router;

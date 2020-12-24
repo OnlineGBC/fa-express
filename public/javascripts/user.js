@@ -21,6 +21,7 @@ const logsTable = $("#status-box").DataTable({
     { data: "CustName" },
     { data: "DateGenerated" },
     { data: "DateScheduled" },
+    { data: "periodic" },
     { data: "ScriptName" },
     { data: "Status" }
   ],
@@ -46,9 +47,7 @@ const logsTable = $("#status-box").DataTable({
     {
       targets: 7,
       width: 140,
-      render(data, type, row) {
-        console.log("DATE");
-        console.log(data);
+      render(data, type, row) { // Date column
         if (!data) {
           return "-";
         }
@@ -59,10 +58,18 @@ const logsTable = $("#status-box").DataTable({
       }
     },
     {
-      targets: 9,
+      targets: 8,
+      render(data, type, row) { // Date column
+        if (data == null) {
+          return `<span style="font-weight: bold;">-</span>`;
+        }
+        return `<a href="javascript:showPeriodic(${data})"><span style="font-weight: bold;">X</span></a>`;
+      }
+    },
+    {
+      targets: 10,
       width: 100,
       render(data, type, row) {
-        console.log(data);
         if (data == "processing") {
           data = `<a href="/logs/${row.id}" class="_show-log text-primary" target="_blank">Processing</a>`;
         }
@@ -249,7 +256,7 @@ $(() => {
   }).then(zones => {
     timeZones = zones;
     for (const item of zones) {
-      $("#zone,#r_zone").append(
+      $("#zone,#r_zone,#zone_p").append(
         $(`<option value="${item.hours}">${item.text}</option>`)
       );
     }
@@ -535,6 +542,21 @@ $(() => {
 
     const reference = $("#ref_num").val();
     const isImmediate = $("#schedule").val() === "immediate";
+    const isPeriodic = $("#schedule").val() === "periodic";
+
+
+    const machineIds = $("#automation tbody .selected")
+      .toArray()
+      .map(element => table.row(element).data().id);
+
+    let scheduleAt;
+    let timezone;
+    let timezoneHours;
+    let selectedTimezoneText;
+    let timeString = "";
+    let periodicString = false;
+
+    let error = false;
 
     const dateValue = $("#date").val();
 
@@ -543,23 +565,19 @@ $(() => {
 
     const isValid = isImmediate || (isValidDate && isValidTime);
 
-    const machineIds = $("#automation tbody .selected")
-      .toArray()
-      .map(element => table.row(element).data().id);
-
-    const timezoneHours = $("#zone").val() || "";
-    const selectedTimezoneText = $("#zone option:selected").text();
-    const timezone = timezoneHours
+    timezoneHours = $("#zone").val() || "";
+    selectedTimezoneText = $("#zone option:selected").text();
+    timezone = timezoneHours
       ? timeZones.find(({ text }) => text === selectedTimezoneText).timezone
       : "";
 
-    let scheduleAt;
     if (!isImmediate) {
-      scheduleAt = new Date(
+      scheduleDate = new Date(
         `${dateValue} ${$("#time").val()} ${$(
           "#format"
         ).val()} GMT${timezoneHours}`
-      ).getTime();
+      );
+      scheduleAt = scheduleDate.getTime();
     }
 
     if (!isValid || scheduleAt < Date.now()) {
@@ -567,6 +585,31 @@ $(() => {
         .find(".error-message")
         .text("Please select a valid date, time and time zone in the future");
       return;
+    }
+
+    if (isPeriodic) {
+      $('.periodic_fields input').each(function (i, item) {
+        if (item.value == '') {
+          error = true;
+        }
+      })
+      if (error) {
+        $schedulerForm
+          .find(".error-message")
+          .text("Please fill all fields");
+        return;
+      }
+
+      let p_value = $("#p_value").val();
+      let p_context = $("#p_context").val();
+      let minute = (p_context == 'minute') ? scheduleDate.getMinutes() + '/' + p_value : '*';
+      let hour = (p_context == 'hour') ? scheduleDate.getHours() + '/' + p_value : '*';
+      let day = (p_context == 'day') ? scheduleDate.getDate() + '/' + p_value : '*';
+      let month = (p_context == 'month') ? (scheduleDate.getMonth() + 1) + '/' + p_value : '*';
+
+      periodicString = `Every ${p_value} ${p_context}/s`;
+      //timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
+      timeString = minute + ' ' + hour + ' ' + day + ' ' + month + " *";
     }
 
     const scriptName = $schedulerModal.data("scriptName");
@@ -622,7 +665,11 @@ $(() => {
           scheduleAt,
           timezone,
           continueOnErrors,
-          reference
+          reference,
+          timeString,
+          periodicString,
+          p_value: $("#p_value").val(),
+          p_context: $("#p_context").val()
         }),
         dataType: "json",
         contentType: "application/json"
@@ -650,7 +697,11 @@ $(() => {
           scheduleAt,
           timezone,
           folder: folderKey,
-          reference
+          reference,
+          timeString,
+          periodicString,
+          p_value: $("#p_value").val(),
+          p_context: $("#p_context").val()
         }),
         dataType: "json",
         contentType: "application/json"
@@ -744,7 +795,7 @@ $(() => {
       else {
         updatedText = `<a href="/logs/${log.id}" class="_show-log text-danger" target="_blank">[View Log Warning/Error]</a>`;
       }
-      logsTable.cell({ row: rowIndex, column: 9 }).node().innerHTML = updatedText;
+      logsTable.cell({ row: rowIndex, column: 10 }).node().innerHTML = updatedText;
     }
     else {
       logsTable.row.add(log).draw(false);
