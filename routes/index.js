@@ -29,19 +29,29 @@ function loggedIn(req, res, next) {
 router.get('/', loggedIn, async (req, res) => {
 
   // Uncomment for development
-  //let user = await database.findUser('asd');
   let admin = req.user.admin;
-  /* if (!req.user) {
+   res.render('index', {
+     title: 'Robotics Process Automation',
+     name:req.user.fname,
+     admin
+   });
+});
+
+router.get('/devtest', async (req, res) => {
+
+  // Uncomment for development
+  let user = await database.findUser('muddassir.ah@gmail.com');
+  let admin = user.admin;
+  if (!req.user) {
     req.login(user, function (err) {
       if (err) { return next(err); }
       return res.render('index', {
         title: 'Robotics Process Automation',
-        //name:req.user.fname
         name: 'test',
         admin
       });
     });
-  } */
+  }
    res.render('index', {
      title: 'Robotics Process Automation',
      name:req.user.fname,

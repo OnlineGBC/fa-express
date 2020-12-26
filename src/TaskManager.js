@@ -2,13 +2,13 @@ const { database } = require('../container');
 
 const tasks = [];
 
-const add = async (task,title,logs,uid) => {
+const add = async (task,title,uid) => {
   console.log("Saving Job");
-  const job = await database.saveJob(title,logs,uid);
+  const job = await database.saveJob(title,uid);
   const id = job.id;
 
   // Save job id to each log
-  await database.updateLogsWithJob(id,logs);
+ // await database.updateLogsWithJob(id,logs);
   const taskId = "job_"+id;
   tasks[taskId] = task;
   return id;
@@ -28,10 +28,15 @@ const remove = async (id) => {
   return;
 }
 
+const update = (id,task) => {
+  tasks['job_'+id] = task;
+}
+
 
 module.exports = {
   add,
   get,
   remove,
+  update,
   tasks
 };

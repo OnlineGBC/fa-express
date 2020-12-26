@@ -16,6 +16,18 @@ class Mailer {
     });
     console.log('Message sent: %s', info.messageId);
   }
+
+  async sendMailAttachment(path, emailAddress) {
+
+    const transporter = nodemailer.createTransport(config.smtp);
+    const info = await transporter.sendMail({
+      from: config.emailFrom, // sender address
+      to: emailAddress, // list of receivers
+      subject: 'Logs for recent actions performed', // Subject line
+      html: `<a href="${path}">Download Logs</a>`
+    });
+    console.log('Message sent: %s', info.messageId);
+  }
 }
 
 module.exports = Mailer;

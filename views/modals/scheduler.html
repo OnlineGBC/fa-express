@@ -9,25 +9,15 @@
           <div class="main-form">
             <div class="item">
               <label for="ref_num">Reference Number</label>
-              <input
-                  type="text"
-                  id="ref_num"
-                  name="ref_num"
-                  class="form-control"
-              />
+              <input type="text" id="ref_num" name="ref_num" class="form-control" />
             </div>
             <div class="item">
               <label>Do you want to receive an email with the logs of these Actions?</label>
               <div class="radio">
                 <input id="send-email" type="radio" name="send-email" value="1" checked>
                 <label style="width: 100%;">
-                  <input
-                      type="text"
-                      id="email"
-                      name="email"
-                      class="form-control"
-                      onfocus="$('#send-email').click()"
-                      placeholder="Yes (Enter email here)"/>
+                  <input type="text" id="email" name="email" class="form-control" onfocus="$('#send-email').click()"
+                    placeholder="Yes (Enter email here)" />
                 </label>
               </div>
               <div class="radio">
@@ -40,37 +30,22 @@
             </div>
             <div class="item">
               <label for="schedule">When to start change</label>
-              <select
-                  id="schedule"
-                  name="schedule"
-                  class="form-control"
-                  onchange="showFields(this.value)">
+              <select id="schedule" name="schedule" class="form-control" onchange="showFields(this.value)">
                 <option value="immediate" selected>Immediate</option>
                 <option value="specified_time">At specified time</option>
+                <option value="periodic">Periodic</option>
               </select>
             </div>
             <div class="hidden_fields">
               <div class="item">
                 <p>Date of change</p>
-                <input
-                    id="date"
-                    class="form-control"
-                    autocomplete="off"
-                    placeholder="mm/dd/yyyy"
-                    name="date"
-                />
+                <input id="date" class="form-control" autocomplete="off" placeholder="mm/dd/yyyy" name="date" />
                 <span class="glyphicon glyphicon-calendar"></span>
               </div>
               <div class="item">
                 <p>Time of change</p>
                 <div class="flex-box">
-                  <input
-                      id="time"
-                      class="form-control"
-                      autocomplete="off"
-                      name="time"
-                      placeholder="hh:mm"
-                  />
+                  <input id="time" class="form-control" autocomplete="off" name="time" placeholder="hh:mm" />
                   <select id="format" name="format">
                     <option value="am">AM</option>
                     <option value="pm">PM</option>
@@ -81,8 +56,20 @@
                 </div>
               </div>
             </div>
+            <div class="periodic_fields">
+              <div class="item">
+                <label>Month: </label>
+                Every <input type="text" id="p_value" value="" />
+                <select id="p_context" style="width:80px">
+                  <option value="minute">Minute(s)</option>
+                  <option value="hour">Hour(s)</option>
+                  <option value="day">Day(s)</option>
+                  <option value="month">Month(s)</option>
+                </select>
+              </div>
+            </div>
             <p class="error-message" style="color: red;"></p>
-            <input type="hidden" id="task_name" name="task_name" value=""/>
+            <input type="hidden" id="task_name" name="task_name" value="" />
           </div>
         </div>
         <div class="modal-footer">
@@ -102,9 +89,24 @@
     if (value === 'immediate') {
       $('.hidden_fields')
         .hide();
-    } else {
+      $('.periodic_fields')
+        .hide();
+    }
+    else if (value == 'periodic') {
       $('.hidden_fields')
         .show();
+      $('.periodic_fields')
+        .show();
+    }
+    else {
+      $('.hidden_fields')
+        .show();
+      $('.periodic_fields')
+        .hide();
     }
   }
+
+  /*  function select_single_option(field,value){
+     $("#"+field).val(value);
+   } */
 </script>

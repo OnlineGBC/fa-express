@@ -36,14 +36,20 @@ $("#scheduled-jobs").on("click", () => {
                 var logs = job.logs;
                 tableContent += `<div class="job-item" data-id="${id}" onclick="showFields_r(${id})"><p>Job Ref#: ` + title + '</p>';
                 tableContent += '<table class="jobsTable table-custom"><thead>';
-                tableContent += '<th>ScriptName</th><th>HostName</th><th>Scheduled Date/Time</th>';
+                tableContent += '<th>ScriptName</th><th>HostName</th><th>Scheduled Date/Time</th><th>Status</th>';
                 tableContent += '</thead>';
                 tableContent += '<tbody>';
                 logs.forEach(function (item) {
                     tableContent += '<tr>';
                     tableContent += '<td>' + item['ScriptName'] + '</td>';
                     tableContent += '<td>' + item['HostName'] + '</td>';
-                    tableContent += '<td>' + item['DateScheduled'] + ' ' + item['TimeScheduled'] + '</td>';
+                    if (item['DateScheduled'] == null) {
+                        tableContent += '<td>Periodic</td>';
+                    }
+                    else {
+                        tableContent += '<td>' + item['DateScheduled'] + ' ' + item['TimeScheduled'] + '</td>';
+                    }
+                    tableContent += '<td>'+item['Status']+'</td>';
                     tableContent += '</tr>';
                 })
                 tableContent += '</tbody></table></div>';
@@ -147,4 +153,32 @@ function cancelJob() {
     });
 
     return false;
+}
+
+function showPeriodic(id) {
+    $.ajax({
+        url: "/api/periodic",
+        type: "POST",
+        data: JSON.stringify({
+            id
+        }),
+        dataType: "json",
+        contentType: "application/json",
+        success: (data) => {
+            $.alert({
+                columnClass: 'col-md-6',
+                type: "blue",
+                title: "<h3>Job Schedule Details</h3>",
+                content: "<h4>The job is scheduled to run:<br><br>" + data + "</h4>"
+            });
+            console.log(data);
+        },
+        error: (data) => {
+            $.alert({
+                type: "error",
+                title: "Failed",
+                content: "Failed to get details"
+            });
+        }
+    })
 }
