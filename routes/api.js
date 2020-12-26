@@ -58,7 +58,7 @@ router.get('/timezones', (req, res) => {
 });
 
 router.get('/logs/', (req, res) => {
-  database.logsModel.findAll({
+  try{database.logsModel.findAll({
     attributes: ['id', 'uid', 'ref_num', 'CFN', 'IFN', 'SID', 'CustName', 'HostName',
       [Sequelize.fn('concat', Sequelize.col('DateGenerated'), ' ', Sequelize.col('TimeGenerated')), 'DateGenerated'],
       [Sequelize.fn('concat', Sequelize.col('DateScheduled'), ' ', Sequelize.col('TimeScheduled')), 'DateScheduled'],
@@ -73,7 +73,18 @@ router.get('/logs/', (req, res) => {
   })
     .then((result) => {
       res.json({ data: result });
-    });
+      console.log("Successfully sent response!")
+    })
+    .catch((e)=>{
+      console.log("An error occured.. redirecting...");
+      console.log(e)
+      res.redirect('/login')
+    })
+  } catch(e) {
+    console.log("An error occured while fetching logs");
+    console.log(e);
+    res.status(400).json({msg:"Unauthorized!"})
+  }
 });
 
 router.get('/getUid', (req, res) => {

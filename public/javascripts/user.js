@@ -896,6 +896,12 @@ $(document).ready(() => {
     $(".hidden_fields").show();
   }
 
+
+  $("#log-table").on('error.dt', function(){
+    console.log("An error occured")
+    window.location.href='/login';
+  })
+
   $("#log-table").css("width", "100%");
   $("#log-table").DataTable({
     responsive: true,
@@ -907,7 +913,17 @@ $(document).ready(() => {
       [10, 25, 50, -1],
       [10, 25, 50, /* 100, */ "All"]
     ],
-    ajax: "/api/logs/",
+    ajax: {
+      "method" : "GET",
+     "url" : "/api/logs/",
+     error: function(xhr,error,code){
+       console.log("AN ERROR OCCURED");
+       window.alert("Please login to continue!")
+       window.location.href = '/login';
+     }
+    },
+
+    
     columns: [
       { data: "id" },
       { data: "HostName" },
