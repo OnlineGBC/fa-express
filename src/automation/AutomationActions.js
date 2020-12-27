@@ -3,6 +3,7 @@ const { promisify } = require("util");
 const childProcess = require("child_process");
 const utils = require("../utils");
 const fs = require('fs');
+const os = require('os');
 
 const { spawn } = childProcess;
 const exec = promisify(childProcess.exec);
@@ -221,7 +222,8 @@ class AutomationActions {
       );
       // Dispatch mail
       if (emailAddress) {
-        var fullUrl = req.protocol + '://' + req.get('host') + '/logs/'+logFileName;
+        console.log(os.hostname())
+        var fullUrl = req.protocol + '://' + os.hostname() + '/logs/'+logFileName;
         this.mailer.sendMailAttachment(fullUrl, emailAddress).catch(console.error);
       }
 
