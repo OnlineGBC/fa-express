@@ -3,7 +3,19 @@ const socket = io.connect();
 let table;
 let timeZones;
 const logsTable = $("#status-box").DataTable({
-  ajax: '/api/logs',
+  ajax: {
+    type: "GET",
+    url: '/api/logs',
+    error: function (xhr, error, code)
+    {
+        console.log("An error occured...");
+window.alert("Please login to continue!");
+        window.location.href="/login";
+    }
+
+
+
+  },
   responsive: true,
   paginate: true,
   rowId: "id",
