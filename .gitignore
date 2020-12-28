@@ -10,7 +10,7 @@ null
 
 ### Node template
 # Logs
-logs
+logs/*
 *.log
 npm-debug.log*
 /.env
