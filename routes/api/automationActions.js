@@ -2,7 +2,6 @@ const express = require("express");
 const { automationActions } = require("../../container");
 var scheduler = require('node-schedule-tz');
 const TaskManager = require('../../src/TaskManager');
-
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -30,7 +29,7 @@ router.post("/", async (req, res) => {
   const taskId = await TaskManager.add(task, reference, req.user.id);
 
   if (periodicString) {
-    const periodic = await automationActions.database.createPeriodic(periodicString,p_value,p_context);
+    const periodic = await automationActions.database.createPeriodic(periodicString, p_value, p_context);
     periodicId = periodic.id;
   }
   console.log("TaskId = " + taskId);
@@ -58,8 +57,7 @@ router.post("/", async (req, res) => {
     else {
 
       // Handle periodic task
-
-      var task = scheduler.scheduleJob("Job1", timeString, timezone, async function () {
+      var task = scheduler.scheduleJob("Job1", timeString , timezone, async function () {
         console.log('starting task');
         await beginExecution();
         console.log("Execution complete" + taskId);
@@ -67,8 +65,8 @@ router.post("/", async (req, res) => {
         logIds = await createLogs(req.user.id);
       });
     }
-    
-    TaskManager.update(taskId,task);
+
+    TaskManager.update(taskId, task);
   }
   else {
     beginExecution();

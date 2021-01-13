@@ -137,10 +137,10 @@ router.post('/reschedule', async (req, res) => {
   if(periodicData != null){
     let p_context = periodicData.context;
     let p_value = periodicData.value;
-    let minute = (p_context == 'minute') ? theDate.getMinutes() + '/' + p_value : '*';
-    let hour = (p_context == 'hour') ? theDate.getHours() + '/' + p_value : '*';
-    let day = (p_context == 'day') ? theDate.getDate() + '/' + p_value : '*';
-    let month = (p_context == 'month') ? (theDate.getMonth() + 1) + '/' + p_value : '*';
+    let minute = (p_context == 'minute') ? createRange('0-59',theDate.getMinutes(),p_value) : '*';
+    let hour = (p_context == 'hour') ? createRange('0-23',theDate.getHours(),p_value) : '*';
+    let day = (p_context == 'day') ? '*/' + p_value : '*';
+    let month = (p_context == 'month') ? '*/' + p_value : '*';
     cronString = minute + ' ' + hour + ' ' + day + ' ' + month + " *";
     console.log("Periodic job found");
   }
@@ -181,4 +181,26 @@ router.post('/periodic', async (req,res) => {
   });
   res.json(details);
 })
+
+function createRange(range, start, step) {
+  step = parseInt(step);
+  cron = start;
+  val = start;
+  range = range.split("-");
+  limit = parseInt(range[1]) + 1;
+  while (val <= parseInt(range[1])) {
+      val += step;
+      if (val == limit) {
+          val = 0;
+      }
+      if (val == start) {
+          break;
+      }
+      if (val >= limit) {
+          val = (val) - limit;
+      }
+      cron += "," + val;
+  }
+  return cron;
+}
 module.exports = router;

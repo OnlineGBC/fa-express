@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
             primaryKey: true,
         },
         uid: DataTypes.INTEGER,
-        title: DataTypes.STRING(20)
+        title: DataTypes.STRING(20),
+        data: DataTypes.TEXT
     }
 );
