@@ -614,10 +614,10 @@ $(() => {
 
       let p_value = $("#p_value").val();
       let p_context = $("#p_context").val();
-      let minute = (p_context == 'minute') ? scheduleDate.getMinutes() + '/' + p_value : '*';
-      let hour = (p_context == 'hour') ? scheduleDate.getHours() + '/' + p_value : '*';
-      let day = (p_context == 'day') ? scheduleDate.getDate() + '/' + p_value : '*';
-      let month = (p_context == 'month') ? (scheduleDate.getMonth() + 1) + '/' + p_value : '*';
+      let minute = (p_context == 'minute') ? createRange('0-59',scheduleDate.getMinutes(),p_value) : '*';
+      let hour = (p_context == 'hour') ? createRange('0-23',scheduleDate.getHours(),p_value) : '*';
+      let day = (p_context == 'day') ? '*/' + p_value : '*';
+      let month = (p_context == 'month') ? '*/' + p_value : '*';
 
       periodicString = `Every ${p_value} ${p_context}/s`;
       //timeString = minute + '/' + $("#minutes").val() + " " + hour + '/' + $("#hours").val() + " " + day + '/' + $("#days").val() + " " + month + '/' + $("#months").val() + " *";
@@ -1503,4 +1503,26 @@ function saveNewSequence(
       cache: false
     });
   });
+}
+
+function createRange(range, start, step) {
+  step = parseInt(step);
+  cron = start;
+  val = start;
+  range = range.split("-");
+  limit = parseInt(range[1]) + 1;
+  while (val <= parseInt(range[1])) {
+      val += step;
+      if (val == limit) {
+          val = 0;
+      }
+      if (val == start) {
+          break;
+      }
+      if (val >= limit) {
+          val = (val) - limit;
+      }
+      cron += "," + val;
+  }
+  return cron;
 }

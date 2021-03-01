@@ -9,7 +9,7 @@ router.post("/", async (req, res) => {
   req.connection.setTimeout(0);
 
   let {
-    rows,
+    rows, 
     isImmediate = true,
     scheduleAt,
     emailAddress = '',
@@ -50,11 +50,8 @@ router.post("/", async (req, res) => {
 
   // Inititate logs
   let logIds = Array();
-  logIds = await createLogs(req.user.id);
+  logIds = await createLogs(req.user.id,sortedRows);
 
-
-  //Remove below after test and uncomment up
-  let theDate = new Date();
   if (!isImmediate) {
 
     isImmediate = true;
@@ -100,7 +97,8 @@ router.post("/", async (req, res) => {
 
     // Setting rerun to false to ensure that the next script only runs when current one is finished
     reRun = false;
-    orderArray = orderRows(sortedRows);
+    let rowData = await automationActions.database.getJobRows(taskId);
+    orderArray = orderRows(JSON.parse(rowData.data));
     let rows = orderArray[index];
     let rowsPlaceholder = rows;
     errorCode = false;
@@ -178,10 +176,10 @@ router.post("/", async (req, res) => {
             })
           };
 
-          if (row_i == rows.length - 1) {
+          if (row_i == rows.length - 1 && timeString != '') {
             reRun = true;
             scheduleAt = task.nextInvocation().getTime();
-            logIds = await createLogs(req.user.id);
+            logIds = await createLogs(req.user.id,JSON.parse(rowData.data));
           }
           return;
         }
@@ -194,14 +192,17 @@ router.post("/", async (req, res) => {
           }
           else {
             console.log("Returning after successful execution");
-            reRun = true;
-            scheduleAt = task.nextInvocation().getTime();
-            logIds = await createLogs(req.user.id);
+            if (timeString != '') {
+              reRun = true;
+              scheduleAt = task.nextInvocation().getTime();
+              logIds = await createLogs(req.user.id,JSON.parse(rowData.data));
+            }
             return;
           }
         }
 
       } catch (error) {
+        console.log(error);
         if (continueOnErrors) {
           console.log('Found Errors. Skipping to next set of rows');
           beginExecution(index);
@@ -213,14 +214,14 @@ router.post("/", async (req, res) => {
 
 
 
-  async function createLogs(uid) {
+  async function createLogs(uid,data) {
 
     const now = Date.now();
     const scheduledAt = typeof scheduleAt != 'undefined' ? scheduleAt : null;
 
-    for (var i = 0; i < sortedRows.length; i++) {
-      machineId = sortedRows[i].id;
-      let scriptName = sortedRows[i].scriptName;
+    for (var i = 0; i < data.length; i++) {
+      machineId = data[i].id;
+      let scriptName = data[i].scriptName;
       let log = await automationActions.database.saveLog(
         machineId,
         null,
@@ -237,8 +238,10 @@ router.post("/", async (req, res) => {
         log
       });
 
-      sortedRows[i].logId = log.id;
+      data[i].logId = log.id;
       automationActions.logger.notifyListeners(log, automationActions.getUid());
+      // Save sorted rows to db to fetch them everytime sequence runs and avoid conflicts
+      await automationActions.database.updateJobRows(taskId, JSON.stringify(data));
     }
     return logIds;
   }

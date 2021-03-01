@@ -85,6 +85,21 @@ class Database {
     return;
   }
 
+  async updateJobRows(id,data){
+    return this.jobsModel.update({data},{
+      where: {
+        id
+      }
+    })
+  }
+
+  async getJobRows(id){
+    return this.jobsModel.findOne({
+      attributes: { exclude: ['title'] },
+      where:{id}
+    })
+  }
+
   updateLogsWithJob(jobId, logs) {
     const logIds = Array();
     logs.forEach(entry => {
